@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Marlene V. Euchenhofer — Contrail Research</title>
+  <link rel="stylesheet" href="style.css" />
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet" />
+  <!-- Leaflet -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════════════
+       SKY CANVAS — animated contrails & clouds
+  ════════════════════════════════════════════════ -->
+  <canvas id="skyCanvas"></canvas>
+
+  <!-- ═══════════════════════════════════════════════
+       NAVIGATION
+  ════════════════════════════════════════════════ -->
+  <nav id="navbar">
+    <div class="nav-left">
+      <span class="nav-logo">MVE</span>
+      <a href="https://www.linkedin.com/in/marlene-euchenhofer/" target="_blank" rel="noopener noreferrer" class="nav-linkedin" aria-label="LinkedIn">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+      </a>
+      <button id="igTrigger" class="nav-instagram" aria-label="Instagram">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/></svg>
+      </button>
+    </div>
+    <ul>
+      <li><a href="#hero">Home</a></li>
+      <li><a href="#project">Research</a></li>
+      <li><a href="#updates">Updates</a></li>
+      <li><a href="#about">About</a></li>
+      <li><a href="#journey">Journey</a></li>
+    </ul>
+  </nav>
+
+  <!-- ═══════════════════════════════════════════════
+       HERO
+  ════════════════════════════════════════════════ -->
+  <section id="hero">
+    <div class="hero-content">
+      <p class="hero-eyebrow">AI for Research Pilot — Summer 2026</p>
+      <h1><em>Multi-sensor framework for enhanced<br>contrail observation capabilities</em>Marlene V. Euchenhofer</h1>
+      <p class="hero-sub">PhD Student · MIT AeroAstro · Laboratory for Aviation and the Environment</p>
+    </div>
+    <!-- Photo strip anchored to hero bottom -->
+    <div class="photo-strip-section hero-strip">
+      <div class="strip-track-wrap">
+        <div class="strip-track" id="stripTrack">
+          <div class="strip-item"><img src="assets/images/banner/contrails1.JPEG" alt="Contrail forming over Esslingen am Neckar" /><span class="strip-caption">Contrail forming over Esslingen am Neckar</span></div>
+          <div class="strip-item"><img src="assets/images/banner/LAE_sky_cam.jpg" alt="LAE sky camera capturing a cloudy day with contrails" /><span class="strip-caption">LAE sky camera capturing a cloudy day with contrails</span></div>
+          <div class="strip-item"><img src="assets/images/banner/VIIRS_MIT_annotated.jpg" alt="False color image of contrail-heavy VIIRS overpass over Massachusetts" /><span class="strip-caption">False color image of contrail-heavy VIIRS overpass over Massachusetts</span></div>
+          <div class="strip-item"><img src="assets/images/banner/contrails2.JPEG" alt="Contrails in the sky" /><span class="strip-caption">Persistent contrails</span></div>
+          <div class="strip-item"><img src="assets/images/banner/lidarprofil.jpg" alt="Lidar backscatter profile" /><span class="strip-caption">Lidar backscatter profile</span></div>
+          <div class="strip-item"><img src="assets/images/banner/goes_16_ABI.jpg" alt="GOES-16 ABI satellite imagery" /><span class="strip-caption">GOES-16 ABI</span></div>
+          <div class="strip-item"><img src="assets/images/banner/contrails3.JPEG" alt="Contrail spreading" /><span class="strip-caption">Contrail spreading</span></div>
+          <div class="strip-item"><img src="assets/images/banner/earthcarelidar.jpg" alt="EarthCARE lidar cross-section" /><span class="strip-caption">EarthCARE lidar</span></div>
+          <div class="strip-item"><img src="assets/images/banner/goes_abi_ash.jpg" alt="False color GOES ABI image over the Southern US" /><span class="strip-caption">False color GOES ABI image over the Southern US</span></div>
+          <div class="strip-item"><img src="assets/images/banner/micropulselidar.jpeg" alt="Micro-pulse lidar instrument" /><span class="strip-caption">Micro-pulse lidar</span></div>
+          <div class="strip-item"><img src="assets/images/banner/all_sky_imager.jpeg" alt="All-sky imager" /><span class="strip-caption">All-sky imager</span></div>
+          <div class="strip-item"><img src="assets/images/banner/LAE_sky_cam_1115.jpg" alt="LAE sky camera capturing a clear day with some contrails" /><span class="strip-caption">LAE sky camera capturing a clear day with some contrails</span></div>
+          <div class="strip-item"><img src="assets/images/banner/goes17_abi.jpeg" alt="GOES-17 ABI Full Disk image" /><span class="strip-caption">GOES-17 ABI Full Disk image</span></div>
+          <div class="strip-item"><img src="assets/images/banner/windborne.jpg" alt="WindBorne radiosonde balloon" /><span class="strip-caption">WindBorne radiosonde</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════
+       PROJECT
+  ════════════════════════════════════════════════ -->
+  <section id="project" class="section section-tinted">
+    <div class="container">
+      <div class="section-label">Research</div>
+      <h2 class="section-title">Multi-Sensor Framework for Enhanced<br><em>Contrail Observation Capabilities</em></h2>
+
+      <div class="project-intro">
+        <p>
+          Contrails — those white lines aircraft trace across the sky — are more than a visual curiosity. They are a significant component of aviation's climate impact, and understanding atmospheric conditions is key to their mitigation.
+        </p>
+      </div>
+
+      <div class="cards-grid">
+
+        <div class="card" data-delay="0">
+          <div class="card-icon">☁</div>
+          <h3>The Problem</h3>
+          <p>
+            Persistent contrails form in <em>ice-supersaturated</em> atmospheric layers and can last for hours, interacting with Earth's radiative budget. While individual contrails can be cooling or warming, their net effect is warming — making them a major component of aviation's total climate footprint.
+          </p>
+        </div>
+
+        <div class="card" data-delay="150">
+          <div class="card-icon">🔀</div>
+          <h3>A Promising Solution</h3>
+          <p>
+            <em>Contrail avoidance</em> — small vertical flight deviations to skirt ice-supersaturated layers — can dramatically reduce persistent contrail formation. The additional fuel burn is small compared to the potential climate benefit. But it requires confident, real-time knowledge of atmospheric conditions.
+          </p>
+        </div>
+
+        <div class="card" data-delay="300">
+          <div class="card-icon">🔭</div>
+          <h3>The Challenge</h3>
+          <p>
+            Current contrail simulations show inconsistencies — between models, and between models and observations. Observational data struggles with spatial/temporal trade-offs, and confidently identifying the <em>absence</em> of a contrail is as hard as detecting one.
+          </p>
+        </div>
+
+        <div class="card" data-delay="450">
+          <div class="card-icon">🛰</div>
+          <h3>This Project</h3>
+          <p>
+            I am building a framework that fuses multiple observational platforms — geostationary satellites (GOES ABI), low-Earth orbit imagers (VIIRS), ground cameras, lidars (MPLNET, EarthCARE), and radiosondes (GRUAN, WindBorne) — into a unified 4D dataset. Combined with flight attribution, contrails can be identified, linked across platforms, and tracked over time.
+          </p>
+        </div>
+
+      </div>
+
+      <div class="sensors-strip">
+        <div class="sensors-label">Sensors & Platforms</div>
+        <div class="sensors-list">
+          <div class="sensor-item" data-sensor-img="assets/images/banner/goes_16_ABI.jpg" data-sensor-caption="GOES-16 ABI — Geostationary satellite imagery">
+            <span class="sensor-dot geo"></span>
+            <span>GOES ABI</span>
+            <small>Geostationary</small>
+          </div>
+          <div class="sensor-item" data-sensor-img="assets/images/banner/VIIRS_MIT_annotated.jpg" data-sensor-caption="False color image of contrail-heavy VIIRS overpass over Massachusetts">
+            <span class="sensor-dot leo"></span>
+            <span>VIIRS</span>
+            <small>Low-Earth Orbit</small>
+          </div>
+          <div class="sensor-item" data-sensor-img="assets/images/banner/LAE_sky_cam.jpg" data-sensor-caption="LAE sky camera capturing a cloudy day with contrails">
+            <span class="sensor-dot ground"></span>
+            <span>Sky Cameras</span>
+            <small>Ground-based</small>
+          </div>
+          <div class="sensor-item" data-sensor-img="assets/images/banner/micropulselidar.jpeg" data-sensor-caption="Micro-pulse lidar">
+            <span class="sensor-dot lidar"></span>
+            <span>MPLNET</span>
+            <small>Lidar Network</small>
+          </div>
+          <div class="sensor-item" data-sensor-img="assets/images/banner/earthcarelidar.jpg" data-sensor-caption="EarthCARE lidar">
+            <span class="sensor-dot lidar"></span>
+            <span>EarthCARE</span>
+            <small>ESA Lidar/Radar</small>
+          </div>
+          <div class="sensor-item" data-sensor-img="assets/images/banner/windborne.jpg" data-sensor-caption="WindBorne radiosonde">
+            <span class="sensor-dot sonde"></span>
+            <span>Radiosondes</span>
+            <small>GRUAN / WindBorne</small>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════
+       UPDATES & REFLECTIONS
+  ════════════════════════════════════════════════ -->
+  <section id="updates" class="section">
+    <div class="container">
+      <div class="section-label">Weekly Log</div>
+      <h2 class="section-title">Updates &amp; <em>Reflections</em></h2>
+      <p class="section-sub">A running log of weekly progress and reflections on the research process.</p>
+
+      <div class="updates-grid">
+
+        <div class="update-card" data-delay="0">
+          <div class="update-meta">
+            <span class="update-type update-type--update">Project Update</span>
+            <span class="update-date">June 5, 2026</span>
+          </div>
+          <h3>Week 1</h3>
+          <p>This website is now up and running!</p>
+          <a href="updates.html#update-20260605" class="update-link">Read more →</a>
+        </div>
+
+        <div class="update-card" data-delay="150">
+          <div class="update-meta">
+            <span class="update-type update-type--reflection">Reflection</span>
+            <span class="update-date">June 5, 2026</span>
+          </div>
+          <h3>Week 1 — Workflow</h3>
+          <p>First impressions working with pi and Claude Sonnet to build this site from scratch.</p>
+          <a href="updates.html#reflection-20260605" class="update-link">Read more →</a>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════
+       ABOUT
+  ════════════════════════════════════════════════ -->
+  <section id="about" class="section">
+    <div class="container">
+      <div class="section-label">About</div>
+      <div class="about-grid">
+        <div class="about-photo-wrap">
+          <img src="assets/images/marlene.jpg" alt="Marlene V. Euchenhofer" class="about-photo" />
+        </div>
+        <div class="about-text">
+          <h2><em>Hi, I'm Marlene.</em></h2>
+          <p>
+            Originally from <strong>Esslingen am Neckar, Germany</strong>, I grew up with a curiosity about how things worked and how they could be improved. I graduated with a B.S. in Aerospace Engineering from the <strong>University of Stuttgart</strong> in 2023, having spent an exchange semester at <strong>KTH Royal Institute of Technology</strong> in Stockholm, where my enthusiasm for reducing aviation's climate impact took off.
+          </p>
+          <p>
+            I came to <strong>MIT</strong> in 2023, received my S.M. in Aeronautics and Astronautics in 2025, and am now working towards my PhD in the <strong>Laboratory for Aviation and the Environment</strong>, advised by Prof. Ian A. Waitz.
+          </p>
+          <p>
+            My research focuses on improving our capabilities to observe contrails — with the goal of better verifying contrail predictions and supporting observation-based contrail avoidance. When I'm not in the lab, you'll find me running along the Charles, playing guitar, or cooking.
+          </p>
+          <div class="about-tags">
+            <span>✈ Aviation Climate Impact</span>
+            <span>🛰 Remote Sensing</span>
+            <span>🇩🇪 → 🇸🇪 → 🇺🇸</span>
+            <span>🎸 Guitar</span>
+            <span>🏃 Running</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="journey" class="section">
+    <div class="container">
+      <div class="section-label">Journey</div>
+      <h2 class="section-title"><span id="tracingTrigger" title="✈">Tracing</span> a Path Through the Sky</h2>
+      <p class="section-sub">Click a milestone on the timeline to fly to it on the map.</p>
+
+      <div class="journey-layout">
+
+        <!-- Timeline overlay -->
+        <div class="timeline" id="timeline">
+          <button class="timeline-close" id="timelineClose" aria-label="Close timeline">✕</button>
+
+          <div class="timeline-item" data-lat="48.7405" data-lng="9.3121" data-zoom="9">
+            <div class="timeline-dot"></div>
+            <div class="timeline-content">
+              <span class="timeline-date">Fall 2000</span>
+              <h4>Born in Esslingen am Neckar</h4>
+              <p>Growing up in the Neckar Valley, Germany, with the Swabian Alb in the background.</p>
+            </div>
+          </div>
+
+          <div class="timeline-item" data-lat="48.7405" data-lng="9.3121" data-zoom="11">
+            <div class="timeline-dot"></div>
+            <div class="timeline-content">
+              <span class="timeline-date">Summer 2019</span>
+              <h4>High School Graduation</h4>
+              <p>Graduated from Gymnasium Plochingen — and set sights on aerospace engineering.</p>
+            </div>
+          </div>
+
+          <div class="timeline-item" data-lat="48.7453" data-lng="9.1055" data-zoom="13">
+            <div class="timeline-dot"></div>
+            <div class="timeline-content">
+              <span class="timeline-date">Fall 2019</span>
+              <h4>University of Stuttgart</h4>
+              <p>Began B.S. in Aerospace Engineering at Campus Vaihingen.</p>
+            </div>
+          </div>
+
+          <div class="timeline-item" data-lat="59.3471" data-lng="18.0724" data-zoom="12">
+            <div class="timeline-dot"></div>
+            <div class="timeline-content">
+              <span class="timeline-date">August 2022</span>
+              <h4>KTH Royal Institute of Technology</h4>
+              <p>Exchange semester in Stockholm, Sweden — where the passion for aviation's climate impact ignited.</p>
+            </div>
+          </div>
+
+          <div class="timeline-item" data-lat="48.7726" data-lng="9.2034" data-zoom="13">
+            <div class="timeline-dot"></div>
+            <div class="timeline-content">
+              <span class="timeline-date">February 2023</span>
+              <h4>Bachelor Thesis — H2FLY GmbH</h4>
+              <p>Worked with hydrogen fuel cell startup H2FLY in Untertürkheim on sustainable aviation.</p>
+            </div>
+          </div>
+
+          <div class="timeline-item" data-lat="48.7453" data-lng="9.1055" data-zoom="12">
+            <div class="timeline-dot"></div>
+            <div class="timeline-content">
+              <span class="timeline-date">Summer 2023</span>
+              <h4>B.S. Aerospace Engineering</h4>
+              <p>Defended Bachelor Thesis and graduated from the University of Stuttgart.</p>
+            </div>
+          </div>
+
+          <div class="timeline-item" data-lat="42.3601" data-lng="-71.0942" data-zoom="14">
+            <div class="timeline-dot"></div>
+            <div class="timeline-content">
+              <span class="timeline-date">Fall 2023</span>
+              <h4>MIT — Laboratory for Aviation and the Environment</h4>
+              <p>Began graduate school at MIT in Cambridge, MA, joining the Laboratory for Aviation and the Environment, first under Sebastian Eastham and then under Prof. Ian Waitz.</p>
+            </div>
+          </div>
+
+          <div class="timeline-item" data-lat="42.3601" data-lng="-71.0942" data-zoom="14">
+            <div class="timeline-dot"></div>
+            <div class="timeline-content">
+              <span class="timeline-date">Spring 2025</span>
+              <h4>S.M. in Aeronautics and Astronautics</h4>
+              <p>Received Master of Science from MIT.</p>
+            </div>
+          </div>
+
+          <div class="timeline-item active" data-lat="42.3601" data-lng="-71.0942" data-zoom="14">
+            <div class="timeline-dot"></div>
+            <div class="timeline-content">
+              <span class="timeline-date">Summer 2025</span>
+              <h4>PhD Research — Contrail Observation</h4>
+              <p>Working on the multi-sensor contrail observation framework.</p>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Map -->
+        <div class="map-wrap">
+          <button class="map-toggle-btn" id="timelineToggle" aria-label="Toggle milestones">☰ Milestones</button>
+          <div id="journeyMap"></div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════
+       FOOTER
+  ════════════════════════════════════════════════ -->
+  <footer>
+    <p>Marlene V. Euchenhofer · MIT Laboratory for Aviation and the Environment · 2026</p>
+    <p class="footer-hint"><!-- 👀 try typing "contrail" --></p>
+  </footer>
+
+  <!-- LIGHTBOX -->
+  <div id="lightbox" aria-modal="true" role="dialog">
+    <button id="lbClose" aria-label="Close">&times;</button>
+    <button id="lbPrev" aria-label="Previous">&#8249;</button>
+    <button id="lbNext" aria-label="Next">&#8250;</button>
+    <div id="lbImgWrap">
+      <img id="lbImg" src="" alt="" />
+    </div>
+    <span id="lbCaption"></span>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

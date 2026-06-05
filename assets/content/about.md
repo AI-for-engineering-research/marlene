@@ -1,0 +1,5 @@
+__About me:__
+_Name:_ Marlene V. Euchenhofer
+_Role:_ PhD Student and Research Assistent at MIT, Department of Aeronautics and Astronautics, Laboratory for Aviation and the Environment; working with Prof. Ian A. Waitz
+_Small bio:_ Originally from Esslingen am Neckar, Germany, I grew up with a curiosity about how things worked and how they could be improved. I graduated with a B.S. in Aerospace Engineering from the University of Stuttgart in 2023, having spent an exchange semester at KTH Royal Institute of Technology in Stockholm, where my enthusiasm for reducing aviation's climate impact took off. I came to MIT in 2023, received my S.M. in Aeronautics and Astronautics in 2025, and am now working towards my PhD in the Laboratory for Aviation and the Environment, advised by Prof. Ian A. Waitz. When I'm not in the lab, you'll find me running along the Charles, playing guitar, or cooking.
+_Research:_ My research focuses on improving our capabilities to observe contrails — with the goal of better verifying contrail predictions and supporting observation-based contrail avoidance.

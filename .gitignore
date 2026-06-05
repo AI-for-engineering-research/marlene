@@ -1,0 +1,5 @@
+# Private reference files — not for publishing
+assets/content/_cv.pdf
+
+# Images — too large for git (25MB+), add manually after cloning
+assets/images/
