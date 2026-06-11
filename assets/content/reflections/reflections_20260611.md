@@ -1,0 +1,6 @@
+- Used my Claude subscription because I burned all my Parley tokens
+- Used Claude directly instead of via the API
+- I liked it so far — Claude always asks before modifying or running something, and I click "yes" but never "always" so I can always see the preview and read the new code or command to follow along. Sometimes I also have the full file open in VS Code for broader context on changes.
+- Working with several terminals at a time helps; I usually move files or set up directories while Claude is thinking.
+- Wednesday early afternoon Claude was super slow, but it got better later in the day.
+- Simon Willison's blog: The first three chapters and 4.1 were very interesting and informative — TDD was especially interesting, and the introduction was generally very useful.

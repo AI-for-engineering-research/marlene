@@ -289,13 +289,15 @@ function hideTimeline() {
   timelineToggle.classList.remove('hidden');
 }
 
-timelineToggle.addEventListener('click', showTimeline);
-timelineClose.addEventListener('click', hideTimeline);
+if (timelineToggle) timelineToggle.addEventListener('click', showTimeline);
+if (timelineClose)  timelineClose.addEventListener('click', hideTimeline);
 
 
 // ═══════════════════════════════════════════
 // 4. JOURNEY MAP (Leaflet)
 // ═══════════════════════════════════════════
+if (document.getElementById('journeyMap') && typeof L !== 'undefined') {
+
 const map = L.map('journeyMap', {
   zoomControl: true,
   scrollWheelZoom: false,
@@ -377,6 +379,8 @@ L.polyline(uniqueCoords, {
 
 // Initial view — Europe/Atlantic to show the journey arc
 map.setView([50, 0], 3);
+
+} // end journeyMap guard
 
 
 // ═══════════════════════════════════════════
