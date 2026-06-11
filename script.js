@@ -248,6 +248,32 @@ animate();
 
 
 // ═══════════════════════════════════════════
+// UPDATES CAROUSEL
+// ═══════════════════════════════════════════
+(function () {
+  const track   = document.getElementById('updatesTrack');
+  const prevBtn = document.getElementById('updatesPrev');
+  const nextBtn = document.getElementById('updatesNext');
+  const dots    = document.querySelectorAll('.carousel-dot');
+  if (!track || !prevBtn || !nextBtn) return;
+
+  const pages = track.querySelectorAll('.updates-carousel-page').length;
+  let current = 0;
+
+  function go(n) {
+    current = Math.max(0, Math.min(n, pages - 1));
+    track.style.transform = `translateX(-${current * 100}%)`;
+    prevBtn.disabled = current === 0;
+    nextBtn.disabled = current === pages - 1;
+    dots.forEach((d, i) => d.classList.toggle('active', i === current));
+  }
+
+  prevBtn.addEventListener('click', () => go(current - 1));
+  nextBtn.addEventListener('click', () => go(current + 1));
+  go(0);
+}());
+
+// ═══════════════════════════════════════════
 // 2. NAVBAR scroll behaviour
 // ═══════════════════════════════════════════
 const navbar = document.getElementById('navbar');

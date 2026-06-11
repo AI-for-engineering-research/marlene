@@ -172,28 +172,65 @@
       <h2 class="section-title">Updates &amp; <em>Reflections</em></h2>
       <p class="section-sub">A running log of weekly progress and reflections on the research process.</p>
 
-      <div class="updates-grid">
+      <div class="updates-carousel">
+        <button class="carousel-btn carousel-btn--prev" id="updatesPrev" aria-label="Previous week">&#8249;</button>
 
-        <div class="update-card" data-delay="0">
-          <div class="update-meta">
-            <span class="update-type update-type--update">Project Update</span>
-            <span class="update-date">June 5, 2026</span>
+        <div class="updates-carousel-wrap">
+          <div class="updates-carousel-track" id="updatesTrack">
+
+            <!-- Week 2 (newest — shown first on the left) -->
+            <div class="updates-carousel-page">
+              <div class="update-card">
+                <div class="update-meta">
+                  <span class="update-type update-type--update">Project Update</span>
+                  <span class="update-date">June 11, 2026</span>
+                </div>
+                <h3>Week 2</h3>
+                <p>Brainstormed the project in detail. Started first spotlight: VIIRS zero-shot detection with <code>mcast</code>.</p>
+                <a href="updates.html#update-20260611" class="update-link">Read more →</a>
+              </div>
+              <div class="update-card">
+                <div class="update-meta">
+                  <span class="update-type update-type--reflection">Reflection</span>
+                  <span class="update-date">June 11, 2026</span>
+                </div>
+                <h3>Week 2 — Workflow</h3>
+                <p>Switched to Claude directly. Working with multiple terminals and reading Simon Willison's blog on agentic engineering.</p>
+                <a href="updates.html#reflection-20260611" class="update-link">Read more →</a>
+              </div>
+            </div>
+
+            <!-- Week 1 -->
+            <div class="updates-carousel-page">
+              <div class="update-card">
+                <div class="update-meta">
+                  <span class="update-type update-type--update">Project Update</span>
+                  <span class="update-date">June 5, 2026</span>
+                </div>
+                <h3>Week 1</h3>
+                <p>This website is now up and running!</p>
+                <a href="updates.html#update-20260605" class="update-link">Read more →</a>
+              </div>
+              <div class="update-card">
+                <div class="update-meta">
+                  <span class="update-type update-type--reflection">Reflection</span>
+                  <span class="update-date">June 5, 2026</span>
+                </div>
+                <h3>Week 1 — Workflow</h3>
+                <p>First impressions working with pi and Claude Sonnet to build this site from scratch.</p>
+                <a href="updates.html#reflection-20260605" class="update-link">Read more →</a>
+              </div>
+            </div>
+
           </div>
-          <h3>Week 1</h3>
-          <p>This website is now up and running!</p>
-          <a href="updates.html#update-20260605" class="update-link">Read more →</a>
         </div>
 
-        <div class="update-card" data-delay="150">
-          <div class="update-meta">
-            <span class="update-type update-type--reflection">Reflection</span>
-            <span class="update-date">June 5, 2026</span>
-          </div>
-          <h3>Week 1 — Workflow</h3>
-          <p>First impressions working with pi and Claude Sonnet to build this site from scratch.</p>
-          <a href="updates.html#reflection-20260605" class="update-link">Read more →</a>
-        </div>
+        <button class="carousel-btn carousel-btn--next" id="updatesNext" aria-label="Next week">&#8250;</button>
+      </div>
 
+      <div class="carousel-dots" id="carouselDots">
+        <span class="carousel-dot active"></span>
+        <span class="carousel-dot"></span>
       </div>
     </div>
   </section>
