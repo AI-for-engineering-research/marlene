@@ -322,9 +322,10 @@ if (timelineClose)  timelineClose.addEventListener('click', hideTimeline);
 // ═══════════════════════════════════════════
 // 4. JOURNEY MAP (Leaflet)
 // ═══════════════════════════════════════════
+let map = null;
 if (document.getElementById('journeyMap') && typeof L !== 'undefined') {
 
-const map = L.map('journeyMap', {
+map = L.map('journeyMap', {
   zoomControl: true,
   scrollWheelZoom: false,
 });
@@ -566,8 +567,9 @@ document.addEventListener('keydown', (e) => {
   let flying = false;
 
   trigger.addEventListener('click', () => {
-    if (flying) return;
+    if (!map || flying) return;
     flying = true;
+    console.log('[easter egg] plane triggered');
 
     // Collect the timeline coords in order
     const items = Array.from(document.querySelectorAll('.timeline-item'));
