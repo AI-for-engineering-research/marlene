@@ -1,0 +1,6 @@
+# @agent - please clean up and make look nicer
+- I really __need to add a research progress & visualizations__ page to my website, especially since I am doing exploratory work this summer, which will (hopefully) mean lots of short bursts of steep progress which require good docuemntation. I'm wondering if I can just give claude a ppt presentation since I already made visualzations there.
+- I am a huge __fan of using the agent to constantly update my READMEs__ - which is how I currently keep track of progress and have both myself and a new agent/new session catch up on what has happened the day before.
+- Yesterday was my first time working in parallel on hex (using Claude via the web interface) to do data downlaoding and pre-processing and local with the agent to discuss the preoject and update the README. Even though I could do it myself, I had the agent even do small updates o teh REAME so I woldn't interupt my flow on hex and still get all my ideas out right away.
+- The new session transcript that I uploaded used the Simon Willison tool Ian shared. A little embarrasing how many typos I make when I type fast in the terminal...
+- __7:1__ - what an energizing match to lead into the new week! 

@@ -35,34 +35,36 @@
         <p class="section-sub">A running log of weekly progress notes and reflections on working with AI tools for research.</p>
       </div>
 
-      <!-- ─── WEEK 1 ─────────────────────────────── -->
-      <div class="update-entry" id="update-20260605">
+      <!-- ─── WEEK 3 ─────────────────────────────── -->
+      <div class="update-entry" id="update-20260616">
         <div class="update-entry-meta">
           <span class="update-type update-type--update">Project Update</span>
-          <span class="update-date">June 5, 2026</span>
+          <span class="update-date">June 16, 2026</span>
         </div>
-        <h2>Week 1</h2>
+        <h2>Week 3</h2>
         <ul>
-          <li>Launch: This website is now up and running!</li>
+          <li>Started adding the local repo for the current summer research spotlight (detecting contrails in VIIRS imagery) to GitHub so I can also keep a clone on hex.</li>
+          <li>Workflow: agentic work in the local clone of the repo; all downloads via the hex clone; download scripts written by me with help from the web version of Claude.</li>
+          <li>Used Claude Sonnet (agentic on local machine) to speed up decision-making — e.g. dividing labeled data, deciding how much data to download.</li>
+          <li>Working on data pre-processing (normalization / standardization), post-processing / tuning (selecting probability threshold of existing ML detection models), and comparing OldModel vs. the new model by Teo.</li>
+          <li>Looking into downloading an additional VIIRS product to use channel I5, which is more similar to one of the ABI channels used for detection.</li>
+          <li>Session transcript — <button class="conv-trigger" onclick="document.getElementById('transcript3Modal').classList.add('open');document.body.style.overflow='hidden'">Read my session transcript</button>.</li>
+          <li>Still need to add a research-progress page to the website to visualize ideas and results.</li>
         </ul>
       </div>
 
-      <div class="update-entry" id="reflection-20260605">
+      <div class="update-entry" id="reflection-20260616">
         <div class="update-entry-meta">
           <span class="update-type update-type--reflection">Reflection</span>
-          <span class="update-date">June 5, 2026</span>
+          <span class="update-date">June 16, 2026</span>
         </div>
-        <h2>Week 1 — Workflow</h2>
+        <h2>Week 3 — Workflow</h2>
         <ul>
-          <li>Started working with pi, and selected Claude Sonnet.</li>
-          <li>Described the AI research pilot and that I need a website; asked lots of questions on what I should provide and gave feedback that I want a folder structure instead of a single growing file with updates; lots of clarifying questions before providing details and information about me.</li>
-          <li>I did a lot of upfront manual writing (.md) to provide information since I wanted the agent to not have to guess information about me.</li>
-          <li>First website pass looked pretty good but I had lots of things I wanted to get tweaked; especially it looked like a website about me but it should be a website about my summer project.</li>
-          <li>One issue I ran into: it wasn't clear to me how to set up the local host web browser so it would stay there.</li>
-          <li>Cool: I used pi to compress images where I wasn't sure if it was able to — I wouldn't have known how to do it myself in a fast way.</li>
-          <li>It struggled to make certain text style adjustments, even when I gave examples of other text that was already in that style. Adjusting placement of some text and the banner took multiple iterations.</li>
-          <li>Making the plane easter egg and Instagram easter egg work also took multiple iterations — from it didn't work at all, to it broke part of the page, to it works but needs to be tweaked, to it finally looking like what I imagined.</li>
-          <li>This was a lot of upfront work — maybe because I pretty much knew how I wanted things — but I think adding things will be fast going forward once the structure is established.</li>
+          <li>I really need to add a <strong>research progress &amp; visualizations</strong> page to my website — especially since I'm doing exploratory work this summer, which will (hopefully) mean lots of short bursts of steep progress that need good documentation. I'm wondering if I can just hand Claude a PowerPoint since I already made visualizations there.</li>
+          <li>I'm a huge <strong>fan of using the agent to constantly update my READMEs</strong> — that's how I currently keep track of progress and let both myself and a new agent or new session catch up on what happened the day before.</li>
+          <li>This week was my first time working in parallel: on hex (using Claude via the web interface) for data downloading and pre-processing, and locally with the agent to discuss the project and update the README. Even though I could do it myself, I had the agent handle small README edits so I wouldn't interrupt my flow on hex — and still got all my ideas out right away.</li>
+          <li>The new session transcript was generated using the Simon Willison tool Ian shared. A little embarrassing how many typos I make when typing fast in the terminal…</li>
+          <li><span id="soccer71" style="cursor:pointer;font-weight:600;border-bottom:1px dashed currentColor;" title="Click me!">7:1</span> — what an energizing match to lead into the new week!</li>
         </ul>
       </div>
 
@@ -99,6 +101,37 @@
           <li>Working with several terminals at a time helps; I usually move files or set up directories while Claude is thinking.</li>
           <li>Wednesday early afternoon Claude was super slow, but it got better later in the day.</li>
           <li>Simon Willison's blog: the first three chapters and 4.1 were very interesting and informative — TDD was especially interesting, and the introduction was generally very useful.</li>
+        </ul>
+      </div>
+
+      <!-- ─── WEEK 1 ─────────────────────────────── -->
+      <div class="update-entry" id="update-20260605">
+        <div class="update-entry-meta">
+          <span class="update-type update-type--update">Project Update</span>
+          <span class="update-date">June 5, 2026</span>
+        </div>
+        <h2>Week 1</h2>
+        <ul>
+          <li>Launch: This website is now up and running!</li>
+        </ul>
+      </div>
+
+      <div class="update-entry" id="reflection-20260605">
+        <div class="update-entry-meta">
+          <span class="update-type update-type--reflection">Reflection</span>
+          <span class="update-date">June 5, 2026</span>
+        </div>
+        <h2>Week 1 — Workflow</h2>
+        <ul>
+          <li>Started working with pi, and selected Claude Sonnet.</li>
+          <li>Described the AI research pilot and that I need a website; asked lots of questions on what I should provide and gave feedback that I want a folder structure instead of a single growing file with updates; lots of clarifying questions before providing details and information about me.</li>
+          <li>I did a lot of upfront manual writing (.md) to provide information since I wanted the agent to not have to guess information about me.</li>
+          <li>First website pass looked pretty good but I had lots of things I wanted to get tweaked; especially it looked like a website about me but it should be a website about my summer project.</li>
+          <li>One issue I ran into: it wasn't clear to me how to set up the local host web browser so it would stay there.</li>
+          <li>Cool: I used pi to compress images where I wasn't sure if it was able to — I wouldn't have known how to do it myself in a fast way.</li>
+          <li>It struggled to make certain text style adjustments, even when I gave examples of other text that was already in that style. Adjusting placement of some text and the banner took multiple iterations.</li>
+          <li>Making the plane easter egg and Instagram easter egg work also took multiple iterations — from it didn't work at all, to it broke part of the page, to it works but needs to be tweaked, to it finally looking like what I imagined.</li>
+          <li>This was a lot of upfront work — maybe because I pretty much knew how I wanted things — but I think adding things will be fast going forward once the structure is established.</li>
         </ul>
       </div>
 
@@ -216,6 +249,26 @@ clearly.</code></pre>
     </div>
   </div>
 
+  <!-- ─── WEEK 3 SESSION TRANSCRIPT MODAL (iframe) ─── -->
+  <div id="transcript3Modal" class="conv-modal" role="dialog" aria-modal="true" aria-labelledby="transcript3ModalTitle" onclick="if(event.target===this){this.classList.remove('open');document.body.style.overflow='';}">
+    <div class="conv-modal-box" style="max-width:900px;width:95vw;">
+      <button class="conv-modal-close" onclick="document.getElementById('transcript3Modal').classList.remove('open');document.body.style.overflow=''" aria-label="Close">&#x2715;</button>
+      <div class="conv-modal-header">
+        <div class="section-label">Session Transcript</div>
+        <h2 id="transcript3ModalTitle">Week 3 Working Session</h2>
+        <p class="conv-modal-date">June 15–16, 2026</p>
+      </div>
+      <div class="conv-modal-body" style="padding:0;overflow:hidden;">
+        <iframe
+          src="assets/content/updates/session_transcript_2026-06-16.html"
+          style="width:100%;height:65vh;border:none;border-radius:0 0 16px 16px;"
+          title="Week 3 session transcript"
+          loading="lazy">
+        </iframe>
+      </div>
+    </div>
+  </div>
+
   <!-- ─── SESSION TRANSCRIPT MODAL ─────────────────── -->
   <div id="transcriptModal" class="conv-modal" role="dialog" aria-modal="true" aria-labelledby="transcriptModalTitle" onclick="if(event.target===this){this.classList.remove('open');document.body.style.overflow='';}">
     <div class="conv-modal-box">
@@ -302,8 +355,56 @@ clearly.</code></pre>
     </div>
   </div>
 
+  <style>
+    @keyframes emojiRain {
+      0%   { transform: translateY(-60px) rotate(0deg);   opacity: 1; }
+      80%  { opacity: 1; }
+      100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
+    }
+    .rain-emoji {
+      position: fixed;
+      top: 0;
+      font-size: 2rem;
+      pointer-events: none;
+      z-index: 9999;
+      animation: emojiRain linear forwards;
+      user-select: none;
+    }
+  </style>
+
   <script src="script.js"></script>
   <script>
+    (function () {
+      const trigger = document.getElementById('soccer71');
+      if (!trigger) return;
+      let running = false;
+
+      trigger.addEventListener('click', () => {
+        if (running) return;
+        running = true;
+
+        const emojis = ['⚽', '🇩🇪', '🇨🇼'];
+        const count  = 60;
+        const duration = 3000; // ms each emoji falls
+
+        for (let i = 0; i < count; i++) {
+          setTimeout(() => {
+            const el = document.createElement('span');
+            el.className = 'rain-emoji';
+            el.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+            el.style.left = (Math.random() * 96) + 'vw';
+            const dur = (duration + Math.random() * 1500).toFixed(0) + 'ms';
+            el.style.animationDuration = dur;
+            el.style.fontSize = (1.5 + Math.random() * 1.5).toFixed(2) + 'rem';
+            document.body.appendChild(el);
+            el.addEventListener('animationend', () => el.remove());
+          }, Math.random() * 2000);
+        }
+
+        setTimeout(() => { running = false; }, 4500);
+      });
+    }());
+
     (function () {
       const modal     = document.getElementById('convModal');
       const openBtn   = document.getElementById('openConvModal');
@@ -323,6 +424,12 @@ clearly.</code></pre>
       const tModal = document.getElementById('transcriptModal');
       if (!tModal) return;
       document.addEventListener('keydown', e => { if (e.key === 'Escape' && tModal.classList.contains('open')) { tModal.classList.remove('open'); document.body.style.overflow = ''; } });
+    }());
+
+    (function () {
+      const t3Modal = document.getElementById('transcript3Modal');
+      if (!t3Modal) return;
+      document.addEventListener('keydown', e => { if (e.key === 'Escape' && t3Modal.classList.contains('open')) { t3Modal.classList.remove('open'); document.body.style.overflow = ''; } });
     }());
   </script>
 </body>
