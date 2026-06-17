@@ -42,6 +42,218 @@
         <p class="section-sub">Testing whether an existing contrail detection model trained on GOES ABI imagery can be applied to VIIRS data with only little tuning.</p>
       </div>
 
+      <!-- ─── INTRO ─────────────────────────────── -->
+      <p class="sp-intro">
+        The ABI-trained <code>mcast</code> model operates on geostationary imagery at 2 km resolution. VIIRS aboard Suomi-NPP and NOAA-20/21 offers 500 m resolution and similar — but not identical — spectral channels. If the model generalizes to VIIRS with little or no retraining, it unlocks higher-resolution contrail detections for multi-sensor observational verification.
+      </p>
+
+      <!-- ─── PIPELINE ───────────────────────────── -->
+      <div class="sp-section">
+        <div class="sp-section-label">Overview</div>
+        <h2 class="sp-section-title">Pipeline</h2>
+        <p class="sp-text">
+          The pipeline takes raw VIIRS Level-1B granules, maps bands to their closest ABI equivalents via a lightweight adapter (<code>viirs_adapter.py</code>), applies VIIRS-derived normalization statistics, and runs the unmodified <code>mcast</code> detection model. The output is a float32 probability map — no threshold is applied at inference time, so the detection threshold can be swept interactively without re-running the model. Two model versions are being evaluated: <code>detection-1.1</code> and <code>marvelous-moth-137</code>.
+        </p>
+
+        <div class="pipeline-diagram">
+          <div class="pipe-legend">
+            <span><span class="pipe-swatch" style="background:#4a7c59"></span>Completed</span>
+            <span><span class="pipe-swatch" style="background:#4a9abe"></span>Detection model</span>
+            <span><span class="pipe-swatch" style="background:#c87941"></span>In progress</span>
+          </div>
+
+          <div class="pipe-canvas">
+
+            <!-- Row 1: main flow -->
+            <div class="pipe-data-cell" style="grid-area:data">
+              <div class="pipe-data-label"><em>Val</em> set of VIIRS <code>MOD</code> granules</div>
+              <img src="../assets/images/progress/viirs/viirs_detection_input_for_flowchart.png" class="pipe-data-img" alt="VIIRS input scenes" />
+            </div>
+            <div class="pipe-harrow" style="grid-area:a12">→</div>
+            <!-- norm spans rows 1–2, centered between the two models -->
+            <div class="pipe-box pipe-done" style="grid-area:norm;align-self:stretch;display:flex;align-items:center;justify-content:center;">Applying<br>normalization</div>
+            <div class="pipe-harrow" style="grid-area:a23a">→</div>
+            <div class="pipe-box pipe-model-a" style="grid-area:moda"><code>detection-1.1</code></div>
+            <div class="pipe-harrow pipe-harrow--dashed" style="grid-area:a3a">→</div>
+            <div class="pipe-box pipe-todo" style="grid-area:tunea">Threshold tuning</div>
+            <div class="pipe-harrow pipe-harrow--dashed" style="grid-area:aea">→</div>
+            <div class="pipe-eval-cell pipe-todo" style="grid-area:evala">🔍 Evaluate</div>
+            <div class="pipe-harrow pipe-harrow--dashed" style="grid-area:acmpa">→</div>
+
+            <!-- Row 2: second model branch + vertical connectors -->
+            <div class="pipe-varrow pipe-varrow--dashed" style="grid-area:vi5">↑</div>
+            <div class="pipe-harrow" style="grid-area:a23b">→</div>
+            <div class="pipe-box pipe-model-b" style="grid-area:modb"><code>marvelous-moth-137</code></div>
+            <div class="pipe-harrow pipe-harrow--dashed" style="grid-area:a3b">→</div>
+            <div class="pipe-box pipe-todo" style="grid-area:tuneb">Threshold tuning</div>
+            <div class="pipe-harrow pipe-harrow--dashed" style="grid-area:aeb">→</div>
+            <div class="pipe-eval-cell pipe-todo" style="grid-area:evalb">🔍 Evaluate</div>
+            <div class="pipe-harrow pipe-harrow--dashed" style="grid-area:acmpb">→</div>
+
+            <!-- Compare box spans rows 1–2 -->
+            <div class="pipe-box pipe-todo" style="grid-area:compare;align-self:stretch;display:flex;align-items:center;justify-content:center;">Compare<br>outputs<br>against<br>labels</div>
+
+            <!-- Labels input below compare -->
+            <div class="pipe-varrow pipe-varrow--dashed" style="grid-area:vcmp">↑</div>
+            <div class="pipe-data-cell" style="grid-area:labels">
+              <img src="../assets/images/progress/viirs/viirs_labels_input_for_flowchart.png" class="pipe-data-img" alt="Contrail labels" />
+              <div class="pipe-data-label">Contrail labels</div>
+            </div>
+
+            <!-- Row 3: arrow from stats up to norm -->
+            <div class="pipe-varrow" style="grid-area:vnorm">↑</div>
+
+            <!-- Row 4: I5 + det stats -->
+            <div class="pipe-box pipe-done" style="grid-area:i5">Plug in <em>I5</em> channel<br>from <code>IMG</code> product</div>
+            <div class="pipe-box pipe-done" style="grid-area:stats">Determine<br>standardization values</div>
+
+            <!-- Row 4: vertical arrow -->
+            <div class="pipe-varrow" style="grid-area:vstats">↑</div>
+
+            <!-- Row 5: download -->
+            <div class="pipe-box pipe-done" style="grid-area:dl">Find, sample &amp; download<br>a range of VIIRS swaths</div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── CHANNEL MAPPING ───────────────────── -->
+      <div class="sp-section">
+        <div class="sp-section-label">Input Data</div>
+        <h2 class="sp-section-title">Channel mapping</h2>
+        <p class="sp-text">
+          The detection model takes three inputs: ABI channels C11, C14, and the brightness temperature difference C13−C15. VIIRS bands are mapped to these as closely as possible. The M-band product (750 m) lacks a channel near 11 µm, so M15 (10.76 µm) substitutes for both C13 and C14. The I-band product (375 m) adds I5 at 11.45 µm — a much closer match to C14 (11.2 µm) — but requires a second data product and reprojection onto the M-band grid.
+        </p>
+
+        <div class="channel-tables-wrap">
+          <div class="channel-table-block">
+            <div class="channel-table-label">M-band only (750 m)</div>
+            <table class="channel-table">
+              <thead>
+                <tr>
+                  <th class="ch-head-abi">ABI channel</th>
+                  <th class="ch-head-abi">Center wavelength</th>
+                  <th class="ch-head-viirs">Closest VIIRS channel</th>
+                  <th class="ch-head-viirs">Center wavelength</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>C11</td><td>8.4 µm</td><td>M14</td><td>8.55 µm</td></tr>
+                <tr class="ch-btd-row"><td>C13</td><td>10.3 µm</td><td>M15</td><td>10.76 µm</td></tr>
+                <tr><td>C14</td><td>11.2 µm</td><td>M15</td><td>10.76 µm</td></tr>
+                <tr class="ch-btd-row"><td>C15</td><td>12.3 µm</td><td>M16</td><td>12.01 µm</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="channel-table-block">
+            <div class="channel-table-label">M-band + I5 (375 m for C14)</div>
+            <table class="channel-table">
+              <thead>
+                <tr>
+                  <th class="ch-head-abi">ABI channel</th>
+                  <th class="ch-head-abi">Center wavelength</th>
+                  <th class="ch-head-viirs">Closest VIIRS channel</th>
+                  <th class="ch-head-viirs">Center wavelength</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>C11</td><td>8.4 µm</td><td>M14</td><td>8.55 µm</td></tr>
+                <tr class="ch-btd-row"><td>C13</td><td>10.3 µm</td><td>M15</td><td>10.76 µm</td></tr>
+                <tr class="ch-i5-row"><td>C14</td><td>11.2 µm</td><td>I5</td><td>11.45 µm</td></tr>
+                <tr class="ch-btd-row"><td>C15</td><td>12.3 µm</td><td>M16</td><td>12.01 µm</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <p class="sp-caption" style="margin-top:0.75rem;">Shaded rows contribute to the BTD (C13−C15) input. The I5 channel (right table, highlighted) is a closer spectral match to ABI C14 than M15, but requires the additional 375 m I-band product and reprojection onto the M-band grid.</p>
+      </div>
+
+      <!-- ─── BOWTIE & RESULTS ───────────────────── -->
+      <div class="sp-section">
+        <div class="sp-section-label">Zero-Shot Results</div>
+        <h2 class="sp-section-title">Bowtie handling &amp; detection performance</h2>
+
+        <p class="sp-text">
+          VIIRS M-band L1B data contains bowtie deletion zones — pixels removed where adjacent scan lines overlap at high viewing angles. About 13% of pixels are invalid, concentrated in the left and right thirds of each swath in repeating 4-row gaps. Unhandled, NaN values propagate through the model's convolutional layers and suppress all detections across ~80% of the swath width.
+        </p>
+        <p class="sp-text">
+          Three strategies were tested, each improving substantially on the last. The current fix — <em>along-track interpolation</em> — fills each 4-row gap by column-wise linear interpolation using the nearest valid pixels above and below, a physically reasonable approximation given the small spatial extent (~3 km) of each gap.
+        </p>
+
+        <!-- Metrics table -->
+        <div class="sp-metrics-wrap">
+          <table class="sp-metrics">
+            <thead>
+              <tr>
+                <th>Bowtie handling</th>
+                <th>Precision</th>
+                <th>Recall</th>
+                <th>F1</th>
+                <th>IoU</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>None (NaN propagation)</td>
+                <td>0.587</td><td>0.053</td><td>0.097</td><td>0.051</td>
+              </tr>
+              <tr>
+                <td>Band-mean fill</td>
+                <td>0.391</td><td>0.318</td><td>0.351</td><td>0.213</td>
+              </tr>
+              <tr class="sp-metrics-best">
+                <td>Along-track interpolation <em>(current)</em></td>
+                <td>0.491</td><td>0.365</td><td>0.419</td><td>0.265</td>
+              </tr>
+            </tbody>
+          </table>
+          <p class="sp-caption" style="margin-top:0.5rem;">Pixel-wise metrics aggregated over val scenes (1 &amp; 7), zero-shot with M15 as C14 substitute. No threshold tuning applied.</p>
+        </div>
+
+        <figure class="sp-figure" style="margin-top:2rem;">
+          <img src="../assets/images/progress/viirs/viirs_zero_shot_scene01.png" alt="Zero-shot VIIRS contrail detection result for scene 01" />
+          <figcaption class="sp-caption">
+            Scene 01 (NOAA-20, daytime): false-color VIIRS composite (left) and zero-shot detection mask after along-track interpolation fill (right). No threshold tuning or fine-tuning applied beyond NaN handling.
+            <span class="sp-credit">Credit: </span>
+          </figcaption>
+        </figure>
+      </div>
+
+      <!-- ─── DATASET ───────────────────────────── -->
+      <div class="sp-section">
+        <div class="sp-section-label">Data</div>
+        <h2 class="sp-section-title">Labeled dataset</h2>
+        <p class="sp-text">
+          12 manually labeled VIIRS scenes are available, covering both NOAA-20 and Suomi-NPP, daytime and nighttime overpasses. All model inputs are thermal infrared channels with no solar-reflectance dependency, so day/night does not affect data values directly — it serves mainly as a proxy for viewing geometry. The dataset is split to keep tuning (threshold selection, normalization) on val only, with train and test locked until tuning is complete.
+        </p>
+
+        <div class="sp-metrics-wrap">
+          <table class="sp-metrics">
+            <thead>
+              <tr><th>Split</th><th>Scenes</th><th>Satellites</th><th>Overpass</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Val</td><td>1, 7</td><td>NOAA-20, Suomi NPP</td><td>2 day</td></tr>
+              <tr><td>Train</td><td>2, 3, 5, 6, 8, 10, 11</td><td>NOAA-20 ×4, Suomi NPP ×3</td><td>6 day, 1 night</td></tr>
+              <tr><td>Test</td><td>4, 9, 12</td><td>NOAA-20 ×2, Suomi NPP ×1</td><td>2 day, 1 night</td></tr>
+            </tbody>
+          </table>
+          <p class="sp-caption" style="margin-top:0.5rem;">Splits are stratified by satellite and overpass type. The single night scene in train (scene 6) ensures tuning sees both overpass types; scene 9 (night) is reserved as an out-of-distribution test.</p>
+        </div>
+      </div>
+
+      <!-- ─── NEXT STEPS ─────────────────────────── -->
+      <div class="sp-section">
+        <div class="sp-section-label">In Progress</div>
+        <h2 class="sp-section-title">Next steps</h2>
+        <ul class="sp-text sp-list">
+          <li><strong>Threshold sweep.</strong> The default threshold (0.42) was calibrated on ABI data. An interactive notebook sweeps thresholds over the saved probability maps and plots precision-recall curves with scene previews.</li>
+          <li><strong>Normalization comparison.</strong> VIIRS-derived normalization statistics have been computed from 48 stratified CONUS swaths. Next: compare detection performance with VIIRS stats vs. ABI training stats to quantify the impact of distribution shift.</li>
+          <li><strong>I5 channel for C14.</strong> I5 (11.45 µm) is a closer spectral match to ABI C14 (11.2 µm) than M15 (10.76 µm). The full pipeline is implemented; pending re-download of 2 missing IMG geolocation files and a re-run of <code>compute_norm_stats</code> to produce the I5 statistics file.</li>
+          <li><strong>Interactive result viewer.</strong> Coming soon — browse detection results across all scenes with threshold slider.</li>
+        </ul>
+      </div>
+
     </div>
   </div>
 
