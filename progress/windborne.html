@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WindBorne Radiosonde Data — Marlene V. Euchenhofer</title>
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+  <canvas id="skyCanvas"></canvas>
+
+  <nav id="navbar">
+    <div class="nav-left">
+      <span class="nav-logo"><a href="../index.html" style="text-decoration:none;color:inherit;">MVE</a></span>
+    </div>
+    <ul>
+      <li><a href="../index.html#project">Research</a></li>
+      <li>
+        <a href="../progress/">Progress</a>
+        <ul class="nav-dropdown-menu">
+          <li><a href="viirs.html">VIIRS Detection</a></li>
+          <li><a href="windborne.html">WindBorne Radiosonde</a></li>
+        </ul>
+      </li>
+      <li><a href="../ai_log.html">AI Log</a></li>
+      <li><a href="../index.html#about">About</a></li>
+      <li><a href="../index.html#journey">Journey</a></li>
+    </ul>
+  </nav>
+
+  <div class="updates-page">
+    <div class="container">
+
+      <div class="updates-page-header">
+        <a href="../progress/" class="back-link">← Progress</a>
+        <div class="section-label">Spotlight · Summer 2026</div>
+        <h1 class="section-title">WindBorne radiosonde data</h1>
+        <p class="section-sub">Investigating the WindBorne API data products and the potential of using balloon radiosonde measurements for contrail-relevant atmospheric profiling over CONUS.</p>
+      </div>
+
+      <!-- ─── INTRO ─────────────────────────────── -->
+      <p class="sp-intro">
+        Radiosonde measurements allow us to resolve the vertical structure of the atmosphere — its moisture and temperature profiles — to determine ice-supersaturated layers (ISSRs), layers where relative humidity over ice exceeds 100%, whenever soundings are available. These are the layers in which contrails can persist.
+      </p>
+
+      <!-- ─── ISSR PROFILES ─────────────────────── -->
+      <div class="sp-section">
+        <div class="sp-section-label">Preview</div>
+        <h2 class="sp-section-title">Identifying ice-supersaturated layers</h2>
+
+        <p class="sp-text">
+          The key output of radiosonde profiles for contrail research is the identification of ice-supersaturated regions (ISSRs) based on temperature and humidity. The profiles below show examples of ISSRs detected by GRUAN radiosondes at different times representing different cases of vertical stratification, with the light red bands marking layers of supersaturation and their vertical extent in flight levels.
+        </p>
+
+        <figure class="sp-figure">
+          <img src="../assets/images/progress/windborne/issr_profiles_PP.png" alt="Ice-supersaturation profiles from GRUAN radiosonde measurements" />
+          <figcaption class="sp-caption">
+            Relative humidity as measured by GRUAN sondes over ice profiles at three different times, with ice-supersaturated layers (RHᵢ &gt; 1) highlighted and their vertical extent labeled in flight levels (FL).
+            <span class="sp-credit">Credit: Prashanth Prakash</span>
+          </figcaption>
+        </figure>
+      </div>
+
+      <!-- ─── GRUAN ─────────────────────────────── -->
+      <div class="sp-section">
+        <div class="sp-layout-side">
+          <div>
+            <div class="sp-section-label">Reference Network</div>
+            <h2 class="sp-section-title">GRUAN — accurate but sparse</h2>
+            <p class="sp-text">
+              GCOS Reference Upper-Air Network (GRUAN) sondes provide a high level of accuracy for humidity measurements, making them well-suited as a reference for contrail-relevant atmospheric profiling. However, their coverage is sparse: only three GRUAN sites exist over CONUS, and the closest one to MIT — Beltsville, MD — has fewer than ten launches per month. This limits how often and where we can obtain reliable vertical profiles.
+            </p>
+          </div>
+          <figure class="sp-figure">
+            <img src="../assets/images/progress/windborne/gruan_network.png" alt="GCOS Reference Upper-Air Network global map" />
+            <figcaption class="sp-caption">
+              GCOS Reference Upper-Air Network (GRUAN) — certified, uncertified, and candidate sites worldwide.
+              <span class="sp-credit">Credit: </span>
+            </figcaption>
+          </figure>
+        </div>
+      </div>
+
+      <!-- ─── WINDBORNE ─────────────────────────── -->
+
+      <div class="sp-section">
+        <div class="sp-section-label">Alternative Platform</div>
+        <h2 class="sp-section-title">WindBorne — more coverage, longer flights</h2>
+
+        <p class="sp-text">
+          WindBorne sondes can complement GRUAN measurements by flying for weeks or even months. Instead of a single ascent, they make repeated vertical passes through the atmosphere by applying negative lift whenever the sonde reaches a certain altitude — like a yo-yo through the troposphere. Each launch therefore generates many more soundings and covers a much larger geographic area than a conventional radiosonde.
+        </p>
+
+        <div class="sp-figures-row" style="margin-bottom: 1.5rem;">
+          <figure class="sp-figure">
+            <img src="../assets/images/progress/windborne/windborne_flight_path.png" alt="Geographic flight path and vertical profile of a WindBorne sonde" />
+            <figcaption class="sp-caption">
+              Geographic flight path (top) and vertical profile (bottom) of a single WindBorne sonde launch, showing repeated ascents and descents over several weeks.
+              <span class="sp-credit">Credit: <a href="https://arxiv.org/abs/2602.02714" target="_blank" rel="noopener">Spisak et al. (preprint, 2026)</a></span>
+            </figcaption>
+          </figure>
+          <figure class="sp-figure">
+            <img src="../assets/images/progress/windborne/windborne_coverage_map.png" alt="WindBorne global data coverage 2024–2025" />
+            <figcaption class="sp-caption">
+              WindBorne global data coverage from July 2024 to June 2025, showing measurement density by grid cell.
+              <span class="sp-credit">Credit: <a href="https://arxiv.org/abs/2602.02714" target="_blank" rel="noopener">Spisak et al. (preprint, 2026)</a></span>
+            </figcaption>
+          </figure>
+        </div>
+
+        <figure class="sp-figure">
+          <img src="../assets/images/progress/windborne/windborne_network_2026-01-21.png" alt="WindBorne network snapshot on 2026-01-21" />
+          <figcaption class="sp-caption">
+            Snapshot of the WindBorne network at 00 UTC on 2026-01-21; 5 active launch sites on CONUS (red), 81 airborne sondes globally (blue), and their flight paths (grey).
+            <span class="sp-credit">Credit: Spisak et al. (preprint, 2026) <a href="https://arxiv.org/abs/2602.02714" target="_blank" rel="noopener">Spisak et al. (preprint, 2026)</a></span>
+          </figcaption>
+        </figure>
+      </div>
+
+    </div>
+  </div>
+
+  <footer>
+    <p>Marlene V. Euchenhofer · MIT Laboratory for Aviation and the Environment · 2026</p>
+  </footer>
+
+  <script src="../script.js"></script>
+</body>
+</html>

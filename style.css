@@ -107,7 +107,7 @@ body {
   color: var(--ink);
 }
 
-#navbar ul {
+#navbar > ul {
   list-style: none;
   display: flex;
   gap: 2.5rem;
@@ -125,6 +125,44 @@ body {
 
 #navbar ul a:hover {
   color: var(--sky-deep);
+}
+
+/* Dropdown */
+#navbar ul li {
+  position: relative;
+}
+
+.nav-dropdown-menu {
+  display: none;
+  position: absolute;
+  top: calc(100% + 0.75rem);
+  left: 0;
+  background: rgba(255,255,255,0.95);
+  backdrop-filter: blur(14px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius);
+  box-shadow: 0 6px 24px rgba(0,0,0,0.08);
+  min-width: 200px;
+  padding: 0.5rem 0;
+  list-style: none;
+  gap: 0;
+  flex-direction: column;
+  z-index: 200;
+}
+
+#navbar ul li:hover .nav-dropdown-menu {
+  display: flex;
+}
+
+.nav-dropdown-menu li {
+  width: 100%;
+}
+
+.nav-dropdown-menu a {
+  display: block;
+  padding: 0.6rem 1.25rem;
+  white-space: nowrap;
+  text-align: left;
 }
 
 /* ═══════════════════════════════════════════════
@@ -676,6 +714,160 @@ body {
 
 .update-entry:last-child {
   border-bottom: none;
+}
+
+/* ════════════════════════════════════════════════
+   SUBPROJECT PAGE CONTENT
+════════════════════════════════════════════════ */
+.sp-intro {
+  max-width: 760px;
+  font-size: 1.05rem;
+  line-height: 1.85;
+  color: var(--ink-soft);
+  margin-bottom: 4rem;
+  border-left: 3px solid var(--sky-deep);
+  padding-left: 1.5rem;
+}
+
+.sp-section {
+  margin-bottom: 4rem;
+}
+
+.sp-section-label {
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--sky-deep);
+  margin-bottom: 0.5rem;
+}
+
+.sp-section-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.6rem;
+  font-weight: 400;
+  color: var(--ink);
+  margin: 0 0 1rem;
+}
+
+.sp-text {
+  max-width: 760px;
+  font-size: 0.95rem;
+  line-height: 1.8;
+  color: var(--ink-soft);
+  margin-bottom: 1.75rem;
+}
+
+.sp-layout-side {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2.5rem;
+  align-items: start;
+  margin-bottom: 1.75rem;
+}
+
+.sp-layout-side .sp-text {
+  margin-bottom: 0;
+}
+
+.sp-figures-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+figure.sp-figure {
+  margin: 0;
+}
+
+figure.sp-figure img {
+  width: 100%;
+  border-radius: var(--radius);
+  border: 1px solid var(--glass-border);
+  display: block;
+}
+
+figcaption.sp-caption {
+  margin-top: 0.6rem;
+  font-size: 0.78rem;
+  line-height: 1.5;
+  color: var(--ink-muted);
+}
+
+.sp-credit {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.72rem;
+  color: var(--ink-muted);
+  opacity: 0.6;
+  font-style: italic;
+}
+
+@media (max-width: 700px) {
+  .sp-layout-side,
+  .sp-figures-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ════════════════════════════════════════════════
+   PROGRESS PAGE PANELS
+════════════════════════════════════════════════ */
+.progress-panel {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  height: 200px;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+  text-decoration: none;
+  color: inherit;
+  transition: box-shadow var(--transition), transform var(--transition);
+}
+
+.progress-panel:hover {
+  box-shadow: 0 6px 24px rgba(0,0,0,0.10);
+  transform: translateY(-2px);
+}
+
+.progress-panel-img {
+  width: 320px;
+  min-width: 320px;
+  object-fit: cover;
+  display: block;
+}
+
+.progress-panel-body {
+  padding: 1.5rem 1.75rem;
+}
+
+.progress-panel-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.4rem;
+  font-weight: 400;
+  color: var(--ink);
+  margin: 0 0 0.5rem;
+}
+
+.progress-panel-desc {
+  font-size: 0.9rem;
+  line-height: 1.7;
+  color: var(--ink-soft);
+  margin: 0;
+}
+
+@media (max-width: 640px) {
+  .progress-panel {
+    flex-direction: column;
+  }
+  .progress-panel-img {
+    width: 100%;
+    min-width: unset;
+    height: 160px;
+  }
 }
 
 .update-entry-meta {

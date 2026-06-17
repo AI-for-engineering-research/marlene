@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Summer Research Progress — Marlene V. Euchenhofer</title>
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+  <canvas id="skyCanvas"></canvas>
+
+  <nav id="navbar">
+    <div class="nav-left">
+      <span class="nav-logo"><a href="../index.html" style="text-decoration:none;color:inherit;">MVE</a></span>
+    </div>
+    <ul>
+      <li><a href="../index.html#project">Research</a></li>
+      <li>
+        <a href="../progress/">Progress</a>
+        <ul class="nav-dropdown-menu">
+          <li><a href="viirs.html">VIIRS Detection</a></li>
+          <li><a href="windborne.html">WindBorne Radiosonde</a></li>
+        </ul>
+      </li>
+      <li><a href="../ai_log.html">AI Log</a></li>
+      <li><a href="../index.html#about">About</a></li>
+      <li><a href="../index.html#journey">Journey</a></li>
+    </ul>
+  </nav>
+
+  <div class="updates-page">
+    <div class="container">
+
+      <div class="updates-page-header">
+        <a href="../index.html" class="back-link">← Back</a>
+        <div class="section-label">Summer 2026</div>
+        <h1 class="section-title">Summer Research Progress</h1>
+        <p class="section-sub">Results, visualizations, and milestones from some of the summer research explorations for my multi-sensor contrail observation project.</p>
+      </div>
+
+      <!-- ─── PANEL 1 ─────────────────────────────── -->
+      <a class="progress-panel" href="viirs.html">
+        <img class="progress-panel-img" src="../assets/images/progress/viirs_zero_shot_scene01.png" alt="VIIRS data plugged into ABI contrail detection model" />
+        <div class="progress-panel-body">
+          <h2 class="progress-panel-title">Detecting contrails in VIIRS imagery</h2>
+          <p class="progress-panel-desc">Testing whether an existing contrail detection model trained on GOES ABI imagery can be applied to VIIRS data with only little tuning. VIIRS offers higher spatial resolution (375 m - 750 m) but slightly different spectral channels, requiring a band-mapping adapter before inference.</p>
+        </div>
+      </a>
+
+      <!-- ─── PANEL 2 ─────────────────────────────── -->
+      <a class="progress-panel" href="windborne.html">
+        <img class="progress-panel-img" src="../assets/images/banner/windborne.jpg" alt="WindBorne imagery" />
+        <div class="progress-panel-body">
+          <h2 class="progress-panel-title">WindBorne radiosonde data</h2>
+          <p class="progress-panel-desc">Investigating the data products of the WindBorne API and the potential of using the data for our region of interest (CONUS). First steps will be familiarization with accessing the data an checking availability of measurements over selected locations.</p>
+        </div>
+      </a>
+
+    </div>
+  </div>
+
+  <footer>
+    <p>Marlene V. Euchenhofer · MIT Laboratory for Aviation and the Environment · 2026</p>
+  </footer>
+
+  <script src="../script.js"></script>
+</body>
+</html>
