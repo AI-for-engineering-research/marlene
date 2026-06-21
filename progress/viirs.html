@@ -39,12 +39,12 @@
         <a href="../progress/" class="back-link">← Progress</a>
         <div class="section-label">Spotlight · Summer 2026</div>
         <h1 class="section-title">Detecting contrails in VIIRS imagery</h1>
-        <p class="section-sub">Testing whether an existing contrail detection model trained on GOES ABI imagery can be applied to VIIRS data with only little tuning.</p>
+        <p class="section-sub">Testing whether an existing contrail detection model trained on GOES ABI imagery can be applied to VIIRS data with no or only little tuning.</p>
       </div>
 
       <!-- ─── INTRO ─────────────────────────────── -->
       <p class="sp-intro">
-        The ABI-trained <code>mcast</code> model operates on geostationary imagery at 2 km resolution. VIIRS aboard Suomi-NPP and NOAA-20/21 offers 500 m resolution and similar — but not identical — spectral channels. If the model generalizes to VIIRS with little or no retraining, it unlocks higher-resolution contrail detections for multi-sensor observational verification.
+        LAE's existing contrail ABI-trained <code>mcast</code> contrail detection model operates on geostationary imagery with 2 km resolution at nadir. Imagery from the lo-Earth orbiting VIIRS instrument aboard Suomi-NPP and NOAA-20/21 offers 750 m (375 m) resolution at nadir and similar — but not identical — spectral channels. If the current detection model generalizes to VIIRS with little or no retraining, it unlocks additional higher-resolution contrail detections whenever VIIRS data is available, contributing to multi-sensor observational contrail verification.
       </p>
 
       <!-- ─── PIPELINE ───────────────────────────── -->
@@ -52,14 +52,17 @@
         <div class="sp-section-label">Overview</div>
         <h2 class="sp-section-title">Pipeline</h2>
         <p class="sp-text">
-          The pipeline takes raw VIIRS Level-1B granules, maps bands to their closest ABI equivalents via a lightweight adapter (<code>viirs_adapter.py</code>), applies VIIRS-derived normalization statistics, and runs the unmodified <code>mcast</code> detection model. The output is a float32 probability map — no threshold is applied at inference time, so the detection threshold can be swept interactively without re-running the model. Two model versions are being evaluated: <code>detection-1.1</code> and <code>marvelous-moth-137</code>.
+          The current investigation pipeline takes raw VIIRS Level-1B granules, maps the bands that are closest to the ABI equivalents required by the model via a lightweight adapter (<code>viirs_adapter.py</code>), applies VIIRS-derived normalization statistics, and runs the unmodified <code>mcast</code> detection model. The output is a float32 probability map — no threshold is applied at inference time, so the detection threshold can be swept interactively without re-running the model. Two model versions are being evaluated: <code>detection-1.1</code> (initially trained by Vincent Meijer) and <code>marvelous-moth-137</code> (trained by T&eacute;o Bloch).
         </p>
 
         <div class="pipeline-diagram">
+          <div class="pipe-diagram-body">
           <div class="pipe-legend">
             <span><span class="pipe-swatch" style="background:#4a7c59"></span>Completed</span>
             <span><span class="pipe-swatch" style="background:#4a9abe"></span>Detection model</span>
             <span><span class="pipe-swatch" style="background:#c87941"></span>In progress</span>
+            <span><span class="pipe-arrow-swatch"></span>M-band only</span>
+            <span><span class="pipe-arrow-swatch pipe-arrow-swatch--dashed"></span>M-band + I5</span>
           </div>
 
           <div class="pipe-canvas">
@@ -69,51 +72,52 @@
               <div class="pipe-data-label"><em>Val</em> set of VIIRS <code>MOD</code> granules</div>
               <img src="../assets/images/progress/viirs/viirs_detection_input_for_flowchart.png" class="pipe-data-img" alt="VIIRS input scenes" />
             </div>
-            <div class="pipe-harrow" style="grid-area:a12">→</div>
+            <div class="pipe-harrow-pair" style="grid-area:a12"><div class="pipe-harrow"></div><div class="pipe-harrow pipe-harrow--dashed"></div></div>
             <!-- norm spans rows 1–2, centered between the two models -->
             <div class="pipe-box pipe-done" style="grid-area:norm;align-self:stretch;display:flex;align-items:center;justify-content:center;">Applying<br>normalization</div>
-            <div class="pipe-harrow" style="grid-area:a23a">→</div>
+            <div class="pipe-harrow-pair" style="grid-area:a23a"><div class="pipe-harrow"></div><div class="pipe-harrow pipe-harrow--dashed"></div></div>
             <div class="pipe-box pipe-model-a" style="grid-area:moda"><code>detection-1.1</code></div>
-            <div class="pipe-harrow pipe-harrow--dashed" style="grid-area:a3a">→</div>
+            <div class="pipe-harrow-pair" style="grid-area:a3a"><div class="pipe-harrow"></div><div class="pipe-harrow pipe-harrow--dashed"></div></div>
             <div class="pipe-box pipe-todo" style="grid-area:tunea">Threshold tuning</div>
-            <div class="pipe-harrow pipe-harrow--dashed" style="grid-area:aea">→</div>
+            <div class="pipe-harrow-pair" style="grid-area:aea"><div class="pipe-harrow"></div><div class="pipe-harrow pipe-harrow--dashed"></div></div>
             <div class="pipe-eval-cell pipe-todo" style="grid-area:evala">🔍 Evaluate</div>
-            <div class="pipe-harrow pipe-harrow--dashed" style="grid-area:acmpa">→</div>
+            <div class="pipe-harrow-pair" style="grid-area:acmpa"><div class="pipe-harrow"></div><div class="pipe-harrow pipe-harrow--dashed"></div></div>
 
             <!-- Row 2: second model branch + vertical connectors -->
             <div class="pipe-varrow pipe-varrow--dashed" style="grid-area:vi5">↑</div>
-            <div class="pipe-harrow" style="grid-area:a23b">→</div>
+            <div class="pipe-harrow-pair" style="grid-area:a23b"><div class="pipe-harrow"></div><div class="pipe-harrow pipe-harrow--dashed"></div></div>
             <div class="pipe-box pipe-model-b" style="grid-area:modb"><code>marvelous-moth-137</code></div>
-            <div class="pipe-harrow pipe-harrow--dashed" style="grid-area:a3b">→</div>
+            <div class="pipe-harrow-pair" style="grid-area:a3b"><div class="pipe-harrow"></div><div class="pipe-harrow pipe-harrow--dashed"></div></div>
             <div class="pipe-box pipe-todo" style="grid-area:tuneb">Threshold tuning</div>
-            <div class="pipe-harrow pipe-harrow--dashed" style="grid-area:aeb">→</div>
+            <div class="pipe-harrow-pair" style="grid-area:aeb"><div class="pipe-harrow"></div><div class="pipe-harrow pipe-harrow--dashed"></div></div>
             <div class="pipe-eval-cell pipe-todo" style="grid-area:evalb">🔍 Evaluate</div>
-            <div class="pipe-harrow pipe-harrow--dashed" style="grid-area:acmpb">→</div>
+            <div class="pipe-harrow-pair" style="grid-area:acmpb"><div class="pipe-harrow"></div><div class="pipe-harrow pipe-harrow--dashed"></div></div>
 
             <!-- Compare box spans rows 1–2 -->
             <div class="pipe-box pipe-todo" style="grid-area:compare;align-self:stretch;display:flex;align-items:center;justify-content:center;">Compare<br>outputs<br>against<br>labels</div>
 
             <!-- Labels input below compare -->
-            <div class="pipe-varrow pipe-varrow--dashed" style="grid-area:vcmp">↑</div>
+            <div class="pipe-varrow-pair" style="grid-area:vcmp"><div class="pipe-varrow"></div><div class="pipe-varrow pipe-varrow--dashed"></div></div>
             <div class="pipe-data-cell" style="grid-area:labels">
               <img src="../assets/images/progress/viirs/viirs_labels_input_for_flowchart.png" class="pipe-data-img" alt="Contrail labels" />
               <div class="pipe-data-label">Contrail labels</div>
             </div>
 
             <!-- Row 3: arrow from stats up to norm -->
-            <div class="pipe-varrow" style="grid-area:vnorm">↑</div>
+            <div class="pipe-varrow-pair" style="grid-area:vnorm"><div class="pipe-varrow"></div><div class="pipe-varrow pipe-varrow--dashed"></div></div>
 
             <!-- Row 4: I5 + det stats -->
             <div class="pipe-box pipe-done" style="grid-area:i5">Plug in <em>I5</em> channel<br>from <code>IMG</code> product</div>
-            <div class="pipe-box pipe-done" style="grid-area:stats">Determine<br>standardization values</div>
+            <div class="pipe-box pipe-done" style="grid-area:stats;align-self:stretch;display:flex;align-items:center;justify-content:center;">Determine<br>standardization values</div>
 
             <!-- Row 4: vertical arrow -->
-            <div class="pipe-varrow" style="grid-area:vstats">↑</div>
+            <div class="pipe-varrow-pair" style="grid-area:vstats"><div class="pipe-varrow"></div><div class="pipe-varrow pipe-varrow--dashed"></div></div>
 
             <!-- Row 5: download -->
             <div class="pipe-box pipe-done" style="grid-area:dl">Find, sample &amp; download<br>a range of VIIRS swaths</div>
 
           </div>
+          </div><!-- pipe-diagram-body -->
         </div>
       </div>
 
@@ -122,7 +126,7 @@
         <div class="sp-section-label">Input Data</div>
         <h2 class="sp-section-title">Channel mapping</h2>
         <p class="sp-text">
-          The detection model takes three inputs: ABI channels C11, C14, and the brightness temperature difference C13−C15. VIIRS bands are mapped to these as closely as possible. The M-band product (750 m) lacks a channel near 11 µm, so M15 (10.76 µm) substitutes for both C13 and C14. The I-band product (375 m) adds I5 at 11.45 µm — a much closer match to C14 (11.2 µm) — but requires a second data product and reprojection onto the M-band grid.
+          The detection model takes three inputs: ABI channels C11, C14, and the brightness temperature difference C13−C15. VIIRS bands are mapped to these as closely as possible. The M-band product (<i>moderate</i> resolution; 750 m at nadir) lacks a channel near 11 µm, so M15 (10.76 µm) substitutes for both C13 and C14. The I-band product (<i>imaging</i> resolution; 375 m at nadir) adds I5 at 11.45 µm — a much closer match to C14 (11.2 µm) — but requires a second data product and reprojection onto the lower-resolution M-band grid.
         </p>
 
         <div class="channel-tables-wrap">
@@ -165,7 +169,7 @@
             </table>
           </div>
         </div>
-        <p class="sp-caption" style="margin-top:0.75rem;">Shaded rows contribute to the BTD (C13−C15) input. The I5 channel (right table, highlighted) is a closer spectral match to ABI C14 than M15, but requires the additional 375 m I-band product and reprojection onto the M-band grid.</p>
+        <p class="sp-caption" style="margin-top:0.75rem;">Grey-shaded rows contribute to the BTD (C13−C15) input. The I5 channel (right table, highlighted in red) is a closer spectral match to ABI C14 than M15, but requires the additional 375 m I-band product and reprojection onto the M-band grid.</p>
       </div>
 
       <!-- ─── BOWTIE & RESULTS ───────────────────── -->
@@ -207,14 +211,14 @@
               </tr>
             </tbody>
           </table>
-          <p class="sp-caption" style="margin-top:0.5rem;">Pixel-wise metrics aggregated over val scenes (1 &amp; 7), zero-shot with M15 as C14 substitute. No threshold tuning applied.</p>
+          <p class="sp-caption" style="margin-top:0.5rem;">Pixel-wise metrics for <code>detection-1.1</code> model run on Scene 01 (part of <i>val</i> set), zero-shot with M15 as C14 substitute. No threshold tuning applied.</p>
         </div>
 
         <figure class="sp-figure" style="margin-top:2rem;">
-          <img src="../assets/images/progress/viirs/viirs_zero_shot_scene01.png" alt="Zero-shot VIIRS contrail detection result for scene 01" />
+          <img src="../assets/images/progress/viirs/viirs_zero_shot_scene01.png" alt="Zero-shot VIIRS contrail detection result for scene 1" />
           <figcaption class="sp-caption">
-            Scene 01 (NOAA-20, daytime): false-color VIIRS composite (left) and zero-shot detection mask after along-track interpolation fill (right). No threshold tuning or fine-tuning applied beyond NaN handling.
-            <span class="sp-credit">Credit: </span>
+            Scene 1 (NOAA-20, daytime): false-color VIIRS composite (left) and zero-shot detection mask after along-track interpolation fill (right). No threshold tuning or fine-tuning applied beyond NaN handling.
+            <span class="sp-credit">Credit: MVE</span>
           </figcaption>
         </figure>
       </div>
