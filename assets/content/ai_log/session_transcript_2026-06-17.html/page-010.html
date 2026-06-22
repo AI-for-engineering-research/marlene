@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Claude Code transcript - page 10</title>
+    <style>
+:root { --bg-color: #f5f5f5; --card-bg: #ffffff; --user-bg: #e3f2fd; --user-border: #1976d2; --assistant-bg: #f5f5f5; --assistant-border: #9e9e9e; --thinking-bg: #fff8e1; --thinking-border: #ffc107; --thinking-text: #666; --tool-bg: #f3e5f5; --tool-border: #9c27b0; --tool-result-bg: #e8f5e9; --tool-error-bg: #ffebee; --text-color: #212121; --text-muted: #757575; --code-bg: #263238; --code-text: #aed581; }
+* { box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg-color); color: var(--text-color); margin: 0; padding: 16px; line-height: 1.6; }
+.container { max-width: 800px; margin: 0 auto; }
+h1 { font-size: 1.5rem; margin-bottom: 24px; padding-bottom: 8px; border-bottom: 2px solid var(--user-border); }
+.header-row { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; border-bottom: 2px solid var(--user-border); padding-bottom: 8px; margin-bottom: 24px; }
+.header-row h1 { border-bottom: none; padding-bottom: 0; margin-bottom: 0; flex: 1; min-width: 200px; }
+.message { margin-bottom: 16px; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+.message.user { background: var(--user-bg); border-left: 4px solid var(--user-border); }
+.message.assistant { background: var(--card-bg); border-left: 4px solid var(--assistant-border); }
+.message.tool-reply { background: #fff8e1; border-left: 4px solid #ff9800; }
+.tool-reply .role-label { color: #e65100; }
+.tool-reply .tool-result { background: transparent; padding: 0; margin: 0; }
+.tool-reply .tool-result .truncatable.truncated::after { background: linear-gradient(to bottom, transparent, #fff8e1); }
+.message-header { display: flex; justify-content: space-between; align-items: center; padding: 8px 16px; background: rgba(0,0,0,0.03); font-size: 0.85rem; }
+.role-label { font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+.user .role-label { color: var(--user-border); }
+time { color: var(--text-muted); font-size: 0.8rem; }
+.timestamp-link { color: inherit; text-decoration: none; }
+.timestamp-link:hover { text-decoration: underline; }
+.message:target { animation: highlight 2s ease-out; }
+@keyframes highlight { 0% { background-color: rgba(25, 118, 210, 0.2); } 100% { background-color: transparent; } }
+.message-content { padding: 16px; }
+.message-content p { margin: 0 0 12px 0; }
+.message-content p:last-child { margin-bottom: 0; }
+.thinking { background: var(--thinking-bg); border: 1px solid var(--thinking-border); border-radius: 8px; padding: 12px; margin: 12px 0; font-size: 0.9rem; color: var(--thinking-text); }
+.thinking-label { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; color: #f57c00; margin-bottom: 8px; }
+.thinking p { margin: 8px 0; }
+.assistant-text { margin: 8px 0; }
+.tool-use { background: var(--tool-bg); border: 1px solid var(--tool-border); border-radius: 8px; padding: 12px; margin: 12px 0; }
+.tool-header { font-weight: 600; color: var(--tool-border); margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+.tool-icon { font-size: 1.1rem; }
+.tool-description { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 8px; font-style: italic; }
+.tool-result { background: var(--tool-result-bg); border-radius: 8px; padding: 12px; margin: 12px 0; }
+.tool-result.tool-error { background: var(--tool-error-bg); }
+.file-tool { border-radius: 8px; padding: 12px; margin: 12px 0; }
+.write-tool { background: linear-gradient(135deg, #e3f2fd 0%, #e8f5e9 100%); border: 1px solid #4caf50; }
+.edit-tool { background: linear-gradient(135deg, #fff3e0 0%, #fce4ec 100%); border: 1px solid #ff9800; }
+.file-tool-header { font-weight: 600; margin-bottom: 4px; display: flex; align-items: center; gap: 8px; font-size: 0.95rem; }
+.write-header { color: #2e7d32; }
+.edit-header { color: #e65100; }
+.file-tool-icon { font-size: 1rem; }
+.file-tool-path { font-family: monospace; background: rgba(0,0,0,0.08); padding: 2px 8px; border-radius: 4px; }
+.file-tool-fullpath { font-family: monospace; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px; word-break: break-all; }
+.file-content { margin: 0; }
+.edit-section { display: flex; margin: 4px 0; border-radius: 4px; overflow: hidden; }
+.edit-label { padding: 8px 12px; font-weight: bold; font-family: monospace; display: flex; align-items: flex-start; }
+.edit-old { background: #fce4ec; }
+.edit-old .edit-label { color: #b71c1c; background: #f8bbd9; }
+.edit-old .edit-content { color: #880e4f; }
+.edit-new { background: #e8f5e9; }
+.edit-new .edit-label { color: #1b5e20; background: #a5d6a7; }
+.edit-new .edit-content { color: #1b5e20; }
+.edit-content { margin: 0; flex: 1; background: transparent; font-size: 0.85rem; }
+.edit-replace-all { font-size: 0.75rem; font-weight: normal; color: var(--text-muted); }
+.write-tool .truncatable.truncated::after { background: linear-gradient(to bottom, transparent, #e6f4ea); }
+.edit-tool .truncatable.truncated::after { background: linear-gradient(to bottom, transparent, #fff0e5); }
+.todo-list { background: linear-gradient(135deg, #e8f5e9 0%, #f1f8e9 100%); border: 1px solid #81c784; border-radius: 8px; padding: 12px; margin: 12px 0; }
+.todo-header { font-weight: 600; color: #2e7d32; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; font-size: 0.95rem; }
+.todo-items { list-style: none; margin: 0; padding: 0; }
+.todo-item { display: flex; align-items: flex-start; gap: 10px; padding: 6px 0; border-bottom: 1px solid rgba(0,0,0,0.06); font-size: 0.9rem; }
+.todo-item:last-child { border-bottom: none; }
+.todo-icon { flex-shrink: 0; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-weight: bold; border-radius: 50%; }
+.todo-completed .todo-icon { color: #2e7d32; background: rgba(46, 125, 50, 0.15); }
+.todo-completed .todo-content { color: #558b2f; text-decoration: line-through; }
+.todo-in-progress .todo-icon { color: #f57c00; background: rgba(245, 124, 0, 0.15); }
+.todo-in-progress .todo-content { color: #e65100; font-weight: 500; }
+.todo-pending .todo-icon { color: #757575; background: rgba(0,0,0,0.05); }
+.todo-pending .todo-content { color: #616161; }
+pre { background: var(--code-bg); color: var(--code-text); padding: 12px; border-radius: 6px; overflow-x: auto; font-size: 0.85rem; line-height: 1.5; margin: 8px 0; white-space: pre-wrap; word-wrap: break-word; }
+pre.json { color: #e0e0e0; }
+code { background: rgba(0,0,0,0.08); padding: 2px 6px; border-radius: 4px; font-size: 0.9em; }
+pre code { background: none; padding: 0; }
+.user-content { margin: 0; }
+.truncatable { position: relative; }
+.truncatable.truncated .truncatable-content { max-height: 200px; overflow: hidden; }
+.truncatable.truncated::after { content: ''; position: absolute; bottom: 32px; left: 0; right: 0; height: 60px; background: linear-gradient(to bottom, transparent, var(--card-bg)); pointer-events: none; }
+.message.user .truncatable.truncated::after { background: linear-gradient(to bottom, transparent, var(--user-bg)); }
+.message.tool-reply .truncatable.truncated::after { background: linear-gradient(to bottom, transparent, #fff8e1); }
+.tool-use .truncatable.truncated::after { background: linear-gradient(to bottom, transparent, var(--tool-bg)); }
+.tool-result .truncatable.truncated::after { background: linear-gradient(to bottom, transparent, var(--tool-result-bg)); }
+.expand-btn { display: none; width: 100%; padding: 8px 16px; margin-top: 4px; background: rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.1); border-radius: 6px; cursor: pointer; font-size: 0.85rem; color: var(--text-muted); }
+.expand-btn:hover { background: rgba(0,0,0,0.1); }
+.truncatable.truncated .expand-btn, .truncatable.expanded .expand-btn { display: block; }
+.pagination { display: flex; justify-content: center; gap: 8px; margin: 24px 0; flex-wrap: wrap; }
+.pagination a, .pagination span { padding: 5px 10px; border-radius: 6px; text-decoration: none; font-size: 0.85rem; }
+.pagination a { background: var(--card-bg); color: var(--user-border); border: 1px solid var(--user-border); }
+.pagination a:hover { background: var(--user-bg); }
+.pagination .current { background: var(--user-border); color: white; }
+.pagination .disabled { color: var(--text-muted); border: 1px solid #ddd; }
+.pagination .index-link { background: var(--user-border); color: white; }
+details.continuation { margin-bottom: 16px; }
+details.continuation summary { cursor: pointer; padding: 12px 16px; background: var(--user-bg); border-left: 4px solid var(--user-border); border-radius: 12px; font-weight: 500; color: var(--text-muted); }
+details.continuation summary:hover { background: rgba(25, 118, 210, 0.15); }
+details.continuation[open] summary { border-radius: 12px 12px 0 0; margin-bottom: 0; }
+.index-item { margin-bottom: 16px; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); background: var(--user-bg); border-left: 4px solid var(--user-border); }
+.index-item a { display: block; text-decoration: none; color: inherit; }
+.index-item a:hover { background: rgba(25, 118, 210, 0.1); }
+.index-item-header { display: flex; justify-content: space-between; align-items: center; padding: 8px 16px; background: rgba(0,0,0,0.03); font-size: 0.85rem; }
+.index-item-number { font-weight: 600; color: var(--user-border); }
+.index-item-content { padding: 16px; }
+.index-item-stats { padding: 8px 16px 12px 32px; font-size: 0.85rem; color: var(--text-muted); border-top: 1px solid rgba(0,0,0,0.06); }
+.index-item-commit { margin-top: 6px; padding: 4px 8px; background: #fff3e0; border-radius: 4px; font-size: 0.85rem; color: #e65100; }
+.index-item-commit code { background: rgba(0,0,0,0.08); padding: 1px 4px; border-radius: 3px; font-size: 0.8rem; margin-right: 6px; }
+.commit-card { margin: 8px 0; padding: 10px 14px; background: #fff3e0; border-left: 4px solid #ff9800; border-radius: 6px; }
+.commit-card a { text-decoration: none; color: #5d4037; display: block; }
+.commit-card a:hover { color: #e65100; }
+.commit-card-hash { font-family: monospace; color: #e65100; font-weight: 600; margin-right: 8px; }
+.index-commit { margin-bottom: 12px; padding: 10px 16px; background: #fff3e0; border-left: 4px solid #ff9800; border-radius: 8px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+.index-commit a { display: block; text-decoration: none; color: inherit; }
+.index-commit a:hover { background: rgba(255, 152, 0, 0.1); margin: -10px -16px; padding: 10px 16px; border-radius: 8px; }
+.index-commit-header { display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; margin-bottom: 4px; }
+.index-commit-hash { font-family: monospace; color: #e65100; font-weight: 600; }
+.index-commit-msg { color: #5d4037; }
+.index-item-long-text { margin-top: 8px; padding: 12px; background: var(--card-bg); border-radius: 8px; border-left: 3px solid var(--assistant-border); }
+.index-item-long-text .truncatable.truncated::after { background: linear-gradient(to bottom, transparent, var(--card-bg)); }
+.index-item-long-text-content { color: var(--text-color); }
+#search-box { display: none; align-items: center; gap: 8px; }
+#search-box input { padding: 6px 12px; border: 1px solid var(--assistant-border); border-radius: 6px; font-size: 16px; width: 180px; }
+#search-box button, #modal-search-btn, #modal-close-btn { background: var(--user-border); color: white; border: none; border-radius: 6px; padding: 6px 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+#search-box button:hover, #modal-search-btn:hover { background: #1565c0; }
+#modal-close-btn { background: var(--text-muted); margin-left: 8px; }
+#modal-close-btn:hover { background: #616161; }
+#search-modal[open] { border: none; border-radius: 12px; box-shadow: 0 4px 24px rgba(0,0,0,0.2); padding: 0; width: 90vw; max-width: 900px; height: 80vh; max-height: 80vh; display: flex; flex-direction: column; }
+#search-modal::backdrop { background: rgba(0,0,0,0.5); }
+.search-modal-header { display: flex; align-items: center; gap: 8px; padding: 16px; border-bottom: 1px solid var(--assistant-border); background: var(--bg-color); border-radius: 12px 12px 0 0; }
+.search-modal-header input { flex: 1; padding: 8px 12px; border: 1px solid var(--assistant-border); border-radius: 6px; font-size: 16px; }
+#search-status { padding: 8px 16px; font-size: 0.85rem; color: var(--text-muted); border-bottom: 1px solid rgba(0,0,0,0.06); }
+#search-results { flex: 1; overflow-y: auto; padding: 16px; }
+.search-result { margin-bottom: 16px; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+.search-result a { display: block; text-decoration: none; color: inherit; }
+.search-result a:hover { background: rgba(25, 118, 210, 0.05); }
+.search-result-page { padding: 6px 12px; background: rgba(0,0,0,0.03); font-size: 0.8rem; color: var(--text-muted); border-bottom: 1px solid rgba(0,0,0,0.06); }
+.search-result-content { padding: 12px; }
+.search-result mark { background: #fff59d; padding: 1px 2px; border-radius: 2px; }
+@media (max-width: 600px) { body { padding: 8px; } .message, .index-item { border-radius: 8px; } .message-content, .index-item-content { padding: 12px; } pre { font-size: 0.8rem; padding: 8px; } #search-box input { width: 120px; } #search-modal[open] { width: 95vw; height: 90vh; } }
+</style>
+</head>
+<body>
+    <div class="container">
+        <h1><a href="index.html" style="color: inherit; text-decoration: none;">Claude Code transcript</a> - page 10/10</h1>
+        
+
+<div class="pagination">
+<a href="index.html" class="index-link">Index</a>
+<a href="page-009.html">&larr; Prev</a>
+<a href="page-001.html">1</a>
+<a href="page-002.html">2</a>
+<a href="page-003.html">3</a>
+<a href="page-004.html">4</a>
+<a href="page-005.html">5</a>
+<a href="page-006.html">6</a>
+<a href="page-007.html">7</a>
+<a href="page-008.html">8</a>
+<a href="page-009.html">9</a>
+<span class="current">10</span>
+<span class="disabled">Next &rarr;</span>
+</div>
+
+        
+<div class="message user" id="msg-2026-06-17T21-03-36-071Z"><div class="message-header"><span class="role-label">User</span><a href="#msg-2026-06-17T21-03-36-071Z" class="timestamp-link"><time datetime="2026-06-17T21:03:36.071Z" data-timestamp="2026-06-17T21:03:36.071Z">2026-06-17T21:03:36.071Z</time></a></div><div class="message-content">
+<div class="user-content"><p>The arrows aren't great but let's leave it at that. commit and push</p></div></div></div>
+<div class="message assistant" id="msg-2026-06-17T21-03-38-980Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-06-17T21-03-38-980Z" class="timestamp-link"><time datetime="2026-06-17T21:03:38.980Z" data-timestamp="2026-06-17T21:03:38.980Z">2026-06-17T21:03:38.980Z</time></a></div><div class="message-content">
+<div class="thinking"><div class="thinking-label">Thinking</div></div></div></div>
+<div class="message assistant" id="msg-2026-06-17T21-03-39-191Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-06-17T21-03-39-191Z" class="timestamp-link"><time datetime="2026-06-17T21:03:39.191Z" data-timestamp="2026-06-17T21:03:39.191Z">2026-06-17T21:03:39.191Z</time></a></div><div class="message-content">
+<div class="tool-use bash-tool" data-tool-id="toolu_01E6kJ5gyHYRvpztkBRt2AF8">
+<div class="tool-header"><span class="tool-icon">$</span> Bash</div>
+<div class="tool-description">Check git status and diff</div><div class="truncatable"><div class="truncatable-content"><pre class="bash-command">git -C /home/mve/repositories/multi_sensor_obs status &amp;&amp; git -C /home/mve/repositories/multi_sensor_obs diff</pre></div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-06-17T21-03-58-605Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-06-17T21-03-58-605Z" class="timestamp-link"><time datetime="2026-06-17T21:03:58.605Z" data-timestamp="2026-06-17T21:03:58.605Z">2026-06-17T21:03:58.605Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>On branch main
+Your branch is up to date with &#x27;origin/main&#x27;.
+
+Changes not staged for commit:
+  (use &quot;git add/rm &lt;file&gt;...&quot; to update what will be committed)
+  (use &quot;git restore &lt;file&gt;...&quot; to discard changes in working directory)
+	deleted:    assets/images/progress/viirs_zero_shot_scene01.png
+	modified:   progress/index.html
+	modified:   progress/viirs.html
+	modified:   style.css
+
+Untracked files:
+  (use &quot;git add &lt;file&gt;...&quot; to include in what will be committed)
+	assets/images/progress/viirs/
+
+no changes added to commit (use &quot;git add&quot; and/or &quot;git commit -a&quot;)
+diff --git a/assets/images/progress/viirs_zero_shot_scene01.png b/assets/images/progress/viirs_zero_shot_scene01.png
+deleted file mode 100644
+index f653b34..0000000
+Binary files a/assets/images/progress/viirs_zero_shot_scene01.png and /dev/null differ
+diff --git a/progress/index.html b/progress/index.html
+index 06f9160..fb548c3 100644
+--- a/progress/index.html
++++ b/progress/index.html
+@@ -44,7 +44,7 @@
+ 
+       &lt;!-- ─── PANEL 1 ─────────────────────────────── --&gt;
+       &lt;a class=&quot;progress-panel&quot; href=&quot;viirs.html&quot;&gt;
+-        &lt;img class=&quot;progress-panel-img&quot; src=&quot;../assets/images/progress/viirs_zero_shot_scene01.png&quot; alt=&quot;VIIRS data plugged into ABI contrail detection model&quot; /&gt;
++        &lt;img class=&quot;progress-panel-img&quot; src=&quot;../assets/images/progress/viirs/viirs_zero_shot_scene01.png&quot; alt=&quot;VIIRS data plugged into ABI contrail detection model&quot; /&gt;
+         &lt;div class=&quot;progress-panel-body&quot;&gt;
+           &lt;h2 class=&quot;progress-panel-title&quot;&gt;Detecting contrails in VIIRS imagery&lt;/h2&gt;
+           &lt;p class=&quot;progress-panel-desc&quot;&gt;Testing whether an existing contrail detection model trained on GOES ABI imagery can be applied to VIIRS data with only little tuning. VIIRS offers higher spatial resolution (375 m - 750 m) but slightly different spectral channels, requiring a band-mapping adapter before inference.&lt;/p&gt;
+diff --git a/progress/viirs.html b/progress/viirs.html
+index 1238a62..bd0d731 100644
+--- a/progress/viirs.html
++++ b/progress/viirs.html
+@@ -42,6 +42,218 @@
+         &lt;p class=&quot;section-sub&quot;&gt;Testing whether an existing contrail detection model trained on GOES ABI imagery can be applied to VIIRS data with only little tuning.&lt;/p&gt;
+       &lt;/div&gt;
+ 
++      &lt;!-- ─── INTRO ─────────────────────────────── --&gt;
++      &lt;p class=&quot;sp-intro&quot;&gt;
++        The ABI-trained &lt;code&gt;mcast&lt;/code&gt; model operates on geostationary imagery at 2 km resolution. VIIRS aboard Suomi-NPP and NOAA-20/21 offers 500 m resolution and similar — but not identical — spectral channels. If the model generalizes to VIIRS with little or no retraining, it unlocks higher-resolution contrail detections for multi-sensor observational verification.
++      &lt;/p&gt;
++
++      &lt;!-- ─── PIPELINE ───────────────────────────── --&gt;
++      &lt;div class=&quot;sp-section&quot;&gt;
++        &lt;div class=&quot;sp-section-label&quot;&gt;Overview&lt;/div&gt;
++        &lt;h2 class=&quot;sp-section-title&quot;&gt;Pipeline&lt;/h2&gt;
++        &lt;p class=&quot;sp-text&quot;&gt;
++          The pipeline takes raw VIIRS Level-1B granules, maps bands to their closest ABI equivalents via a lightweight adapter (&lt;code&gt;viirs_adapter.py&lt;/code&gt;), applies VIIRS-derived normalization statistics, and runs the unmodified &lt;code&gt;mcast&lt;/code&gt; detection model. The output is a float32 probability map — no threshold is applied at inference time, so the detection threshold can be swept interactively without re-running the model. Two model versions are being evaluated: &lt;code&gt;detection-1.1&lt;/code&gt; and &lt;code&gt;marvelous-moth-137&lt;/code&gt;.
++        &lt;/p&gt;
++
++        &lt;div class=&quot;pipeline-diagram&quot;&gt;
++          &lt;div class=&quot;pipe-legend&quot;&gt;
++            &lt;span&gt;&lt;span class=&quot;pipe-swatch&quot; style=&quot;background:#4a7c59&quot;&gt;&lt;/span&gt;Completed&lt;/span&gt;
++            &lt;span&gt;&lt;span class=&quot;pipe-swatch&quot; style=&quot;background:#4a9abe&quot;&gt;&lt;/span&gt;Detection model&lt;/span&gt;
++            &lt;span&gt;&lt;span class=&quot;pipe-swatch&quot; style=&quot;background:#c87941&quot;&gt;&lt;/span&gt;In progress&lt;/span&gt;
++          &lt;/div&gt;
++
++          &lt;div class=&quot;pipe-canvas&quot;&gt;
++
++            &lt;!-- Row 1: main flow --&gt;
++            &lt;div class=&quot;pipe-data-cell&quot; style=&quot;grid-area:data&quot;&gt;
++              &lt;div class=&quot;pipe-data-label&quot;&gt;&lt;em&gt;Val&lt;/em&gt; set of VIIRS &lt;code&gt;MOD&lt;/code&gt; granules&lt;/div&gt;
++              &lt;img src=&quot;../assets/images/progress/viirs/viirs_detection_input_for_flowchart.png&quot; class=&quot;pipe-data-img&quot; alt=&quot;VIIRS input scenes&quot; /&gt;
++            &lt;/div&gt;
++            &lt;div class=&quot;pipe-harrow&quot; style=&quot;grid-area:a12&quot;&gt;→&lt;/div&gt;
++            &lt;!-- norm spans rows 1–2, centered between the two models --&gt;
++            &lt;div class=&quot;pipe-box pipe-done&quot; style=&quot;grid-area:norm;align-self:stretch;display:flex;align-items:center;justify-content:center;&quot;&gt;Applying&lt;br&gt;normalization&lt;/div&gt;
++            &lt;div class=&quot;pipe-harrow&quot; style=&quot;grid-area:a23a&quot;&gt;→&lt;/div&gt;
++            &lt;div class=&quot;pipe-box pipe-model-a&quot; style=&quot;grid-area:moda&quot;&gt;&lt;code&gt;detection-1.1&lt;/code&gt;&lt;/div&gt;
++            &lt;div class=&quot;pipe-harrow pipe-harrow--dashed&quot; style=&quot;grid-area:a3a&quot;&gt;→&lt;/div&gt;
++            &lt;div class=&quot;pipe-box pipe-todo&quot; style=&quot;grid-area:tunea&quot;&gt;Threshold tuning&lt;/div&gt;
++            &lt;div class=&quot;pipe-harrow pipe-harrow--dashed&quot; style=&quot;grid-area:aea&quot;&gt;→&lt;/div&gt;
++            &lt;div class=&quot;pipe-eval-cell pipe-todo&quot; style=&quot;grid-area:evala&quot;&gt;🔍 Evaluate&lt;/div&gt;
++            &lt;div class=&quot;pipe-harrow pipe-harrow--dashed&quot; style=&quot;grid-area:acmpa&quot;&gt;→&lt;/div&gt;
++
++            &lt;!-- Row 2: second model branch + vertical connectors --&gt;
++            &lt;div class=&quot;pipe-varrow pipe-varrow--dashed&quot; style=&quot;grid-area:vi5&quot;&gt;↑&lt;/div&gt;
++            &lt;div class=&quot;pipe-harrow&quot; style=&quot;grid-area:a23b&quot;&gt;→&lt;/div&gt;
++            &lt;div class=&quot;pipe-box pipe-model-b&quot; style=&quot;grid-area:modb&quot;&gt;&lt;code&gt;marvelous-moth-137&lt;/code&gt;&lt;/div&gt;
++            &lt;div class=&quot;pipe-harrow pipe-harrow--dashed&quot; style=&quot;grid-area:a3b&quot;&gt;→&lt;/div&gt;
++            &lt;div class=&quot;pipe-box pipe-todo&quot; style=&quot;grid-area:tuneb&quot;&gt;Threshold tuning&lt;/div&gt;
++            &lt;div class=&quot;pipe-harrow pipe-harrow--dashed&quot; style=&quot;grid-area:aeb&quot;&gt;→&lt;/div&gt;
++            &lt;div class=&quot;pipe-eval-cell pipe-todo&quot; style=&quot;grid-area:evalb&quot;&gt;🔍 Evaluate&lt;/div&gt;
++            &lt;div class=&quot;pipe-harrow pipe-harrow--dashed&quot; style=&quot;grid-area:acmpb&quot;&gt;→&lt;/div&gt;
++
++            &lt;!-- Compare box spans rows 1–2 --&gt;
++            &lt;div class=&quot;pipe-box pipe-todo&quot; style=&quot;grid-area:compare;align-self:stretch;display:flex;align-items:center;justify-content:center;&quot;&gt;Compare&lt;br&gt;outputs&lt;br&gt;against&lt;br&gt;labels&lt;/div&gt;
++
++            &lt;!-- Labels input below compare --&gt;
++            &lt;div class=&quot;pipe-varrow pipe-varrow--dashed&quot; style=&quot;grid-area:vcmp&quot;&gt;↑&lt;/div&gt;
++            &lt;div class=&quot;pipe-data-cell&quot; style=&quot;grid-area:labels&quot;&gt;
++              &lt;img src=&quot;../assets/images/progress/viirs/viirs_labels_input_for_flowchart.png&quot; class=&quot;pipe-data-img&quot; alt=&quot;Contrail labels&quot; /&gt;
++              &lt;div class=&quot;pipe-data-label&quot;&gt;Contrail labels&lt;/div&gt;
++            &lt;/div&gt;
++
++            &lt;!-- Row 3: arrow from stats up to norm --&gt;
++            &lt;div class=&quot;pipe-varrow&quot; style=&quot;grid-area:vnorm&quot;&gt;↑&lt;/div&gt;
++
++            &lt;!-- Row 4: I5 + det stats --&gt;
++            &lt;div class=&quot;pipe-box pipe-done&quot; style=&quot;grid-area:i5&quot;&gt;Plug in &lt;em&gt;I5&lt;/em&gt; channel&lt;br&gt;from &lt;code&gt;IMG&lt;/code&gt; product&lt;/div&gt;
++            &lt;div class=&quot;pipe-box pipe-done&quot; style=&quot;grid-area:stats&quot;&gt;Determine&lt;br&gt;standardization values&lt;/div&gt;
++
++            &lt;!-- Row 4: vertical arrow --&gt;
++            &lt;div class=&quot;pipe-varrow&quot; style=&quot;grid-area:vstats&quot;&gt;↑&lt;/div&gt;
++
++            &lt;!-- Row 5: download --&gt;
++            &lt;div class=&quot;pipe-box pipe-done&quot; style=&quot;grid-area:dl&quot;&gt;Find, sample &amp;amp; download&lt;br&gt;a range of VIIRS swaths&lt;/div&gt;
++
++          &lt;/div&gt;
++        &lt;/div&gt;
++      &lt;/div&gt;
++
++      &lt;!-- ─── CHANNEL MAPPING ───────────────────── --&gt;
++      &lt;div class=&quot;sp-section&quot;&gt;
++        &lt;div class=&quot;sp-section-label&quot;&gt;Input Data&lt;/div&gt;
++        &lt;h2 class=&quot;sp-section-title&quot;&gt;Channel mapping&lt;/h2&gt;
++        &lt;p class=&quot;sp-text&quot;&gt;
++          The detection model takes three inputs: ABI channels C11, C14, and the brightness temperature difference C13−C15. VIIRS bands are mapped to these as closely as possible. The M-band product (750 m) lacks a channel near 11 µm, so M15 (10.76 µm) substitutes for both C13 and C14. The I-band product (375 m) adds I5 at 11.45 µm — a much closer match to C14 (11.2 µm) — but requires a second data product and reprojection onto the M-band grid.
++        &lt;/p&gt;
++
++        &lt;div class=&quot;channel-tables-wrap&quot;&gt;
++          &lt;div class=&quot;channel-table-block&quot;&gt;
++            &lt;div class=&quot;channel-table-label&quot;&gt;M-band only (750 m)&lt;/div&gt;
++            &lt;table class=&quot;channel-table&quot;&gt;
++              &lt;thead&gt;
++                &lt;tr&gt;
++                  &lt;th class=&quot;ch-head-abi&quot;&gt;ABI channel&lt;/th&gt;
++                  &lt;th class=&quot;ch-head-abi&quot;&gt;Center wavelength&lt;/th&gt;
++                  &lt;th class=&quot;ch-head-viirs&quot;&gt;Closest VIIRS channel&lt;/th&gt;
++                  &lt;th class=&quot;ch-head-viirs&quot;&gt;Center wavelength&lt;/th&gt;
++                &lt;/tr&gt;
++              &lt;/thead&gt;
++              &lt;tbody&gt;
++                &lt;tr&gt;&lt;td&gt;C11&lt;/td&gt;&lt;td&gt;8.4 µm&lt;/td&gt;&lt;td&gt;M14&lt;/td&gt;&lt;td&gt;8.55 µm&lt;/td&gt;&lt;/tr&gt;
++                &lt;tr class=&quot;ch-btd-row&quot;&gt;&lt;td&gt;C13&lt;/td&gt;&lt;td&gt;10.3 µm&lt;/td&gt;&lt;td&gt;M15&lt;/td&gt;&lt;td&gt;10.76 µm&lt;/td&gt;&lt;/tr&gt;
++                &lt;tr&gt;&lt;td&gt;C14&lt;/td&gt;&lt;td&gt;11.2 µm&lt;/td&gt;&lt;td&gt;M15&lt;/td&gt;&lt;td&gt;10.76 µm&lt;/td&gt;&lt;/tr&gt;
++                &lt;tr class=&quot;ch-btd-row&quot;&gt;&lt;td&gt;C15&lt;/td&gt;&lt;td&gt;12.3 µm&lt;/td&gt;&lt;td&gt;M16&lt;/td&gt;&lt;td&gt;12.01 µm&lt;/td&gt;&lt;/tr&gt;
++              &lt;/tbody&gt;
++            &lt;/table&gt;
++          &lt;/div&gt;
++          &lt;div class=&quot;channel-table-block&quot;&gt;
++            &lt;div class=&quot;channel-table-label&quot;&gt;M-band + I5 (375 m for C14)&lt;/div&gt;
++            &lt;table class=&quot;channel-table&quot;&gt;
++              &lt;thead&gt;
++                &lt;tr&gt;
++                  &lt;th class=&quot;ch-head-abi&quot;&gt;ABI channel&lt;/th&gt;
++                  &lt;th class=&quot;ch-head-abi&quot;&gt;Center wavelength&lt;/th&gt;
++                  &lt;th class=&quot;ch-head-viirs&quot;&gt;Closest VIIRS channel&lt;/th&gt;
++                  &lt;th class=&quot;ch-head-viirs&quot;&gt;Center wavelength&lt;/th&gt;
++                &lt;/tr&gt;
++              &lt;/thead&gt;
++              &lt;tbody&gt;
++                &lt;tr&gt;&lt;td&gt;C11&lt;/td&gt;&lt;td&gt;8.4 µm&lt;/td&gt;&lt;td&gt;M14&lt;/td&gt;&lt;td&gt;8.55 µm&lt;/td&gt;&lt;/tr&gt;
++                &lt;tr class=&quot;ch-btd-row&quot;&gt;&lt;td&gt;C13&lt;/td&gt;&lt;td&gt;10.3 µm&lt;/td&gt;&lt;td&gt;M15&lt;/td&gt;&lt;td&gt;10.76 µm&lt;/td&gt;&lt;/tr&gt;
++                &lt;tr class=&quot;ch-i5-row&quot;&gt;&lt;td&gt;C14&lt;/td&gt;&lt;td&gt;11.2 µm&lt;/td&gt;&lt;td&gt;I5&lt;/td&gt;&lt;td&gt;11.45 µm&lt;/td&gt;&lt;/tr&gt;
++                &lt;tr class=&quot;ch-btd-row&quot;&gt;&lt;td&gt;C15&lt;/td&gt;&lt;td&gt;12.3 µm&lt;/td&gt;&lt;td&gt;M16&lt;/td&gt;&lt;td&gt;12.01 µm&lt;/td&gt;&lt;/tr&gt;
++              &lt;/tbody&gt;
++            &lt;/table&gt;
++          &lt;/div&gt;
++        &lt;/div&gt;
++        &lt;p class=&quot;sp-caption&quot; style=&quot;margin-top:0.75rem;&quot;&gt;Shaded rows contribute to the BTD (C13−C15) input. The I5 channel (right table, highlighted) is a closer spectral match to ABI C14 than M15, but requires the additional 375 m I-band product and reprojection onto the M-band grid.&lt;/p&gt;
++      &lt;/div&gt;
++
++      &lt;!-- ─── BOWTIE &amp; RESULTS ───────────────────── --&gt;
++      &lt;div class=&quot;sp-section&quot;&gt;
++        &lt;div class=&quot;sp-section-label&quot;&gt;Zero-Shot Results&lt;/div&gt;
++        &lt;h2 class=&quot;sp-section-title&quot;&gt;Bowtie handling &amp;amp; detection performance&lt;/h2&gt;
++
++        &lt;p class=&quot;sp-text&quot;&gt;
++          VIIRS M-band L1B data contains bowtie deletion zones — pixels removed where adjacent scan lines overlap at high viewing angles. About 13% of pixels are invalid, concentrated in the left and right thirds of each swath in repeating 4-row gaps. Unhandled, NaN values propagate through the model&#x27;s convolutional layers and suppress all detections across ~80% of the swath width.
++        &lt;/p&gt;
++        &lt;p class=&quot;sp-text&quot;&gt;
++          Three strategies were tested, each improving substantially on the last. The current fix — &lt;em&gt;along-track interpolation&lt;/em&gt; — fills each 4-row gap by column-wise linear interpolation using the nearest valid pixels above and below, a physically reasonable approximation given the small spatial extent (~3 km) of each gap.
++        &lt;/p&gt;
++
++        &lt;!-- Metrics table --&gt;
++        &lt;div class=&quot;sp-metrics-wrap&quot;&gt;
++          &lt;table class=&quot;sp-metrics&quot;&gt;
++            &lt;thead&gt;
++              &lt;tr&gt;
++                &lt;th&gt;Bowtie handling&lt;/th&gt;
++                &lt;th&gt;Precision&lt;/th&gt;
++                &lt;th&gt;Recall&lt;/th&gt;
++                &lt;th&gt;F1&lt;/th&gt;
++                &lt;th&gt;IoU&lt;/th&gt;
++              &lt;/tr&gt;
++            &lt;/thead&gt;
++            &lt;tbody&gt;
++              &lt;tr&gt;
++                &lt;td&gt;None (NaN propagation)&lt;/td&gt;
++                &lt;td&gt;0.587&lt;/td&gt;&lt;td&gt;0.053&lt;/td&gt;&lt;td&gt;0.097&lt;/td&gt;&lt;td&gt;0.051&lt;/td&gt;
++              &lt;/tr&gt;
++              &lt;tr&gt;
++                &lt;td&gt;Band-mean fill&lt;/td&gt;
++                &lt;td&gt;0.391&lt;/td&gt;&lt;td&gt;0.318&lt;/td&gt;&lt;td&gt;0.351&lt;/td&gt;&lt;td&gt;0.213&lt;/td&gt;
++              &lt;/tr&gt;
++              &lt;tr class=&quot;sp-metrics-best&quot;&gt;
++                &lt;td&gt;Along-track interpolation &lt;em&gt;(current)&lt;/em&gt;&lt;/td&gt;
++                &lt;td&gt;0.491&lt;/td&gt;&lt;td&gt;0.365&lt;/td&gt;&lt;td&gt;0.419&lt;/td&gt;&lt;td&gt;0.265&lt;/td&gt;
++              &lt;/tr&gt;
++            &lt;/tbody&gt;
++          &lt;/table&gt;
++          &lt;p class=&quot;sp-caption&quot; style=&quot;margin-top:0.5rem;&quot;&gt;Pixel-wise metrics aggregated over val scenes (1 &amp;amp; 7), zero-shot with M15 as C14 substitute. No threshold tuning applied.&lt;/p&gt;
++        &lt;/div&gt;
++
++        &lt;figure class=&quot;sp-figure&quot; style=&quot;margin-top:2rem;&quot;&gt;
++          &lt;img src=&quot;../assets/images/progress/viirs/viirs_zero_shot_scene01.png&quot; alt=&quot;Zero-shot VIIRS contrail detection result for scene 01&quot; /&gt;
++          &lt;figcaption class=&quot;sp-caption&quot;&gt;
++            Scene 01 (NOAA-20, daytime): false-color VIIRS composite (left) and zero-shot detection mask after along-track interpolation fill (right). No threshold tuning or fine-tuning applied beyond NaN handling.
++            &lt;span class=&quot;sp-credit&quot;&gt;Credit: &lt;/span&gt;
++          &lt;/figcaption&gt;
++        &lt;/figure&gt;
++      &lt;/div&gt;
++
++      &lt;!-- ─── DATASET ───────────────────────────── --&gt;
++      &lt;div class=&quot;sp-section&quot;&gt;
++        &lt;div class=&quot;sp-section-label&quot;&gt;Data&lt;/div&gt;
++        &lt;h2 class=&quot;sp-section-title&quot;&gt;Labeled dataset&lt;/h2&gt;
++        &lt;p class=&quot;sp-text&quot;&gt;
++          12 manually labeled VIIRS scenes are available, covering both NOAA-20 and Suomi-NPP, daytime and nighttime overpasses. All model inputs are thermal infrared channels with no solar-reflectance dependency, so day/night does not affect data values directly — it serves mainly as a proxy for viewing geometry. The dataset is split to keep tuning (threshold selection, normalization) on val only, with train and test locked until tuning is complete.
++        &lt;/p&gt;
++
++        &lt;div class=&quot;sp-metrics-wrap&quot;&gt;
++          &lt;table class=&quot;sp-metrics&quot;&gt;
++            &lt;thead&gt;
++              &lt;tr&gt;&lt;th&gt;Split&lt;/th&gt;&lt;th&gt;Scenes&lt;/th&gt;&lt;th&gt;Satellites&lt;/th&gt;&lt;th&gt;Overpass&lt;/th&gt;&lt;/tr&gt;
++            &lt;/thead&gt;
++            &lt;tbody&gt;
++              &lt;tr&gt;&lt;td&gt;Val&lt;/td&gt;&lt;td&gt;1, 7&lt;/td&gt;&lt;td&gt;NOAA-20, Suomi NPP&lt;/td&gt;&lt;td&gt;2 day&lt;/td&gt;&lt;/tr&gt;
++              &lt;tr&gt;&lt;td&gt;Train&lt;/td&gt;&lt;td&gt;2, 3, 5, 6, 8, 10, 11&lt;/td&gt;&lt;td&gt;NOAA-20 ×4, Suomi NPP ×3&lt;/td&gt;&lt;td&gt;6 day, 1 night&lt;/td&gt;&lt;/tr&gt;
++              &lt;tr&gt;&lt;td&gt;Test&lt;/td&gt;&lt;td&gt;4, 9, 12&lt;/td&gt;&lt;td&gt;NOAA-20 ×2, Suomi NPP ×1&lt;/td&gt;&lt;td&gt;2 day, 1 night&lt;/td&gt;&lt;/tr&gt;
++            &lt;/tbody&gt;
++          &lt;/table&gt;
++          &lt;p class=&quot;sp-caption&quot; style=&quot;margin-top:0.5rem;&quot;&gt;Splits are stratified by satellite and overpass type. The single night scene in train (scene 6) ensures tuning sees both overpass types; scene 9 (night) is reserved as an out-of-distribution test.&lt;/p&gt;
++        &lt;/div&gt;
++      &lt;/div&gt;
++
++      &lt;!-- ─── NEXT STEPS ─────────────────────────── --&gt;
++      &lt;div class=&quot;sp-section&quot;&gt;
++        &lt;div class=&quot;sp-section-label&quot;&gt;In Progress&lt;/div&gt;
++        &lt;h2 class=&quot;sp-section-title&quot;&gt;Next steps&lt;/h2&gt;
++        &lt;ul class=&quot;sp-text sp-list&quot;&gt;
++          &lt;li&gt;&lt;strong&gt;Threshold sweep.&lt;/strong&gt; The default threshold (0.42) was calibrated on ABI data. An interactive notebook sweeps thresholds over the saved probability maps and plots precision-recall curves with scene previews.&lt;/li&gt;
++          &lt;li&gt;&lt;strong&gt;Normalization comparison.&lt;/strong&gt; VIIRS-derived normalization statistics have been computed from 48 stratified CONUS swaths. Next: compare detection performance with VIIRS stats vs. ABI training stats to quantify the impact of distribution shift.&lt;/li&gt;
++          &lt;li&gt;&lt;strong&gt;I5 channel for C14.&lt;/strong&gt; I5 (11.45 µm) is a closer spectral match to ABI C14 (11.2 µm) than M15 (10.76 µm). The full pipeline is implemented; pending re-download of 2 missing IMG geolocation files and a re-run of &lt;code&gt;compute_norm_stats&lt;/code&gt; to produce the I5 statistics file.&lt;/li&gt;
++          &lt;li&gt;&lt;strong&gt;Interactive result viewer.&lt;/strong&gt; Coming soon — browse detection results across all scenes with threshold slider.&lt;/li&gt;
++        &lt;/ul&gt;
++      &lt;/div&gt;
++
+     &lt;/div&gt;
+   &lt;/div&gt;
+ 
+diff --git a/style.css b/style.css
+index dbd3ebc..6f875db 100644
+--- a/style.css
++++ b/style.css
+@@ -803,6 +803,267 @@ figcaption.sp-caption {
+   font-style: italic;
+ }
+ 
++.sp-credit a {
++  color: inherit;
++  text-decoration: underline;
++}
++
++.sp-list {
++  padding-left: 1.25rem;
++  max-width: 760px;
++}
++
++.sp-list li {
++  margin-bottom: 0.75rem;
++}
++
++.sp-metrics-wrap {
++  overflow-x: auto;
++}
++
++.sp-metrics {
++  width: 100%;
++  max-width: 760px;
++  border-collapse: collapse;
++  font-size: 0.88rem;
++}
++
++.sp-metrics th {
++  text-align: left;
++  font-weight: 500;
++  font-size: 0.72rem;
++  letter-spacing: 0.08em;
++  text-transform: uppercase;
++  color: var(--ink-muted);
++  border-bottom: 1px solid var(--glass-border);
++  padding: 0.5rem 1rem 0.5rem 0;
++}
++
++.sp-metrics td {
++  padding: 0.55rem 1rem 0.55rem 0;
++  border-bottom: 1px solid var(--glass-border);
++  color: var(--ink-soft);
++}
++
++.sp-metrics-best td {
++  color: var(--ink);
++  font-weight: 500;
++}
++
++.sp-metrics tbody tr:last-child td {
++  border-bottom: none;
++}
++
++.sp-channel-highlight {
++  color: var(--sky-deep);
++  font-weight: 500;
++}
++
++.sp-btd-tag {
++  display: inline-block;
++  font-size: 0.65rem;
++  font-weight: 500;
++  letter-spacing: 0.06em;
++  text-transform: uppercase;
++  color: var(--ink-muted);
++  background: var(--glass-bg);
++  border: 1px solid var(--glass-border);
++  border-radius: 3px;
++  padding: 0 0.3rem;
++  vertical-align: middle;
++  margin-left: 0.3rem;
++}
++
++/* ════════════════════════════════════════════════
++   PIPELINE DIAGRAM
++════════════════════════════════════════════════ */
++.pipeline-diagram {
++  background: var(--glass-bg);
++  border: 1px solid var(--glass-border);
++  border-radius: var(--radius);
++  padding: 1.75rem 2rem;
++  overflow-x: auto;
++  margin-bottom: 1.5rem;
++}
++
++.pipe-legend {
++  display: flex;
++  gap: 1.5rem;
++  margin-bottom: 1.5rem;
++  font-size: 0.75rem;
++  color: var(--ink-soft);
++  justify-content: flex-end;
++}
++
++.pipe-swatch {
++  display: inline-block;
++  width: 11px; height: 11px;
++  border-radius: 2px;
++  margin-right: 0.35rem;
++  vertical-align: middle;
++}
++
++.pipe-canvas {
++  display: grid;
++  grid-template-columns: 115px 24px 115px 24px 135px 24px 125px 24px 90px 24px 105px;
++  grid-template-rows: auto auto 48px auto 20px auto;
++  grid-template-areas:
++    &quot;data   a12   norm   a23a  moda   a3a   tunea  aea   evala  acmpa  compare&quot;
++    &quot;data   a12   norm   a23b  modb   a3b   tuneb  aeb   evalb  acmpb  compare&quot;
++    &quot;vi5    .     vnorm  .     .      .     .      .     .      .      vcmp   &quot;
++    &quot;i5     .     stats  .     .      .     .      .     .      .      labels &quot;
++    &quot;.      .     vstats .     .      .     .      .     .      .      .      &quot;
++    &quot;.      .     dl     .     .      .     .      .     .      .      .      &quot;;
++  align-items: center;
++}
++
++.pipe-data-cell {
++  display: flex;
++  flex-direction: column;
++  align-items: center;
++  gap: 0.4rem;
++  grid-area: data;
++}
++
++.pipe-data-label {
++  font-size: 0.72rem;
++  color: var(--ink-muted);
++  text-align: center;
++  line-height: 1.3;
++}
++
++.pipe-data-img {
++  width: 120px;
++  border-radius: 4px;
++  display: block;
++}
++
++.pipe-box {
++  padding: 0.55rem 0.75rem;
++  border-radius: 6px;
++  font-size: 0.78rem;
++  font-weight: 500;
++  text-align: center;
++  line-height: 1.4;
++}
++
++.pipe-done    { background: #d4ead9; color: #2d6a40; border: 1px solid #a8d5b0; }
++.pipe-model-a { background: #cce8f5; color: #1a5f80; border: 1px solid #90cae8; }
++.pipe-model-b { background: #d4d8f0; color: #2e3a7a; border: 1px solid #a8aede; }
++.pipe-todo    { background: #fde8cc; color: #8f4a10; border: 1px solid #f5c48a; }
++
++.pipe-eval-cell {
++  padding: 0.55rem 0.5rem;
++  border-radius: 6px;
++  font-size: 0.75rem;
++  font-weight: 500;
++  text-align: center;
++  line-height: 1.4;
++}
++
++.pipe-harrow {
++  display: flex;
++  align-items: center;
++  font-size: 0;
++}
++.pipe-harrow::before {
++  content: &#x27;&#x27;;
++  flex: 1;
++  height: 1.5px;
++  background: #8a9baa;
++}
++.pipe-harrow::after {
++  content: &#x27;&#x27;;
++  width: 0; height: 0;
++  border-top: 5px solid transparent;
++  border-bottom: 5px solid transparent;
++  border-left: 8px solid #8a9baa;
++}
++
++.pipe-harrow--dashed::before {
++  background: repeating-linear-gradient(to right, #aab 0px, #aab 4px, transparent 4px, transparent 8px);
++}
++.pipe-harrow--dashed::after {
++  border-left-color: #aab;
++}
++
++.pipe-varrow {
++  display: flex;
++  flex-direction: column;
++  align-items: center;
++  align-self: stretch;
++  font-size: 0;
++}
++.pipe-varrow::before {
++  content: &#x27;&#x27;;
++  width: 0; height: 0;
++  border-left: 5px solid transparent;
++  border-right: 5px solid transparent;
++  border-bottom: 8px solid #8a9baa;
++}
++.pipe-varrow::after {
++  content: &#x27;&#x27;;
++  flex: 1;
++  width: 1.5px;
++  background: #8a9baa;
++}
++
++.pipe-varrow--dashed::before {
++  border-bottom-color: #aab;
++}
++.pipe-varrow--dashed::after {
++  background: repeating-linear-gradient(to bottom, #aab 0px, #aab 4px, transparent 4px, transparent 8px);
++}
++
++/* ════════════════════════════════════════════════
++   CHANNEL MAPPING TABLES
++════════════════════════════════════════════════ */
++.channel-tables-wrap {
++  display: grid;
++  grid-template-columns: 1fr 1fr;
++  gap: 1.5rem;
++}
++
++.channel-table-label {
++  font-size: 0.72rem;
++  font-weight: 500;
++  letter-spacing: 0.08em;
++  text-transform: uppercase;
++  color: var(--ink-muted);
++  margin-bottom: 0.5rem;
++}
++
++.channel-table {
++  width: 100%;
++  border-collapse: collapse;
++  font-size: 0.83rem;
++}
++
++.channel-table th {
++  padding: 0.55rem 0.75rem;
++  text-align: left;
++  font-weight: 500;
++  font-size: 0.75rem;
++  color: #fff;
++}
++
++.ch-head-abi   { background: #1e3a5f; }
++.ch-head-viirs { background: #7b1f1f; }
++
++.channel-table td {
++  padding: 0.5rem 0.75rem;
++  border-bottom: 1px solid var(--glass-border);
++  color: var(--ink-soft);
++}
++
++.channel-table tbody tr:last-child td { border-bottom: none; }
++.ch-btd-row td { background: #fdf6e3; }
++.ch-i5-row  td { background: #fff3cd; color: var(--ink); font-weight: 500; }
++
++@media (max-width: 700px) {
++  .channel-tables-wrap { grid-template-columns: 1fr; }
++}
++
+ @media (max-width: 700px) {
+   .sp-layout-side,
+   .sp-figures-row {</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-06-17T21-04-04-294Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-06-17T21-04-04-294Z" class="timestamp-link"><time datetime="2026-06-17T21:04:04.294Z" data-timestamp="2026-06-17T21:04:04.294Z">2026-06-17T21:04:04.294Z</time></a></div><div class="message-content">
+<div class="thinking"><div class="thinking-label">Thinking</div></div></div></div>
+<div class="message assistant" id="msg-2026-06-17T21-04-05-136Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-06-17T21-04-05-136Z" class="timestamp-link"><time datetime="2026-06-17T21:04:05.136Z" data-timestamp="2026-06-17T21:04:05.136Z">2026-06-17T21:04:05.136Z</time></a></div><div class="message-content">
+<div class="tool-use bash-tool" data-tool-id="toolu_01EydRR7KFG9sV6TEAagHH3r">
+<div class="tool-header"><span class="tool-icon">$</span> Bash</div>
+<div class="tool-description">Check recent commit messages for style</div><div class="truncatable"><div class="truncatable-content"><pre class="bash-command">git -C /home/mve/repositories/multi_sensor_obs log --oneline -3</pre></div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-06-17T21-04-10-825Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-06-17T21-04-10-825Z" class="timestamp-link"><time datetime="2026-06-17T21:04:10.825Z" data-timestamp="2026-06-17T21:04:10.825Z">2026-06-17T21:04:10.825Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>19828b1 Add Progress section with WindBorne and VIIRS subproject pages
+2602b7a Rename Updates section to AI Log across site
+eaef6f0 Add Week 3 update, reflection, session transcript, and 7:1 easter egg</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-06-17T21-04-16-386Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-06-17T21-04-16-386Z" class="timestamp-link"><time datetime="2026-06-17T21:04:16.386Z" data-timestamp="2026-06-17T21:04:16.386Z">2026-06-17T21:04:16.386Z</time></a></div><div class="message-content">
+<div class="tool-use bash-tool" data-tool-id="toolu_01Wi1VnnwHba7PbUszyJfSHY">
+<div class="tool-header"><span class="tool-icon">$</span> Bash</div>
+<div class="tool-description">Stage and commit all changes</div><div class="truncatable"><div class="truncatable-content"><pre class="bash-command">git add progress/viirs.html progress/index.html style.css assets/images/progress/viirs/ &amp;&amp; git commit -m &#34;$(cat &lt;&lt;&#39;EOF&#39;
+Expand VIIRS progress page with pipeline diagram, channel tables, and results
+
+Adds full content to the VIIRS detection subproject page: 2D CSS Grid pipeline
+diagram with labels image input, channel mapping tables, bowtie metrics, dataset
+split, and next steps. Fixes norm/compare box heights, adds CSS rim-to-rim arrows,
+and moves VIIRS images into a viirs/ subfolder.
+
+Co-Authored-By: Claude Sonnet 4.6 &lt;noreply@anthropic.com&gt;
+EOF
+)&#34;</pre></div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-06-17T21-04-23-461Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-06-17T21-04-23-461Z" class="timestamp-link"><time datetime="2026-06-17T21:04:23.461Z" data-timestamp="2026-06-17T21:04:23.461Z">2026-06-17T21:04:23.461Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><div class="commit-card"><span class="commit-card-hash">b9aac74</span> Expand VIIRS progress page with pipeline diagram, channel tables, and results</div><pre>8 files changed, 474 insertions(+), 1 deletion(-)
+ create mode 100644 assets/images/progress/viirs/viirs_detection_channels_overview.png
+ create mode 100644 assets/images/progress/viirs/viirs_detection_flowchart.png
+ create mode 100644 assets/images/progress/viirs/viirs_detection_input_for_flowchart.png
+ create mode 100644 assets/images/progress/viirs/viirs_labels_input_for_flowchart.png
+ create mode 100644 assets/images/progress/viirs/viirs_zero_shot_scene01.png</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-06-17T21-04-28-166Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-06-17T21-04-28-166Z" class="timestamp-link"><time datetime="2026-06-17T21:04:28.166Z" data-timestamp="2026-06-17T21:04:28.166Z">2026-06-17T21:04:28.166Z</time></a></div><div class="message-content">
+<div class="tool-use bash-tool" data-tool-id="toolu_01WRRnjeUVVxni6DoLMFxKZv">
+<div class="tool-header"><span class="tool-icon">$</span> Bash</div>
+<div class="tool-description">Push to remote</div><div class="truncatable"><div class="truncatable-content"><pre class="bash-command">git -C /home/mve/repositories/multi_sensor_obs push</pre></div><button class="expand-btn">Show more</button></div>
+</div></div></div>
+<div class="message tool-reply" id="msg-2026-06-17T21-04-31-245Z"><div class="message-header"><span class="role-label">Tool reply</span><a href="#msg-2026-06-17T21-04-31-245Z" class="timestamp-link"><time datetime="2026-06-17T21:04:31.245Z" data-timestamp="2026-06-17T21:04:31.245Z">2026-06-17T21:04:31.245Z</time></a></div><div class="message-content"><div class="tool-result"><div class="truncatable"><div class="truncatable-content"><pre>To github.com:AI-for-engineering-research/marlene.git
+   19828b1..b9aac74  main -&gt; main</pre></div><button class="expand-btn">Show more</button></div></div></div></div>
+<div class="message assistant" id="msg-2026-06-17T21-04-33-608Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-06-17T21-04-33-608Z" class="timestamp-link"><time datetime="2026-06-17T21:04:33.608Z" data-timestamp="2026-06-17T21:04:33.608Z">2026-06-17T21:04:33.608Z</time></a></div><div class="message-content">
+<div class="assistant-text"><p>Pushed. All the VIIRS page work is now on <code>main</code> — diagram fixes, labels input, CSS arrows, and the image subfolder reorganization.</p></div></div></div>
+<div class="message user" id="msg-2026-06-22T13-15-26-818Z"><div class="message-header"><span class="role-label">User</span><a href="#msg-2026-06-22T13-15-26-818Z" class="timestamp-link"><time datetime="2026-06-22T13:15:26.818Z" data-timestamp="2026-06-22T13:15:26.818Z">2026-06-22T13:15:26.818Z</time></a></div><div class="message-content">
+<div class="user-content"><p>claude-code-transcripts</p></div></div></div>
+<div class="message assistant" id="msg-2026-06-22T13-15-40-469Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-06-22T13-15-40-469Z" class="timestamp-link"><time datetime="2026-06-22T13:15:40.469Z" data-timestamp="2026-06-22T13:15:40.469Z">2026-06-22T13:15:40.469Z</time></a></div><div class="message-content">
+<div class="thinking"><div class="thinking-label">Thinking</div></div></div></div>
+<div class="message assistant" id="msg-2026-06-22T13-15-41-364Z"><div class="message-header"><span class="role-label">Assistant</span><a href="#msg-2026-06-22T13-15-41-364Z" class="timestamp-link"><time datetime="2026-06-22T13:15:41.364Z" data-timestamp="2026-06-22T13:15:41.364Z">2026-06-22T13:15:41.364Z</time></a></div><div class="message-content">
+<div class="assistant-text"><p>Could you say more about what you're looking for? Are you asking about where Claude Code stores its session transcripts (like the <code>.jsonl</code> files under <code>~/.claude/projects/</code>), or is this about adding a new transcript to your AI log on the website?</p></div></div></div>
+        
+
+<div class="pagination">
+<a href="index.html" class="index-link">Index</a>
+<a href="page-009.html">&larr; Prev</a>
+<a href="page-001.html">1</a>
+<a href="page-002.html">2</a>
+<a href="page-003.html">3</a>
+<a href="page-004.html">4</a>
+<a href="page-005.html">5</a>
+<a href="page-006.html">6</a>
+<a href="page-007.html">7</a>
+<a href="page-008.html">8</a>
+<a href="page-009.html">9</a>
+<span class="current">10</span>
+<span class="disabled">Next &rarr;</span>
+</div>
+
+    </div>
+    <script>
+document.querySelectorAll('time[data-timestamp]').forEach(function(el) {
+    const timestamp = el.getAttribute('data-timestamp');
+    const date = new Date(timestamp);
+    const now = new Date();
+    const isToday = date.toDateString() === now.toDateString();
+    const timeStr = date.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+    if (isToday) { el.textContent = timeStr; }
+    else { el.textContent = date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) + ' ' + timeStr; }
+});
+document.querySelectorAll('pre.json').forEach(function(el) {
+    let text = el.textContent;
+    text = text.replace(/"([^"]+)":/g, '<span style="color: #ce93d8">"$1"</span>:');
+    text = text.replace(/: "([^"]*)"/g, ': <span style="color: #81d4fa">"$1"</span>');
+    text = text.replace(/: (\d+)/g, ': <span style="color: #ffcc80">$1</span>');
+    text = text.replace(/: (true|false|null)/g, ': <span style="color: #f48fb1">$1</span>');
+    el.innerHTML = text;
+});
+document.querySelectorAll('.truncatable').forEach(function(wrapper) {
+    const content = wrapper.querySelector('.truncatable-content');
+    const btn = wrapper.querySelector('.expand-btn');
+    if (content.scrollHeight > 250) {
+        wrapper.classList.add('truncated');
+        btn.addEventListener('click', function() {
+            if (wrapper.classList.contains('truncated')) { wrapper.classList.remove('truncated'); wrapper.classList.add('expanded'); btn.textContent = 'Show less'; }
+            else { wrapper.classList.remove('expanded'); wrapper.classList.add('truncated'); btn.textContent = 'Show more'; }
+        });
+    }
+});
+</script>
+</body>
+</html>

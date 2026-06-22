@@ -42,6 +42,43 @@
         <p class="section-sub">A running log of weekly progress notes and reflections on working with AI tools for research.</p>
       </div>
 
+      <!-- ─── WEEK 4 ─────────────────────────────── -->
+      <div class="update-entry" id="update-20260623">
+        <div class="update-entry-meta">
+          <span class="update-type update-type--update">AI Log</span>
+          <span class="update-date">June 23, 2026</span>
+        </div>
+        <h2>Week 4</h2>
+        <ul>
+          <li>Added a research progress overview page and individual subproject subpages to the website.</li>
+          <li>Gave clear instructions for the overview page but no strict design or layout constraints for the subproject pages — provided screenshots of PowerPoint slides, figures, and slide text as source material. This worked quite well.</li>
+          <li>Manually adjusted content on the pages after the agent's initial pass.</li>
+          <li>Lots of parallel work between the agent and me this week.</li>
+          <li>Good progress on VIIRS detection work — approaching the end of the exploration phase.</li>
+          <li>Gave Claude extra documentation (README and notebook for <code>marvelous-moth-137</code>) for both model variants, since their asset structures differ, so the agent could figure out how to use them independently.</li>
+          <li>Had the agent, for the first time, build me a Jupyter notebook solely based on my descriptions and that basically produces exactly what I wanted and needed. I will try to have it convert parts of it into an interactive tool for my research progress page.</li>
+          <li>Still aiming to add precision-recall curves for all runs and an interactive tool to visually assess model output versus labels to the progress page.</li>
+          <li>Session transcript from creating the research progress pages — <button class="conv-trigger" onclick="document.getElementById('transcript4Modal').classList.add('open');document.body.style.overflow='hidden'">Read my session transcript</button>.</li>
+        </ul>
+      </div>
+
+      <div class="update-entry" id="reflection-20260623">
+        <div class="update-entry-meta">
+          <span class="update-type update-type--reflection">Reflection</span>
+          <span class="update-date">June 23, 2026</span>
+        </div>
+        <h2>Week 4</h2>
+        <ul>
+          <li>Adding the research progress pages was on my Week 3 wishlist — it's done now. Giving the agent source material with loose design instructions instead of specifying every detail; the agent made good layout choices on its own.</li>
+          <li>However, the agent at first really struggeled with replicting the flowchart I shared in a way that looks tidy. Updating arrow lengths and positions took multiple repetitions but adding screenshots with red scribbling of whated I want seemed to work eventually (see session transcript under AI log). <i>Note: The agent initially deleted this "criticism" comment when I asked it to add my latest ai og and reflections to teh website...</i></li>
+          <li>Parallel work between the agent and me felt natural this week. The rhythm of the agent making a structural pass, me adjusting content, and the agent incorporating feedback is working well.</li>
+          <li>Providing extra documentation upfront — READMEs, notebooks — for both model variants was the right call. It meant I didn't have to dig into re-explain asset structures at every step, and the agent could reason about the two models independently.</li>
+          <li>Opening my Jupyter notebook from Ubuntu in VS code using <code>code [...].ipynb</code> for some reason always results in the notebook not actually running but only preparing to run in VS Code. I do not yet understand why.</li>
+          <li>The interactive viewer for VIIRS results is still on the list and should be doable with not too much effort since it already exists in a similar format in the notebook.</li>
+          <li><span id="soccerGerCiv" style="cursor:pointer;font-weight:600;border-bottom:1px dashed currentColor;" title="Click me!">2:1</span> — the most stressful 96 minutes I had in weeks!!</li>
+        </ul>
+      </div>
+
       <!-- ─── WEEK 3 ─────────────────────────────── -->
       <div class="update-entry" id="update-20260616">
         <div class="update-entry-meta">
@@ -71,7 +108,7 @@
           <li>I'm a huge <strong>fan of using the agent to constantly update my READMEs</strong> — that's how I currently keep track of progress and let both myself and a new agent or new session catch up on what happened the day before.</li>
           <li>This week was my first time working in parallel: on hex (using Claude via the web interface) for data downloading and pre-processing, and locally with the agent to discuss the project and update the README. Even though I could do it myself, I had the agent handle small README edits so I wouldn't interrupt my flow on hex — and still got all my ideas out right away.</li>
           <li>The new session transcript was generated using the Simon Willison tool Ian shared. A little embarrassing how many typos I make when typing fast in the terminal…</li>
-          <li><span id="soccer71" style="cursor:pointer;font-weight:600;border-bottom:1px dashed currentColor;" title="Click me!">7:1</span> — what an energizing match to lead into the new week!</li>
+          <li><span id="soccerGerCur" style="cursor:pointer;font-weight:600;border-bottom:1px dashed currentColor;" title="Click me!">7:1</span> — what an energizing match to lead into the new week!</li>
         </ul>
       </div>
 
@@ -256,6 +293,26 @@ clearly.</code></pre>
     </div>
   </div>
 
+  <!-- ─── WEEK 4 SESSION TRANSCRIPT MODAL (iframe) ─── -->
+  <div id="transcript4Modal" class="conv-modal" role="dialog" aria-modal="true" aria-labelledby="transcript4ModalTitle" onclick="if(event.target===this){this.classList.remove('open');document.body.style.overflow='';}">
+    <div class="conv-modal-box" style="max-width:900px;width:95vw;">
+      <button class="conv-modal-close" onclick="document.getElementById('transcript4Modal').classList.remove('open');document.body.style.overflow=''" aria-label="Close">&#x2715;</button>
+      <div class="conv-modal-header">
+        <div class="section-label">Session Transcript</div>
+        <h2 id="transcript4ModalTitle">Week 4 Working Session</h2>
+        <p class="conv-modal-date">June 17, 2026</p>
+      </div>
+      <div class="conv-modal-body" style="padding:0;overflow:hidden;">
+        <iframe
+          src="assets/content/ai_log/session_transcript_2026-06-17.html/"
+          style="width:100%;height:65vh;border:none;border-radius:0 0 16px 16px;"
+          title="Week 4 session transcript"
+          loading="lazy">
+        </iframe>
+      </div>
+    </div>
+  </div>
+
   <!-- ─── WEEK 3 SESSION TRANSCRIPT MODAL (iframe) ─── -->
   <div id="transcript3Modal" class="conv-modal" role="dialog" aria-modal="true" aria-labelledby="transcript3ModalTitle" onclick="if(event.target===this){this.classList.remove('open');document.body.style.overflow='';}">
     <div class="conv-modal-box" style="max-width:900px;width:95vw;">
@@ -381,36 +438,31 @@ clearly.</code></pre>
 
   <script src="script.js"></script>
   <script>
-    (function () {
-      const trigger = document.getElementById('soccer71');
-      if (!trigger) return;
+    function makeEmojiRain(el, emojis) {
+      if (!el) return;
       let running = false;
-
-      trigger.addEventListener('click', () => {
+      el.addEventListener('click', () => {
         if (running) return;
         running = true;
-
-        const emojis = ['⚽', '🇩🇪', '🇨🇼'];
-        const count  = 60;
-        const duration = 3000; // ms each emoji falls
-
+        const count = 60, duration = 3000;
         for (let i = 0; i < count; i++) {
           setTimeout(() => {
-            const el = document.createElement('span');
-            el.className = 'rain-emoji';
-            el.textContent = emojis[Math.floor(Math.random() * emojis.length)];
-            el.style.left = (Math.random() * 96) + 'vw';
-            const dur = (duration + Math.random() * 1500).toFixed(0) + 'ms';
-            el.style.animationDuration = dur;
-            el.style.fontSize = (1.5 + Math.random() * 1.5).toFixed(2) + 'rem';
-            document.body.appendChild(el);
-            el.addEventListener('animationend', () => el.remove());
+            const span = document.createElement('span');
+            span.className = 'rain-emoji';
+            span.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+            span.style.left = (Math.random() * 96) + 'vw';
+            span.style.animationDuration = (duration + Math.random() * 1500).toFixed(0) + 'ms';
+            span.style.fontSize = (1.5 + Math.random() * 1.5).toFixed(2) + 'rem';
+            document.body.appendChild(span);
+            span.addEventListener('animationend', () => span.remove());
           }, Math.random() * 2000);
         }
-
         setTimeout(() => { running = false; }, 4500);
       });
-    }());
+    }
+
+    document.querySelectorAll('#soccerGerCur').forEach(el => makeEmojiRain(el, ['⚽', '🇩🇪', '🇨🇼']));
+    makeEmojiRain(document.getElementById('soccerGerCiv'), ['🇩🇪', '🇨🇮', '🫣']);
 
     (function () {
       const modal     = document.getElementById('convModal');
@@ -437,6 +489,12 @@ clearly.</code></pre>
       const t3Modal = document.getElementById('transcript3Modal');
       if (!t3Modal) return;
       document.addEventListener('keydown', e => { if (e.key === 'Escape' && t3Modal.classList.contains('open')) { t3Modal.classList.remove('open'); document.body.style.overflow = ''; } });
+    }());
+
+    (function () {
+      const t4Modal = document.getElementById('transcript4Modal');
+      if (!t4Modal) return;
+      document.addEventListener('keydown', e => { if (e.key === 'Escape' && t4Modal.classList.contains('open')) { t4Modal.classList.remove('open'); document.body.style.overflow = ''; } });
     }());
   </script>
 </body>
