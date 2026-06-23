@@ -135,7 +135,7 @@ body {
 .nav-dropdown-menu {
   display: none;
   position: absolute;
-  top: calc(100% + 0.75rem);
+  top: 100%;
   left: 0;
   background: rgba(255,255,255,0.95);
   backdrop-filter: blur(14px);
@@ -144,6 +144,7 @@ body {
   box-shadow: 0 6px 24px rgba(0,0,0,0.08);
   min-width: 200px;
   padding: 0.5rem 0;
+  padding-top: calc(0.75rem + 0.5rem);
   list-style: none;
   gap: 0;
   flex-direction: column;
