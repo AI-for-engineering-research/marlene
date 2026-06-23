@@ -59,6 +59,8 @@
           <li>Had the agent, for the first time, build me a Jupyter notebook solely based on my descriptions and that basically produces exactly what I wanted and needed. I will try to have it convert parts of it into an interactive tool for my research progress page.</li>
           <li>Still aiming to add precision-recall curves for all runs and an interactive tool to visually assess model output versus labels to the progress page.</li>
           <li>Session transcript from creating the research progress pages — <button class="conv-trigger" onclick="document.getElementById('transcript4Modal').classList.add('open');document.body.style.overflow='hidden'">Read my session transcript</button>.</li>
+          <li>Used Prashanth's  <code>/property-based-testing</code> skill and asked Claude to add property-based tests that are meaningful. Later asked Claude in the web interface what these tests do and whether they are useful.</li>
+          <li>Started setting up light detection retraining (fine-tuning of segmentation head) using the <code>/grill-me</code> sill. Unfortunately didn't activate the skill until after I had started setting this up, but I think we still covered most things in the <code>/grill-me</code> session.</li>
         </ul>
       </div>
 
@@ -75,6 +77,7 @@
           <li>Providing extra documentation upfront — READMEs, notebooks — for both model variants was the right call. It meant I didn't have to dig into re-explain asset structures at every step, and the agent could reason about the two models independently.</li>
           <li>Opening my Jupyter notebook from Ubuntu in VS code using <code>code [...].ipynb</code> for some reason always results in the notebook not actually running but only preparing to run in VS Code. I do not yet understand why.</li>
           <li>The interactive viewer for VIIRS results is still on the list and should be doable with not too much effort since it already exists in a similar format in the notebook.</li>
+          <li>For setting up the segmentation head fine-tuning, I am asking Claude to give me lots of details and explanations of the steps and decisions we take. Those are also documented separately from the <code>README</code> now and it helps me follow and take notes for myself. I also interjected here and there during the <code>/grill-me</code> session where I disagreed with statements or decision the agent made.</li>
           <li><span id="soccerGerCiv" style="cursor:pointer;font-weight:600;border-bottom:1px dashed currentColor;" title="Click me!">2:1</span> — the most stressful 96 minutes I had in weeks!!</li>
         </ul>
       </div>
