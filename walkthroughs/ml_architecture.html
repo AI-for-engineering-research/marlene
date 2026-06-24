@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ML Architecture — Contrail Detection</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]});"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --sky-light:#eaf4fb;--sky-mid:#c8e6f5;--sky-blue:#7bbfdd;--sky-deep:#4a9abe;
+  --ink:#1a2a35;--ink-soft:#3d5566;--ink-muted:#6b8899;--white:#ffffff;
+  --glass-bg:rgba(255,255,255,0.72);--glass-border:rgba(123,191,221,0.35);
+  --radius:14px;--shadow:0 4px 32px rgba(74,154,190,0.10);
+  --font-serif:'Cormorant Garamond',serif;
+  --font-sans:'Inter',sans-serif;
+}
+html{scroll-behavior:smooth}
+body{
+  font-family:var(--font-sans);
+  font-weight:300;
+  background:var(--sky-light);
+  color:var(--ink);
+  font-size:16px;
+  line-height:1.6;
+  min-height:100vh;
+}
+
+/* ─── NAV ─── */
+.wt-nav{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0.9rem 2rem;
+  background:rgba(255,255,255,0.82);
+  backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--glass-border);
+  position:sticky;top:0;z-index:100;
+}
+.wt-nav-logo{
+  font-family:var(--font-serif);font-size:1.3rem;font-weight:600;
+  color:var(--ink);text-decoration:none;letter-spacing:0.04em;
+}
+.wt-nav-back{
+  font-size:0.82rem;font-weight:400;color:var(--sky-deep);
+  text-decoration:none;letter-spacing:0.02em;
+  padding:0.35rem 0.8rem;
+  border:1px solid rgba(74,154,190,0.3);
+  border-radius:20px;
+  transition:all 0.2s;
+}
+.wt-nav-back:hover{background:rgba(74,154,190,0.08);border-color:var(--sky-deep);}
+
+/* ─── HEADER ─── */
+.header{
+  max-width:860px;margin:0 auto;
+  padding:3.5rem 2rem 2rem;
+}
+.header-eyebrow{
+  display:block;
+  font-size:0.72rem;font-weight:500;letter-spacing:0.18em;text-transform:uppercase;
+  color:var(--sky-deep);margin-bottom:0.8rem;
+}
+.header h1{
+  font-family:var(--font-serif);font-size:2.8rem;font-weight:300;
+  color:var(--ink);line-height:1.18;margin-bottom:1rem;
+}
+.header h1 em{font-style:italic;color:var(--sky-deep);}
+.header-sub{
+  font-size:1rem;font-weight:300;color:var(--ink-muted);
+  line-height:1.7;max-width:640px;
+}
+
+/* ─── CONTAINER ─── */
+.container{
+  max-width:860px;margin:0 auto;
+  padding:0.5rem 2rem 5rem;
+}
+
+/* ─── SECTION CARDS ─── */
+.exp-section{
+  background:var(--glass-bg);
+  border:1px solid var(--glass-border);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  padding:2.8rem;
+  margin-bottom:2.2rem;
+  scroll-margin-top:80px;
+}
+.exp-label{
+  font-size:0.69rem;font-weight:500;letter-spacing:0.16em;text-transform:uppercase;
+  color:var(--sky-deep);margin-bottom:0.55rem;
+}
+.exp-title{
+  font-family:var(--font-serif);font-size:2rem;font-weight:300;
+  color:var(--ink);margin-bottom:1.2rem;line-height:1.22;
+}
+.exp-title em{font-style:italic;color:var(--sky-deep);}
+.exp-text{
+  font-size:0.97rem;line-height:1.78;color:var(--ink-soft);
+  margin-bottom:1.1rem;
+}
+.exp-text:last-of-type{margin-bottom:0}
+.exp-text strong{font-weight:500;color:var(--ink);}
+.exp-text em{font-style:italic;}
+
+/* ─── FORMULA BLOCK ─── */
+.exp-formula{
+  background:var(--sky-light);
+  border-left:3px solid var(--sky-blue);
+  border-radius:0 8px 8px 0;
+  padding:1rem 1.6rem;
+  margin:1.5rem 0;
+  overflow-x:auto;
+}
+.exp-formula-label{
+  font-size:0.72rem;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;
+  color:var(--ink-muted);margin-bottom:0.5rem;
+}
+
+/* ─── CALLOUT ─── */
+.exp-callout{
+  background:rgba(74,154,190,0.07);
+  border:1px solid rgba(74,154,190,0.22);
+  border-radius:10px;
+  padding:1.1rem 1.5rem;
+  margin:1.4rem 0;
+  font-size:0.92rem;line-height:1.65;color:var(--ink-soft);
+}
+.exp-callout strong{font-weight:500;color:var(--sky-deep);}
+
+/* ─── FIGURE ─── */
+.exp-figure{
+  margin:2rem 0 1rem;
+  text-align:center;
+}
+.exp-figure svg{
+  max-width:100%;height:auto;
+  display:block;margin:0 auto;
+}
+.exp-caption{
+  font-size:0.8rem;color:var(--ink-muted);
+  font-style:italic;margin-top:0.8rem;
+  text-align:center;line-height:1.5;
+}
+
+/* ─── TWO-COL ─── */
+.exp-2col{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:2.4rem;align-items:start;
+  margin-top:1.2rem;
+}
+@media(max-width:680px){.exp-2col{grid-template-columns:1fr;}}
+
+/* ─── INLINE TOC BAR ─── */
+.toc-bar{
+  display:flex;align-items:baseline;gap:0.6rem;flex-wrap:wrap;
+  background:rgba(255,255,255,0.55);
+  border:1px solid var(--glass-border);
+  border-radius:10px;
+  padding:0.75rem 1.2rem;
+  margin-bottom:1.8rem;
+}
+.toc-bar-label{
+  font-size:0.68rem;font-weight:500;letter-spacing:0.14em;text-transform:uppercase;
+  color:var(--ink-muted);flex-shrink:0;margin-right:0.3rem;
+}
+.toc-link{
+  font-size:0.78rem;font-weight:300;
+  color:var(--sky-deep);text-decoration:none;
+  padding:0.18rem 0.55rem;
+  border:1px solid rgba(74,154,190,0.22);
+  border-radius:20px;
+  transition:all 0.18s;white-space:nowrap;
+}
+.toc-link:hover{background:rgba(74,154,190,0.10);border-color:var(--sky-blue);}
+</style>
+</head>
+<body>
+
+<nav class="wt-nav">
+  <a href="../index.html" class="wt-nav-logo">MVE</a>
+  <a href="../walkthroughs.html" class="wt-nav-back">← Walkthroughs</a>
+</nav>
+
+
+<div class="header">
+  <span class="header-eyebrow">ML Explainer</span>
+  <h1>How Neural Networks Detect <em>Contrails</em></h1>
+  <p class="header-sub">A visual guide to semantic segmentation, convolutional encoders, attention-based decoders, and the training pipeline — with minimal code and maximal intuition.</p>
+</div>
+
+<div class="container">
+
+<nav class="toc-bar" aria-label="Contents">
+  <span class="toc-bar-label">Contents</span>
+  <a class="toc-link" href="#task">01 · The Task</a>
+  <a class="toc-link" href="#convolutions">02 · Convolutions</a>
+  <a class="toc-link" href="#encoder">03 · Encoder</a>
+  <a class="toc-link" href="#decoder">04 · Decoder</a>
+  <a class="toc-link" href="#head">05 · Seg Head</a>
+  <a class="toc-link" href="#loss">06 · Focal Loss</a>
+  <a class="toc-link" href="#inference">07 · Inference</a>
+</nav>
+
+<!-- ════════════════════════════════════════ -->
+<!-- SECTION 1: THE TASK                     -->
+<!-- ════════════════════════════════════════ -->
+<section class="exp-section" id="task">
+  <div class="exp-label">01 — The Task</div>
+  <h2 class="exp-title">Pixel-Level <em>Segmentation</em></h2>
+
+  <p class="exp-text">
+    Detecting contrails in satellite imagery is a <strong>semantic segmentation</strong> problem: given a 2D image formed from multiple infrared bands, the goal is to assign every single pixel a label — <em>contrail</em> or <em>background</em>. This is more demanding than image classification, which only answers "does this scene contain a contrail?", and more precise than bounding-box detection, which merely localizes a region.
+  </p>
+  <p class="exp-text">
+    Contrails appear as thin, bright linear features embedded in a complex scene of cirrus clouds, thermal gradients, and sensor noise. Their width, persistence, and opacity carry geophysical meaning — a wide, diffuse contrail has spread as ice crystals settled over hours, while a narrow, crisp one is freshly formed. Pixel-level labels let us measure these properties directly from the output mask. A bounding box would include too much background; a single label would throw away all spatial information.
+  </p>
+  <p class="exp-text">
+    The model receives a multi-channel image formed from several VIIRS infrared channels (M15 or I5, mapped to a standard input format) and outputs a <strong>probability map</strong> of exactly the same spatial size — one probability per pixel indicating the model's confidence that the pixel is part of a contrail.
+  </p>
+
+  <figure class="exp-figure">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 510 175" width="510" height="175" aria-label="Segmentation task diagram">
+      <defs>
+        <clipPath id="rcp"><rect x="15" y="25" width="200" height="120" rx="5"/></clipPath>
+        <clipPath id="mcp"><rect x="285" y="25" width="200" height="120" rx="5"/></clipPath>
+      </defs>
+
+      <!-- === LEFT PANEL: raw scene === -->
+      <rect x="15" y="25" width="200" height="120" rx="5" fill="#1a2535" stroke="#7bbfdd" stroke-width="1.2"/>
+      <!-- noise/stars -->
+      <g clip-path="url(#rcp)" fill="white">
+        <circle cx="45" cy="42" r="1.2" opacity="0.35"/>
+        <circle cx="78" cy="58" r="0.9" opacity="0.28"/>
+        <circle cx="118" cy="38" r="1.4" opacity="0.4"/>
+        <circle cx="162" cy="108" r="1.0" opacity="0.3"/>
+        <circle cx="192" cy="72" r="1.1" opacity="0.25"/>
+        <circle cx="53" cy="98" r="1.3" opacity="0.32"/>
+        <circle cx="135" cy="82" r="0.8" opacity="0.22"/>
+        <circle cx="172" cy="52" r="1.5" opacity="0.38"/>
+        <circle cx="98" cy="122" r="1.0" opacity="0.26"/>
+        <circle cx="48" cy="72" r="0.9" opacity="0.3"/>
+        <circle cx="175" cy="35" r="1.2" opacity="0.34"/>
+        <circle cx="60" cy="125" r="0.8" opacity="0.20"/>
+        <!-- some broader haze patches -->
+        <ellipse cx="90" cy="65" rx="18" ry="8" opacity="0.06"/>
+        <ellipse cx="150" cy="95" rx="22" ry="9" opacity="0.05"/>
+        <ellipse cx="70" cy="110" rx="15" ry="6" opacity="0.07"/>
+      </g>
+      <!-- contrail line -->
+      <line x1="25" y1="138" x2="207" y2="33" clip-path="url(#rcp)"
+            stroke="rgba(220,235,255,0.78)" stroke-width="2.8" stroke-linecap="round"/>
+      <!-- panel label -->
+      <text x="115" y="162" text-anchor="middle" font-family="Inter,sans-serif"
+            font-size="11" font-weight="300" fill="#6b8899">raw satellite scene</text>
+
+      <!-- === ARROW === -->
+      <line x1="230" y1="85" x2="264" y2="85" stroke="#4a9abe" stroke-width="1.8"/>
+      <polygon points="264,81 274,85 264,89" fill="#4a9abe"/>
+
+      <!-- === RIGHT PANEL: segmentation mask === -->
+      <rect x="285" y="25" width="200" height="120" rx="5" fill="#1a2535" stroke="#7bbfdd" stroke-width="1.2"/>
+      <!-- same haze, very faint -->
+      <g clip-path="url(#mcp)">
+        <ellipse cx="360" cy="65" rx="18" ry="8" fill="white" opacity="0.03"/>
+        <ellipse cx="420" cy="95" rx="22" ry="9" fill="white" opacity="0.025"/>
+        <ellipse cx="340" cy="110" rx="15" ry="6" fill="white" opacity="0.03"/>
+      </g>
+      <!-- noise dots — very faint (background) -->
+      <g clip-path="url(#mcp)" fill="white">
+        <circle cx="315" cy="42" r="1.2" opacity="0.1"/>
+        <circle cx="348" cy="58" r="0.9" opacity="0.08"/>
+        <circle cx="388" cy="38" r="1.4" opacity="0.11"/>
+        <circle cx="432" cy="108" r="1.0" opacity="0.09"/>
+        <circle cx="462" cy="72" r="1.1" opacity="0.07"/>
+        <circle cx="323" cy="98" r="1.3" opacity="0.10"/>
+        <circle cx="405" cy="82" r="0.8" opacity="0.07"/>
+        <circle cx="442" cy="52" r="1.5" opacity="0.11"/>
+        <circle cx="368" cy="122" r="1.0" opacity="0.08"/>
+        <circle cx="318" cy="72" r="0.9" opacity="0.09"/>
+        <circle cx="445" cy="35" r="1.2" opacity="0.10"/>
+        <circle cx="330" cy="125" r="0.8" opacity="0.06"/>
+      </g>
+      <!-- pixel grid overlay -->
+      <g clip-path="url(#mcp)" stroke="rgba(255,255,255,0.10)" stroke-width="0.5">
+        <line x1="285" y1="37" x2="485" y2="37"/>
+        <line x1="285" y1="49" x2="485" y2="49"/>
+        <line x1="285" y1="61" x2="485" y2="61"/>
+        <line x1="285" y1="73" x2="485" y2="73"/>
+        <line x1="285" y1="85" x2="485" y2="85"/>
+        <line x1="285" y1="97" x2="485" y2="97"/>
+        <line x1="285" y1="109" x2="485" y2="109"/>
+        <line x1="285" y1="121" x2="485" y2="121"/>
+        <line x1="285" y1="133" x2="485" y2="133"/>
+        <line x1="297" y1="25" x2="297" y2="145"/>
+        <line x1="309" y1="25" x2="309" y2="145"/>
+        <line x1="321" y1="25" x2="321" y2="145"/>
+        <line x1="333" y1="25" x2="333" y2="145"/>
+        <line x1="345" y1="25" x2="345" y2="145"/>
+        <line x1="357" y1="25" x2="357" y2="145"/>
+        <line x1="369" y1="25" x2="369" y2="145"/>
+        <line x1="381" y1="25" x2="381" y2="145"/>
+        <line x1="393" y1="25" x2="393" y2="145"/>
+        <line x1="405" y1="25" x2="405" y2="145"/>
+        <line x1="417" y1="25" x2="417" y2="145"/>
+        <line x1="429" y1="25" x2="429" y2="145"/>
+        <line x1="441" y1="25" x2="441" y2="145"/>
+        <line x1="453" y1="25" x2="453" y2="145"/>
+        <line x1="465" y1="25" x2="465" y2="145"/>
+        <line x1="477" y1="25" x2="477" y2="145"/>
+      </g>
+      <!-- contrail pixels highlighted (sky-blue) -->
+      <g clip-path="url(#mcp)" fill="#4a9abe" opacity="0.88">
+        <rect x="285" y="133" width="8" height="8"/>
+        <rect x="297" y="121" width="8" height="8"/>
+        <rect x="297" y="133" width="8" height="8"/>
+        <rect x="309" y="121" width="8" height="8"/>
+        <rect x="321" y="109" width="8" height="8"/>
+        <rect x="321" y="121" width="8" height="8"/>
+        <rect x="333" y="97" width="8" height="8"/>
+        <rect x="333" y="109" width="8" height="8"/>
+        <rect x="345" y="97" width="8" height="8"/>
+        <rect x="357" y="85" width="8" height="8"/>
+        <rect x="357" y="97" width="8" height="8"/>
+        <rect x="369" y="85" width="8" height="8"/>
+        <rect x="381" y="73" width="8" height="8"/>
+        <rect x="381" y="85" width="8" height="8"/>
+        <rect x="393" y="73" width="8" height="8"/>
+        <rect x="405" y="61" width="8" height="8"/>
+        <rect x="405" y="73" width="8" height="8"/>
+        <rect x="417" y="49" width="8" height="8"/>
+        <rect x="417" y="61" width="8" height="8"/>
+        <rect x="429" y="49" width="8" height="8"/>
+        <rect x="441" y="37" width="8" height="8"/>
+        <rect x="441" y="49" width="8" height="8"/>
+        <rect x="453" y="37" width="8" height="8"/>
+        <rect x="465" y="25" width="8" height="8"/>
+        <rect x="465" y="37" width="8" height="8"/>
+        <rect x="477" y="25" width="8" height="8"/>
+      </g>
+      <!-- legend chip -->
+      <rect x="290" y="30" width="8" height="8" rx="1" fill="#4a9abe" opacity="0.9"/>
+      <text x="302" y="38" font-family="Inter,sans-serif" font-size="8.5" fill="#c8e6f5">contrail pixels</text>
+      <!-- panel label -->
+      <text x="385" y="162" text-anchor="middle" font-family="Inter,sans-serif"
+            font-size="11" font-weight="300" fill="#6b8899">pixel-level segmentation mask</text>
+    </svg>
+    <figcaption class="exp-caption">
+      Left: a raw infrared satellite scene containing a contrail (white diagonal feature). Right: the corresponding segmentation mask — each blue cell is one image pixel labeled as "contrail". The model's job is to produce the right panel from the left.
+    </figcaption>
+  </figure>
+</section>
+
+<!-- ════════════════════════════════════════ -->
+<!-- SECTION 2: CONVOLUTIONS                 -->
+<!-- ════════════════════════════════════════ -->
+<section class="exp-section" id="convolutions">
+  <div class="exp-label">02 — Building Blocks</div>
+  <h2 class="exp-title">How Models <em>See</em> Images</h2>
+
+  <p class="exp-text">
+    The fundamental building block of nearly every modern image model is the <strong>convolutional filter</strong>. A filter is a small grid of learnable weights — typically 3×3 numbers — that slides across an image and computes a dot product with every patch it encounters. The output is a <strong>feature map</strong>: a 2D array whose value at each location encodes how strongly that particular pattern appears there.
+  </p>
+  <p class="exp-text">
+    A single filter detects one pattern. A convolutional layer applies many filters in parallel — 64, 128, or more — stacking their outputs into a tensor. At each layer, every "channel" of this tensor is the response of one filter to the input. These stacks of feature maps form the model's internal representation of the image at each level of abstraction.
+  </p>
+  <p class="exp-text">
+    The key insight is that <strong>the filters are learned from data, not hand-designed</strong>. After training on thousands of labeled images, filters in early layers spontaneously learn to detect simple patterns — horizontal edges, vertical edges, color transitions. Deeper layers recombine these simple responses to detect more complex structures: corners, textures, curved lines. By the final encoder layers, each "pixel" in the feature map effectively summarizes a large patch of the original image in terms of high-level semantic content.
+  </p>
+  <p class="exp-text">
+    For satellite imagery, this hierarchy goes from: brightness gradients → edge-like structures → thin-line features → contrail-like patterns. The model never explicitly looks for lines — it discovers the representation that best predicts the training labels.
+  </p>
+
+  <div class="exp-callout">
+    <strong>Why not use edge detectors?</strong> Classical computer vision would design specific filters (Sobel, Canny) to find lines and then match them. Neural networks instead learn whatever filter bank the data requires — which turns out to be far more powerful for complex scenes with variable illumination, cloud interference, and sensor-specific noise.
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════ -->
+<!-- SECTION 3: THE ENCODER                  -->
+<!-- ════════════════════════════════════════ -->
+<section class="exp-section" id="encoder">
+  <div class="exp-label">03 — The Encoder</div>
+  <h2 class="exp-title">ResNet-18: Learning to <em>Compress</em></h2>
+
+  <p class="exp-text">
+    The encoder is the "perception" half of the model. It takes the raw input image and produces a compact, information-rich representation by progressively reducing spatial resolution while extracting increasingly abstract features. Our model uses <strong>ResNet-18</strong>, developed by He et al. (2016), which introduced <em>residual connections</em> — arguably the single most consequential architectural innovation in modern deep learning.
+  </p>
+  <p class="exp-text">
+    ResNet-18 is organized into five stages. At each stage transition, a strided convolution halves the spatial resolution (height and width) while typically doubling the number of feature channels. Starting from a 3-channel input (the satellite bands), the network progressively builds: 64 channels at half resolution, 64 channels at quarter resolution, 128 at one-eighth, 256 at one-sixteenth, and finally 512 channels at 1/32nd of the original resolution. A 1024×1024 input becomes a 32×32×512 tensor. Each "pixel" of this small feature map represents what the network has learned about a 32×32 patch of the original scene.
+  </p>
+  <p class="exp-text">
+    <strong>Why residual connections?</strong> Training very deep networks was notoriously unreliable before ResNets. The core problem: gradients propagated backward through many layers tend to shrink exponentially (the <em>vanishing gradient</em> problem), causing early layers to learn extremely slowly. A residual block sidesteps this by adding the input directly to the output of a two-convolution stack:
+  </p>
+
+  <div class="exp-formula">
+    <div class="exp-formula-label">Residual connection</div>
+    $$\mathbf{y} = \mathcal{F}(\mathbf{x},\, \{W_i\}) + \mathbf{x}$$
+    <p style="font-size:0.85rem;color:var(--ink-muted);margin-top:0.7rem;line-height:1.6">
+      where $\mathbf{x}$ is the block input, $\mathcal{F}(\mathbf{x})$ is the transformation learned by the two convolutions, and $\mathbf{y}$ is the block output. The skip path adds $\mathbf{x}$ directly to the transformed features.
+    </p>
+  </div>
+
+  <p class="exp-text">
+    If the optimal transformation at a given block happens to be the identity (pass input through unchanged), the block only needs to learn $\mathcal{F}(\mathbf{x}) = \mathbf{0}$ — a much easier task than learning an arbitrary transformation from scratch. More importantly, the skip connection gives gradients a direct path back through the network during training, enabling reliable optimization of dozens or hundreds of layers.
+  </p>
+  <p class="exp-text">
+    The encoder is initialized from <strong>weights pretrained on ImageNet</strong> — a dataset of ~1.2 million photographs of everyday objects. Pretraining on a very different domain might seem counterproductive, but the learned feature detectors transfer remarkably well: edges, textures, and spatial relationships are useful whether the subject is a dog, a car, or an infrared cloud scene. In the fine-tuning pipeline, the encoder weights are kept <em>frozen</em> — the pretrained features are treated as given, and only the final classification layer is retrained on contrail-labeled satellite data.
+  </p>
+
+  <div class="exp-callout">
+    <strong>Linear separability check:</strong> Before fine-tuning, a quick PCA on the frozen encoder's output features tells us whether the pretrained representation already places contrail pixels in a different region of feature space from background pixels. If it does, fine-tuning only the final layer is enough. This is a principled way to avoid unnecessary computation and overfitting.
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════ -->
+<!-- SECTION 4: THE DECODER                  -->
+<!-- ════════════════════════════════════════ -->
+<section class="exp-section" id="decoder">
+  <div class="exp-label">04 — The Decoder</div>
+  <h2 class="exp-title">MAnet: <em>Reconstructing</em> Space</h2>
+
+  <p class="exp-text">
+    After the encoder, the feature map is semantically rich but spatially coarse — 32× smaller than the input in each dimension. For segmentation, predictions are needed at every pixel of the original image. The <strong>decoder</strong> reconstructs spatial resolution progressively, stage by stage, until the original resolution is restored.
+  </p>
+  <p class="exp-text">
+    Our model uses <strong>MAnet</strong> (Multi-scale Attention network). Like the classic U-Net architecture it builds on, MAnet uses a symmetric decoder that mirrors the encoder's five stages. At each upsampling step, the decoder doubles the spatial dimensions and blends information from two sources:
+  </p>
+  <p class="exp-text">
+    <strong>1. Upsampled features from the previous decoder stage</strong> — these carry semantic content (what kind of thing is in this region?) but at coarse resolution.
+  </p>
+  <p class="exp-text">
+    <strong>2. Skip connections from the corresponding encoder stage</strong> — these re-inject high-resolution spatial detail (exactly where is the boundary?) that was lost during downsampling. Without skip connections, the decoder would need to hallucinate the fine-grained spatial structure from the compressed bottleneck alone — an impossible task for thin features like contrails.
+  </p>
+  <p class="exp-text">
+    What distinguishes MAnet from a plain U-Net is <strong>attention gates</strong> applied to the skip connections. Before merging encoder features into the decoder, an attention gate computes a spatial weight map $\boldsymbol{\alpha} \in [0,1]^{H \times W}$ that suppresses irrelevant activations and amplifies the features most useful for segmentation at that scale:
+  </p>
+
+  <div class="exp-formula">
+    <div class="exp-formula-label">Attention gate</div>
+    $$\alpha_i = \sigma_2\!\left(\psi^\top \sigma_1\!\left(W_x\,\mathbf{x}_i^l + W_g\,\mathbf{g}_i + b_g\right) + b_\psi\right)$$
+    <p style="font-size:0.85rem;color:var(--ink-muted);margin-top:0.7rem;line-height:1.6">
+      $\mathbf{x}_i^l$ — skip-connection features from encoder level $l$ at location $i$<br>
+      $\mathbf{g}_i$ — gating signal from the decoder (semantic context)<br>
+      $W_x, W_g, \psi$ — learned weight matrices; $b_g, b_\psi$ — biases<br>
+      $\sigma_1$ — ReLU; $\sigma_2$ — sigmoid (outputs a value in $[0,1]$)<br><br>
+      The gated skip features become $\hat{\mathbf{x}}_i = \alpha_i \cdot \mathbf{x}_i^l$ — the encoder features weighted by their learned relevance.
+    </p>
+  </div>
+
+  <p class="exp-text">
+    In practice, the attention gates learn to focus on regions where contrail-like structures appear, suppressing irrelevant cloud backgrounds and reducing false positives. This is especially valuable in the VIIRS domain, where cold-topped cirrus clouds have infrared signatures similar to contrails.
+  </p>
+
+  <figure class="exp-figure">
+    <!-- ARCHITECTURE SVG -->
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 405" width="700" height="405" aria-label="MAnet encoder-decoder architecture diagram">
+      <defs>
+        <marker id="arr" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto">
+          <polygon points="0,0 9,3.5 0,7" fill="#4a9abe"/>
+        </marker>
+        <marker id="arr-skip" markerWidth="7" markerHeight="6" refX="6" refY="3" orient="auto">
+          <polygon points="0,0 7,3 0,6" fill="#4a9abe" opacity="0.7"/>
+        </marker>
+        <marker id="arr-arc" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto">
+          <polygon points="0,0 9,3.5 0,7" fill="#d9b072"/>
+        </marker>
+        <marker id="arr-up" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto">
+          <polygon points="0,0 9,3.5 0,7" fill="#90c9a8"/>
+        </marker>
+      </defs>
+
+      <!-- ── COLUMN HEADERS ── -->
+      <text x="155" y="14" text-anchor="middle" font-family="Inter,sans-serif"
+            font-size="9" font-weight="500" letter-spacing="1.2" fill="#4a9abe" text-decoration="none">ENCODER (ResNet-18)</text>
+      <text x="545" y="14" text-anchor="middle" font-family="Inter,sans-serif"
+            font-size="9" font-weight="500" letter-spacing="1.2" fill="#4a9abe">DECODER (MAnet)</text>
+
+      <!-- ── ENCODER BOXES ── -->
+      <!-- Input -->
+      <rect x="55" y="28" width="200" height="36" rx="7" fill="#eaf4fb" stroke="#7bbfdd" stroke-width="1.2"/>
+      <text x="155" y="48" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" font-weight="400" fill="#1a2a35">Input image · 3 channels</text>
+      <text x="155" y="59" text-anchor="middle" font-family="Inter,sans-serif" font-size="8.5" fill="#6b8899">H × W</text>
+
+      <!-- E1 -->
+      <rect x="65" y="84" width="180" height="34" rx="7" fill="#c8e6f5" stroke="#7bbfdd" stroke-width="1.2"/>
+      <text x="155" y="103" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" font-weight="400" fill="#1a2a35">Stage 1 · 64 ch</text>
+      <text x="155" y="113" text-anchor="middle" font-family="Inter,sans-serif" font-size="8.5" fill="#3d5566">H/2 × W/2</text>
+
+      <!-- E2 -->
+      <rect x="75" y="138" width="160" height="34" rx="7" fill="#c8e6f5" stroke="#7bbfdd" stroke-width="1.2"/>
+      <text x="155" y="157" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" font-weight="400" fill="#1a2a35">Stage 2 · 64 ch</text>
+      <text x="155" y="167" text-anchor="middle" font-family="Inter,sans-serif" font-size="8.5" fill="#3d5566">H/4 × W/4</text>
+
+      <!-- E3 -->
+      <rect x="85" y="192" width="140" height="34" rx="7" fill="#c8e6f5" stroke="#7bbfdd" stroke-width="1.2"/>
+      <text x="155" y="211" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" font-weight="400" fill="#1a2a35">Stage 3 · 128 ch</text>
+      <text x="155" y="221" text-anchor="middle" font-family="Inter,sans-serif" font-size="8.5" fill="#3d5566">H/8 × W/8</text>
+
+      <!-- E4 -->
+      <rect x="95" y="246" width="120" height="34" rx="7" fill="#c8e6f5" stroke="#7bbfdd" stroke-width="1.2"/>
+      <text x="155" y="265" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" font-weight="400" fill="#1a2a35">Stage 4 · 256 ch</text>
+      <text x="155" y="275" text-anchor="middle" font-family="Inter,sans-serif" font-size="8.5" fill="#3d5566">H/16 × W/16</text>
+
+      <!-- Bottleneck -->
+      <rect x="100" y="320" width="110" height="36" rx="7" fill="#ead9aa" stroke="#d9b072" stroke-width="1.2"/>
+      <text x="155" y="340" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" font-weight="400" fill="#5a3e10">Bottleneck · 512 ch</text>
+      <text x="155" y="350" text-anchor="middle" font-family="Inter,sans-serif" font-size="8.5" fill="#7a5e30">H/32 × W/32</text>
+
+      <!-- ── DECODER BOXES ── -->
+      <!-- Segmentation Head -->
+      <rect x="445" y="28" width="200" height="36" rx="7" fill="#e8e2f5" stroke="#b09fd8" stroke-width="1.2"/>
+      <text x="545" y="47" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" font-weight="400" fill="#1a2a35">Segmentation Head · 2 ch</text>
+      <text x="545" y="58" text-anchor="middle" font-family="Inter,sans-serif" font-size="8.5" fill="#6b5a90">H × W → prediction</text>
+
+      <!-- D1 -->
+      <rect x="455" y="84" width="180" height="34" rx="7" fill="#d4eed5" stroke="#90c9a8" stroke-width="1.2"/>
+      <text x="545" y="103" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" font-weight="400" fill="#1a2a35">Upsample ×2 · 32 ch</text>
+      <text x="545" y="113" text-anchor="middle" font-family="Inter,sans-serif" font-size="8.5" fill="#2d5c3a">H/2 × W/2</text>
+
+      <!-- D2 -->
+      <rect x="465" y="138" width="160" height="34" rx="7" fill="#d4eed5" stroke="#90c9a8" stroke-width="1.2"/>
+      <text x="545" y="157" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" font-weight="400" fill="#1a2a35">Upsample ×2 · 64 ch</text>
+      <text x="545" y="167" text-anchor="middle" font-family="Inter,sans-serif" font-size="8.5" fill="#2d5c3a">H/4 × W/4</text>
+
+      <!-- D3 -->
+      <rect x="475" y="192" width="140" height="34" rx="7" fill="#d4eed5" stroke="#90c9a8" stroke-width="1.2"/>
+      <text x="545" y="211" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" font-weight="400" fill="#1a2a35">Upsample ×2 · 128 ch</text>
+      <text x="545" y="221" text-anchor="middle" font-family="Inter,sans-serif" font-size="8.5" fill="#2d5c3a">H/8 × W/8</text>
+
+      <!-- D4 -->
+      <rect x="485" y="246" width="120" height="34" rx="7" fill="#d4eed5" stroke="#90c9a8" stroke-width="1.2"/>
+      <text x="545" y="265" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" font-weight="400" fill="#1a2a35">Upsample ×2 · 256 ch</text>
+      <text x="545" y="275" text-anchor="middle" font-family="Inter,sans-serif" font-size="8.5" fill="#2d5c3a">H/16 × W/16</text>
+
+      <!-- ── DOWN ARROWS (encoder) ── -->
+      <line x1="155" y1="64" x2="155" y2="82" stroke="#4a9abe" stroke-width="1.5" marker-end="url(#arr)"/>
+      <line x1="155" y1="118" x2="155" y2="136" stroke="#4a9abe" stroke-width="1.5" marker-end="url(#arr)"/>
+      <line x1="155" y1="172" x2="155" y2="190" stroke="#4a9abe" stroke-width="1.5" marker-end="url(#arr)"/>
+      <line x1="155" y1="226" x2="155" y2="244" stroke="#4a9abe" stroke-width="1.5" marker-end="url(#arr)"/>
+      <line x1="155" y1="280" x2="155" y2="318" stroke="#4a9abe" stroke-width="1.5" marker-end="url(#arr)"/>
+
+      <!-- ── ARC from Bottleneck to D4 ── -->
+      <path d="M210,338 C340,400 450,398 485,263" fill="none"
+            stroke="#d9b072" stroke-width="1.8" marker-end="url(#arr-arc)"/>
+
+      <!-- ── UP ARROWS (decoder) ── -->
+      <line x1="545" y1="246" x2="545" y2="226" stroke="#90c9a8" stroke-width="1.5" marker-end="url(#arr-up)"/>
+      <line x1="545" y1="192" x2="545" y2="172" stroke="#90c9a8" stroke-width="1.5" marker-end="url(#arr-up)"/>
+      <line x1="545" y1="138" x2="545" y2="118" stroke="#90c9a8" stroke-width="1.5" marker-end="url(#arr-up)"/>
+      <line x1="545" y1="84" x2="545" y2="64" stroke="#90c9a8" stroke-width="1.5" marker-end="url(#arr-up)"/>
+
+      <!-- ── SKIP CONNECTIONS (dashed horizontal) ── -->
+      <!-- E1 → D1 -->
+      <line x1="245" y1="101" x2="453" y2="101" stroke="#4a9abe" stroke-width="1.4"
+            stroke-dasharray="5,3" marker-end="url(#arr-skip)" opacity="0.7"/>
+      <!-- E2 → D2 -->
+      <line x1="235" y1="155" x2="463" y2="155" stroke="#4a9abe" stroke-width="1.4"
+            stroke-dasharray="5,3" marker-end="url(#arr-skip)" opacity="0.7"/>
+      <!-- E3 → D3 -->
+      <line x1="225" y1="209" x2="473" y2="209" stroke="#4a9abe" stroke-width="1.4"
+            stroke-dasharray="5,3" marker-end="url(#arr-skip)" opacity="0.7"/>
+      <!-- E4 → D4 -->
+      <line x1="215" y1="263" x2="483" y2="263" stroke="#4a9abe" stroke-width="1.4"
+            stroke-dasharray="5,3" marker-end="url(#arr-skip)" opacity="0.7"/>
+
+      <!-- ── ATTENTION GATE MARKERS ── -->
+      <circle cx="350" cy="101" r="10" fill="white" stroke="#4a9abe" stroke-width="1.2"/>
+      <text x="350" y="105" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" font-weight="500" fill="#4a9abe">⊗</text>
+
+      <circle cx="350" cy="155" r="10" fill="white" stroke="#4a9abe" stroke-width="1.2"/>
+      <text x="350" y="159" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" font-weight="500" fill="#4a9abe">⊗</text>
+
+      <circle cx="350" cy="209" r="10" fill="white" stroke="#4a9abe" stroke-width="1.2"/>
+      <text x="350" y="213" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" font-weight="500" fill="#4a9abe">⊗</text>
+
+      <circle cx="350" cy="263" r="10" fill="white" stroke="#4a9abe" stroke-width="1.2"/>
+      <text x="350" y="267" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" font-weight="500" fill="#4a9abe">⊗</text>
+
+    </svg>
+    <figcaption class="exp-caption">
+      Full MAnet encoder–decoder architecture. The encoder (left) progressively downsamples the input through 5 ResNet-18 stages, compressing spatial resolution while building richer feature representations. The decoder (right) upsamples back to the original resolution using both the bottleneck features (gold arc) and skip connections from each encoder stage. Attention gates (⊗) learn to weight each skip connection by relevance at that spatial scale.
+    </figcaption>
+  </figure>
+</section>
+
+<!-- ════════════════════════════════════════ -->
+<!-- SECTION 5: SEGMENTATION HEAD            -->
+<!-- ════════════════════════════════════════ -->
+<section class="exp-section" id="head">
+  <div class="exp-label">05 — The Output Layer</div>
+  <h2 class="exp-title">The Segmentation <em>Head</em></h2>
+
+  <p class="exp-text">
+    After passing through all five decoder stages, the feature tensor has been restored to the original spatial resolution with 16 channels per pixel. The final step — the <strong>segmentation head</strong> — maps these 16 features at every pixel to two output scores: one for background, one for contrail.
+  </p>
+  <p class="exp-text">
+    The head is a single <strong>1×1 convolution</strong>: it applies the same linear transformation independently at every spatial location, mapping the 16-dimensional feature vector to a 2-dimensional score vector. This is mathematically identical to running a small logistic regression at every pixel:
+  </p>
+
+  <div class="exp-formula">
+    <div class="exp-formula-label">Segmentation head — per-pixel projection</div>
+    $$\begin{pmatrix} z_0 \\ z_1 \end{pmatrix}_{\!ij} = W \mathbf{f}_{ij} + \mathbf{b}, \qquad W \in \mathbb{R}^{2 \times 16},\quad \mathbf{f}_{ij} \in \mathbb{R}^{16}$$
+    <p style="font-size:0.85rem;color:var(--ink-muted);margin-top:0.7rem;line-height:1.6">
+      $z_0$ — background score (logit); $z_1$ — contrail score (logit); $\mathbf{f}_{ij}$ — 16-channel feature vector at pixel $(i,j)$.
+    </p>
+  </div>
+
+  <p class="exp-text">
+    The raw outputs $z_0, z_1$ are called <strong>logits</strong> — unnormalized scores. To convert them into a probability, we apply the <strong>softmax</strong> function:
+  </p>
+
+  <div class="exp-formula">
+    <div class="exp-formula-label">Softmax — converting logits to probability</div>
+    $$p_\text{contrail} = \frac{e^{z_1}}{e^{z_0} + e^{z_1}} \in (0,\,1)$$
+    <p style="font-size:0.85rem;color:var(--ink-muted);margin-top:0.7rem;line-height:1.6">
+      Values close to 1 indicate high confidence the pixel is a contrail; values close to 0 indicate background.
+    </p>
+  </div>
+
+  <p class="exp-text">
+    The segmentation head — just 16×2 = 32 weight values plus 2 biases — is the <strong>only part of the model retrained during fine-tuning</strong> on VIIRS data. The rationale: if the frozen encoder and decoder have already organized the feature space so that contrail and background features are linearly separable (verified by the PCA check), then a single linear layer per pixel is sufficient to adapt the detector to the new sensor domain. Training only 34 parameters means rapid convergence and minimal risk of overfitting on small VIIRS labeled datasets.
+  </p>
+
+  <div class="exp-callout">
+    <strong>Why 1×1 convolution instead of a fully-connected layer?</strong> A 1×1 conv applies the same weight matrix at every spatial position independently, which means it works for any input resolution. A fully-connected layer would require a fixed input size and would have billions of parameters for a large image. The 1×1 conv gives us the same per-pixel linear classifier with only 34 parameters total.
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════ -->
+<!-- SECTION 6: FOCAL LOSS                   -->
+<!-- ════════════════════════════════════════ -->
+<section class="exp-section" id="loss">
+  <div class="exp-label">06 — Training</div>
+  <h2 class="exp-title">Focal Loss and <em>Class Imbalance</em></h2>
+
+  <p class="exp-text">
+    Training requires a <strong>loss function</strong> — a number that measures how wrong the current predictions are, and whose gradient tells the optimizer which direction to nudge the weights. The natural starting point for classification is <strong>cross-entropy loss</strong>:
+  </p>
+
+  <div class="exp-formula">
+    <div class="exp-formula-label">Standard cross-entropy</div>
+    $$\mathcal{L}_\text{CE} = -\log\, p_t$$
+    <p style="font-size:0.85rem;color:var(--ink-muted);margin-top:0.7rem;line-height:1.6">
+      where $p_t$ is the predicted probability for the <em>correct</em> class. The loss is 0 when the model is perfectly confident ($p_t = 1$) and grows without bound as confidence approaches 0.
+    </p>
+  </div>
+
+  <p class="exp-text">
+    Cross-entropy has a critical weakness for contrail segmentation: <strong>class imbalance</strong>. In a typical VIIRS granule, contrail pixels account for well under 1% of the image. A model that predicts "background" for every single pixel achieves an extremely low average cross-entropy loss — yet is completely useless. The model has an easy escape hatch that the loss does not penalize.
+  </p>
+  <p class="exp-text">
+    <strong>Focal loss</strong> (Lin et al. 2017) was designed to solve exactly this problem. It modifies cross-entropy by adding a <em>modulating factor</em> that down-weights easy, well-classified examples:
+  </p>
+
+  <div class="exp-formula">
+    <div class="exp-formula-label">Focal loss</div>
+    $$\mathcal{L}_\text{focal} = -\alpha\,(1 - p_t)^\gamma \log\, p_t$$
+    <p style="font-size:0.85rem;color:var(--ink-muted);margin-top:0.7rem;line-height:1.6">
+      $(1 - p_t)^\gamma$ is the <strong>modulating factor</strong>. When $p_t \approx 1$ (model is correct and confident), the factor is near zero — the loss contribution of that example is suppressed. When $p_t \ll 1$ (model is wrong or uncertain), the factor is near 1 — the full loss signal is preserved.<br><br>
+      $\gamma = 2$ (focusing parameter) — controls how steeply easy examples are down-weighted.<br>
+      $\alpha = 0.25$ (class weight) — gives additional emphasis to the rare contrail class.
+    </p>
+  </div>
+
+  <p class="exp-text">
+    In practice: background pixels that the model already classifies correctly with high confidence contribute nearly zero gradient — they are boring to the optimizer. Rare contrail pixels — which the model must work hard to learn — receive nearly the full gradient signal. The optimizer's attention is automatically redirected toward the hard, rare cases.
+  </p>
+
+  <figure class="exp-figure">
+    <!-- FOCAL LOSS CHART SVG -->
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 460 260" width="460" height="260" aria-label="Focal loss vs cross-entropy comparison chart">
+      <!-- Chart background -->
+      <rect x="0" y="0" width="460" height="260" rx="8" fill="rgba(255,255,255,0.5)"/>
+
+      <!-- Grid lines (light) -->
+      <g stroke="rgba(26,42,53,0.08)" stroke-width="0.8" stroke-dasharray="4,3">
+        <!-- Vertical at p=0.2, 0.4, 0.6, 0.8 -->
+        <line x1="136" y1="20" x2="136" y2="210"/>
+        <line x1="202" y1="20" x2="202" y2="210"/>
+        <line x1="268" y1="20" x2="268" y2="210"/>
+        <line x1="334" y1="20" x2="334" y2="210"/>
+        <!-- Horizontal at loss=1, 2 -->
+        <line x1="70" y1="134" x2="400" y2="134"/>
+        <line x1="70" y1="58" x2="400" y2="58"/>
+      </g>
+
+      <!-- Axes -->
+      <line x1="70" y1="20" x2="70" y2="215" stroke="#1a2a35" stroke-width="1.2"/>
+      <line x1="70" y1="210" x2="405" y2="210" stroke="#1a2a35" stroke-width="1.2"/>
+
+      <!-- Y-axis ticks and labels -->
+      <line x1="67" y1="210" x2="70" y2="210" stroke="#1a2a35" stroke-width="1"/>
+      <text x="62" y="213" text-anchor="end" font-family="Inter,sans-serif" font-size="10" fill="#6b8899">0</text>
+      <line x1="67" y1="134" x2="70" y2="134" stroke="#1a2a35" stroke-width="1"/>
+      <text x="62" y="138" text-anchor="end" font-family="Inter,sans-serif" font-size="10" fill="#6b8899">1</text>
+      <line x1="67" y1="58" x2="70" y2="58" stroke="#1a2a35" stroke-width="1"/>
+      <text x="62" y="62" text-anchor="end" font-family="Inter,sans-serif" font-size="10" fill="#6b8899">2</text>
+
+      <!-- X-axis ticks and labels -->
+      <line x1="136" y1="210" x2="136" y2="213" stroke="#1a2a35" stroke-width="1"/>
+      <text x="136" y="224" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" fill="#6b8899">0.2</text>
+      <line x1="202" y1="210" x2="202" y2="213" stroke="#1a2a35" stroke-width="1"/>
+      <text x="202" y="224" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" fill="#6b8899">0.4</text>
+      <line x1="268" y1="210" x2="268" y2="213" stroke="#1a2a35" stroke-width="1"/>
+      <text x="268" y="224" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" fill="#6b8899">0.6</text>
+      <line x1="334" y1="210" x2="334" y2="213" stroke="#1a2a35" stroke-width="1"/>
+      <text x="334" y="224" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" fill="#6b8899">0.8</text>
+      <line x1="400" y1="210" x2="400" y2="213" stroke="#1a2a35" stroke-width="1"/>
+      <text x="400" y="224" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" fill="#6b8899">1.0</text>
+
+      <!-- Axis labels -->
+      <text x="235" y="244" text-anchor="middle" font-family="Inter,sans-serif" font-size="11" fill="#3d5566">predicted probability for correct class,  p_t</text>
+      <text x="18" y="115" text-anchor="middle" font-family="Inter,sans-serif" font-size="11" fill="#3d5566"
+            transform="rotate(-90,18,115)">Loss</text>
+
+      <!-- CE curve (coral/red) -->
+      <!-- Points: p=0.05(x=86.5≈87),p=0.1..1.0 -->
+      <!-- y = 210 - (loss/2.5)*190 -->
+      <!-- CE: loss = -ln(p) -->
+      <!-- p=0.05: loss=3.0 (cap), y=20; p=0.1:2.30,y=35; p=0.2:1.61,y=88; p=0.3:1.20,y=119; p=0.5:0.69,y=158; p=0.7:0.36,y=183; p=0.9:0.11,y=202; p=1:0,y=210 -->
+      <!-- x = 70 + p*330 -->
+      <polyline
+        points="70,20 103,35 136,88 169,119 235,158 301,183 367,202 400,210"
+        fill="none" stroke="#d96b72" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+
+      <!-- FL curve (sky-deep blue) -->
+      <!-- FL: loss = 0.25*(1-p)^2 * (-ln(p))  [with alpha=0.25, gamma=2] -->
+      <!-- p=0.05: ~0.56,y=168; p=0.1:0.47,y=175; p=0.2:0.26,y=190; p=0.3:0.15,y=199; p=0.5:0.04,y=207; p=0.7:0.008,y=210; p=0.9:0.0003,y=210 -->
+      <!-- Using simplified focal (alpha*modulate*CE): p=0.1:1.87*0.25=0.47,y=175; p=0.2:1.03*0.25=0.26,y=190; etc. -->
+      <!-- Actually let me not include alpha here (show the shape): FL without alpha -->
+      <!-- p=0.1:(0.9)^2*2.30=1.87,y=68; p=0.2:(0.8)^2*1.61=1.03,y=132; p=0.3:(0.7)^2*1.20=0.59,y=165; p=0.5:(0.5)^2*0.69=0.17,y=197; p=0.7:(0.3)^2*0.36=0.032,y=208; p=0.9:≈0,y=210 -->
+      <polyline
+        points="70,20 103,68 136,132 169,165 235,197 301,208 367,210 400,210"
+        fill="none" stroke="#4a9abe" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+
+      <!-- Shaded region showing "easy examples suppressed" -->
+      <path d="M103,35 L136,88 L169,119 L235,158 L301,183 L367,202 L400,210
+               L400,210 L367,210 L301,208 L235,197 L169,165 L136,132 L103,68 Z"
+            fill="rgba(74,154,190,0.08)" stroke="none"/>
+
+      <!-- Labels for curves -->
+      <text x="120" y="58" font-family="Inter,sans-serif" font-size="11" fill="#d96b72" font-weight="400">Cross-Entropy</text>
+      <text x="120" y="117" font-family="Inter,sans-serif" font-size="11" fill="#4a9abe" font-weight="400">Focal Loss (γ=2)</text>
+      <!-- annotation arrow pointing to the gap region -->
+      <text x="218" y="175" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" fill="#4a9abe" font-style="italic">easy examples</text>
+      <text x="218" y="185" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" fill="#4a9abe" font-style="italic">down-weighted here</text>
+
+      <!-- high-p annotation -->
+      <line x1="360" y1="190" x2="380" y2="170" stroke="#6b8899" stroke-width="0.8" stroke-dasharray="2,2"/>
+      <text x="383" y="170" font-family="Inter,sans-serif" font-size="9" fill="#6b8899">→ 0 at high p_t</text>
+    </svg>
+    <figcaption class="exp-caption">
+      Focal loss (blue) vs. standard cross-entropy (red) as a function of the predicted probability for the correct class $p_t$. The shaded region shows the range where focal loss strongly suppresses the contribution of easy, correctly-classified examples — predominantly background pixels — while preserving the full learning signal for uncertain or misclassified predictions. With $\gamma = 2$, a well-classified pixel ($p_t = 0.9$) contributes less than 1% of the loss it would under standard cross-entropy.
+    </figcaption>
+  </figure>
+</section>
+
+<!-- ════════════════════════════════════════ -->
+<!-- SECTION 7: INFERENCE                    -->
+<!-- ════════════════════════════════════════ -->
+<section class="exp-section" id="inference">
+  <div class="exp-label">07 — Inference</div>
+  <h2 class="exp-title">From Probability Map to <em>Detection</em></h2>
+
+  <p class="exp-text">
+    At inference time, the trained model processes a full satellite scene and produces a <strong>continuous probability map</strong>: one value in $(0,1)$ per pixel, representing the model's confidence that the pixel is part of a contrail. This probability map is the model's primary output — a richer representation than a binary mask, because it encodes uncertainty.
+  </p>
+  <p class="exp-text">
+    To obtain a <strong>binary detection mask</strong> (each pixel is either "contrail" or "background"), a detection threshold $\tau$ is applied:
+  </p>
+
+  <div class="exp-formula">
+    <div class="exp-formula-label">Threshold decision</div>
+    $$\hat{y}_{ij} = \begin{cases} 1 & \text{if } p_{ij} \geq \tau \\ 0 & \text{otherwise} \end{cases}$$
+    <p style="font-size:0.85rem;color:var(--ink-muted);margin-top:0.7rem;line-height:1.6">
+      where $\hat{y}_{ij} = 1$ labels pixel $(i,j)$ as a contrail, and $\tau \in (0,1)$ is a chosen threshold.
+    </p>
+  </div>
+
+  <p class="exp-text">
+    The threshold $\tau$ controls a fundamental trade-off between <strong>precision</strong> and <strong>recall</strong>:
+  </p>
+  <p class="exp-text">
+    <strong>High threshold</strong> ($\tau \to 1$): Only the most confident predictions are labeled as contrails. The detector is conservative — few false positives, but many real contrail pixels are missed. This is appropriate when downstream analysis needs clean, reliable detections.
+  </p>
+  <p class="exp-text">
+    <strong>Low threshold</strong> ($\tau \to 0$): Many pixels are labeled as contrails, including uncertain ones. Recall is high — almost all real contrails are detected — but precision is low, with more false positives. This is appropriate when completeness matters more than purity.
+  </p>
+  <p class="exp-text">
+    The <strong>Precision-Recall curve</strong> traces this entire trade-off by sweeping $\tau$ from 0 to 1. The area under this curve (PR-AUC) summarizes performance in a single number that accounts for the class imbalance: a perfect detector has PR-AUC = 1.0; a random detector has PR-AUC equal to the fraction of positive pixels (near zero for contrails).
+  </p>
+
+  <div class="exp-callout">
+    <strong>The ROC curve</strong> is another standard evaluation tool. It plots the true positive rate against the false positive rate across thresholds. At low false positive rates (which is where we operate for rare contrail pixels), the PR curve is more informative — the ROC curve's AUC can be misleadingly high for heavily imbalanced problems, because a model can achieve low false positive rate simply by being conservative, without actually finding contrails well.
+  </div>
+
+  <p class="exp-text">
+    The optimal threshold depends on the application. For <em>contrail avoidance</em>, recall matters more — missing a persistent contrail means a missed opportunity to reroute. For <em>climate model validation</em>, precision matters more — false positives contaminate the comparison between observed and predicted contrail coverage. The probability map preserves the information needed for both use cases; the threshold is chosen separately for each task.
+  </p>
+</section>
+
+</div><!-- /container -->
+</body>
+</html>

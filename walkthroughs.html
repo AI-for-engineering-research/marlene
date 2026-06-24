@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Walkthroughs — Marlene V. Euchenhofer</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+  <canvas id="skyCanvas"></canvas>
+
+  <nav id="navbar">
+    <div class="nav-left">
+      <span class="nav-logo"><a href="index.html" style="text-decoration:none;color:inherit;">MVE</a></span>
+    </div>
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="index.html#project">Research</a></li>
+      <li>
+        <a href="progress/">Progress</a>
+        <ul class="nav-dropdown-menu">
+          <li><a href="progress/viirs.html">VIIRS Detection</a></li>
+          <li><a href="progress/windborne.html">WindBorne Radiosonde</a></li>
+        </ul>
+      </li>
+      <li><a href="ai_log.html">AI Log</a></li>
+      <li><a href="walkthroughs.html">Walkthroughs</a></li>
+      <li><a href="index.html#about">About</a></li>
+    </ul>
+  </nav>
+
+  <div class="updates-page">
+    <div class="container">
+
+      <div class="updates-page-header">
+        <a href="index.html" class="back-link">← Back</a>
+        <div class="section-label">Guides</div>
+        <h1 class="section-title"><em>Walkthroughs</em></h1>
+        <p class="section-sub">Step-by-step walkthroughs tracing how general principles, algorithms, and pipelines work — from data input through model inference to evaluation.</p>
+      </div>
+
+      <!-- ─── PANEL 1 ─────────────────────────────── -->
+      <a class="progress-panel" href="walkthroughs/viirs-pipeline.html">
+        <img class="progress-panel-img" src="assets/images/progress/viirs/viirs_detection_flowchart.png" alt="VIIRS contrail detection pipeline flowchart" />
+        <div class="progress-panel-body">
+          <h2 class="progress-panel-title">VIIRS contrail detection pipeline</h2>
+          <p class="progress-panel-desc">A node-by-node walkthrough of the full inference pipeline: VIIRS band mapping from M15/I5 channels to the ABI input format, normalization, model forward pass, and prediction output. M15 and I5 paths are shown in parallel throughout.</p>
+        </div>
+      </a>
+
+      <!-- ─── PANEL 2 ─────────────────────────────── -->
+      <a class="progress-panel" href="walkthroughs/viirs_detection_finetuning.html">
+        <img class="progress-panel-img" src="assets/images/progress/viirs/viirs_labels_input_for_flowchart.png" alt="VIIRS fine-tuning segmentation head" />
+        <div class="progress-panel-body">
+          <h2 class="progress-panel-title">Fine-tuning the segmentation head</h2>
+          <p class="progress-panel-desc">Step-by-step walkthrough of the four-phase fine-tuning pipeline: extract frozen MAnet encoder–decoder features, check linear separability via PCA, train only the segmentation head with focal loss, and evaluate on validation scenes with PR/ROC curves. M15 and I5 normalization paths shown in parallel.</p>
+        </div>
+      </a>
+
+      <!-- ─── PANEL 3 ─────────────────────────────── -->
+      <a class="progress-panel" href="walkthroughs/ml_architecture.html">
+        <!-- SVG thumbnail: U-shape encoder-decoder schematic -->
+        <div style="width:320px;min-width:320px;height:200px;flex-shrink:0;overflow:hidden;">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 200" width="320" height="200" aria-hidden="true">
+            <defs>
+              <linearGradient id="tb-bg" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#dceefa"/>
+                <stop offset="100%" stop-color="#c4def5"/>
+              </linearGradient>
+            </defs>
+            <rect width="320" height="200" fill="url(#tb-bg)"/>
+
+            <!-- column labels -->
+            <text x="90" y="11" text-anchor="middle" font-family="Inter,sans-serif"
+                  font-size="7.5" font-weight="500" letter-spacing="1.2" fill="#6b8899">ENCODER</text>
+            <text x="230" y="11" text-anchor="middle" font-family="Inter,sans-serif"
+                  font-size="7.5" font-weight="500" letter-spacing="1.2" fill="#6b8899">DECODER</text>
+
+            <!-- ── ENCODER BOXES (center x=90, narrowing down) ── -->
+            <rect x="45" y="16" width="90" height="24" rx="5" fill="#c8e6f5" stroke="#7bbfdd" stroke-width="1.1"/>
+            <rect x="53" y="47" width="74" height="24" rx="5" fill="#c8e6f5" stroke="#7bbfdd" stroke-width="1.1"/>
+            <rect x="61" y="78" width="58" height="24" rx="5" fill="#c8e6f5" stroke="#7bbfdd" stroke-width="1.1"/>
+            <rect x="69" y="109" width="42" height="24" rx="5" fill="#c8e6f5" stroke="#7bbfdd" stroke-width="1.1"/>
+            <!-- Bottleneck -->
+            <rect x="76" y="145" width="28" height="24" rx="5" fill="#ead9aa" stroke="#d9b072" stroke-width="1.1"/>
+
+            <!-- encoder connecting lines (down) -->
+            <line x1="90" y1="40" x2="90" y2="47" stroke="#7bbfdd" stroke-width="1"/>
+            <line x1="90" y1="71" x2="90" y2="78" stroke="#7bbfdd" stroke-width="1"/>
+            <line x1="90" y1="102" x2="90" y2="109" stroke="#7bbfdd" stroke-width="1"/>
+            <line x1="90" y1="133" x2="90" y2="145" stroke="#7bbfdd" stroke-width="1" stroke-dasharray="3,2"/>
+
+            <!-- ── DECODER BOXES (center x=230, widening up) ── -->
+            <!-- D4 (bottom, narrow) -->
+            <rect x="209" y="109" width="42" height="24" rx="5" fill="#d4eed5" stroke="#90c9a8" stroke-width="1.1"/>
+            <rect x="201" y="78" width="58" height="24" rx="5" fill="#d4eed5" stroke="#90c9a8" stroke-width="1.1"/>
+            <rect x="193" y="47" width="74" height="24" rx="5" fill="#d4eed5" stroke="#90c9a8" stroke-width="1.1"/>
+            <!-- D1 / output (top, widest) — lavender to mark seg head -->
+            <rect x="185" y="16" width="90" height="24" rx="5" fill="#e8e2f5" stroke="#b09fd8" stroke-width="1.1"/>
+
+            <!-- decoder connecting lines (up) -->
+            <line x1="230" y1="109" x2="230" y2="102" stroke="#90c9a8" stroke-width="1"/>
+            <line x1="230" y1="78" x2="230" y2="71" stroke="#90c9a8" stroke-width="1"/>
+            <line x1="230" y1="47" x2="230" y2="40" stroke="#90c9a8" stroke-width="1"/>
+
+            <!-- ── BOTTOM ARC (bottleneck → D4) ── -->
+            <path d="M104,157 C145,188 180,188 209,121"
+                  fill="none" stroke="#d9b072" stroke-width="1.4" stroke-dasharray="4,2"/>
+
+            <!-- ── SKIP CONNECTIONS (dashed horizontal) ── -->
+            <line x1="135" y1="28" x2="185" y2="28" stroke="#4a9abe" stroke-width="1.1" stroke-dasharray="4,3" opacity="0.7"/>
+            <line x1="127" y1="59" x2="193" y2="59" stroke="#4a9abe" stroke-width="1.1" stroke-dasharray="4,3" opacity="0.7"/>
+            <line x1="119" y1="90" x2="201" y2="90" stroke="#4a9abe" stroke-width="1.1" stroke-dasharray="4,3" opacity="0.7"/>
+            <line x1="111" y1="121" x2="209" y2="121" stroke="#4a9abe" stroke-width="1.1" stroke-dasharray="4,3" opacity="0.7"/>
+
+            <!-- attention gate dots on skip lines -->
+            <circle cx="160" cy="28" r="5" fill="white" stroke="#4a9abe" stroke-width="1"/>
+            <circle cx="160" cy="59" r="5" fill="white" stroke="#4a9abe" stroke-width="1"/>
+            <circle cx="160" cy="90" r="5" fill="white" stroke="#4a9abe" stroke-width="1"/>
+            <circle cx="160" cy="121" r="5" fill="white" stroke="#4a9abe" stroke-width="1"/>
+
+            <!-- small legend at bottom -->
+            <line x1="20" y1="185" x2="36" y2="185" stroke="#4a9abe" stroke-width="1" stroke-dasharray="3,2" opacity="0.7"/>
+            <text x="40" y="189" font-family="Inter,sans-serif" font-size="8" fill="#6b8899">skip + attention</text>
+            <line x1="148" y1="185" x2="164" y2="185" stroke="#d9b072" stroke-width="1.2" stroke-dasharray="3,2"/>
+            <text x="168" y="189" font-family="Inter,sans-serif" font-size="8" fill="#6b8899">bottleneck</text>
+          </svg>
+        </div>
+        <div class="progress-panel-body">
+          <h2 class="progress-panel-title">How neural networks detect contrails</h2>
+          <p class="progress-panel-desc">A conceptual guide to semantic segmentation, encoder–decoder architectures, attention gates, focal loss, and inference thresholding — with visual diagrams, minimal code, and maximal intuition. Covers ResNet-18, MAnet, and the training pipeline from first principles.</p>
+        </div>
+      </a>
+
+    </div>
+  </div>
+
+  <footer>
+    <p>Marlene V. Euchenhofer · MIT Laboratory for Aviation and the Environment · 2026</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

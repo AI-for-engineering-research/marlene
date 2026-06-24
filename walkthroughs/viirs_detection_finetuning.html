@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VIIRS Fine-tuning — Segmentation Head</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]});"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --sky-light:#eaf4fb;--sky-mid:#c8e6f5;--sky-blue:#7bbfdd;--sky-deep:#4a9abe;
+  --ink:#1a2a35;--ink-soft:#3d5566;--ink-muted:#6b8899;--white:#ffffff;
+  --glass-bg:rgba(255,255,255,0.72);--glass-border:rgba(123,191,221,0.35);
+  --radius:14px;--shadow:0 4px 32px rgba(74,154,190,0.10);--shadow-lg:0 8px 40px rgba(74,154,190,0.18);
+  --transition:0.35s cubic-bezier(0.4,0,0.2,1);
+  --font-sans:'Inter',system-ui,-apple-system,sans-serif;
+  --font-serif:'Cormorant Garamond','Georgia',serif;
+  --font-mono:'SF Mono','Fira Mono','Consolas',monospace;
+  --green:#2d7a4a;--green-light:#e8f5ee;--green-border:#90c9a8;
+  --orange:#8f6020;--orange-light:#fdf4e7;--orange-border:#d9b072;
+  --teal:#1a7068;--teal-light:#e5f5f3;--teal-border:#70c0b8;
+  --purple:#6044a0;--purple-light:#eeebf8;--purple-border:#b09fd8;
+  --red:#9b2525;--red-light:#fceaea;--red-border:#d98888;
+  --gray-light:#f0f5f8;
+  --darkred:#8b1c1c;--darkred-light:#fceaea;--darkred-border:#d98888;
+  --darkgreen:#1e6640;--darkgreen-light:#e8f5ee;--darkgreen-border:#90c9a8;
+  --arrow:var(--sky-blue);
+}
+html{font-size:16px;scroll-behavior:smooth}
+body{font-family:var(--font-sans);font-weight:300;background:var(--sky-light);color:var(--ink);line-height:1.75;padding:0;overflow-x:hidden}
+
+/* ── Nav ── */
+.wt-nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:1rem 2.5rem;background:rgba(255,255,255,0.88);backdrop-filter:blur(14px);box-shadow:0 1px 24px rgba(74,154,190,0.10);border-bottom:1px solid var(--glass-border)}
+.wt-nav-logo{font-family:var(--font-serif);font-size:1.35rem;font-weight:600;letter-spacing:.12em;color:var(--ink);text-decoration:none}
+.wt-nav-links{list-style:none;display:flex;gap:2rem;align-items:center}
+.wt-nav-links a{text-decoration:none;font-size:.8rem;font-weight:400;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft);transition:color var(--transition)}
+.wt-nav-links a:hover{color:var(--sky-deep)}
+.wt-nav-back{font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--sky-deep);text-decoration:none;font-weight:400;border:1px solid var(--glass-border);border-radius:999px;padding:.3rem .95rem;transition:background var(--transition),color var(--transition)}
+.wt-nav-back:hover{background:var(--sky-deep);color:var(--white)}
+
+/* ── Header ── */
+.header{background:var(--white);border-bottom:1px solid var(--glass-border);padding:4rem 2.5rem 3.5rem;text-align:center}
+.header-eyebrow{font-size:.78rem;letter-spacing:.2em;text-transform:uppercase;color:var(--sky-deep);font-weight:400;margin-bottom:1rem;display:block}
+.header h1{font-family:var(--font-serif);font-size:clamp(1.9rem,4vw,3rem);font-weight:300;color:var(--ink);line-height:1.15;letter-spacing:-.01em;margin-bottom:.7rem}
+.header h1 em{font-style:italic;color:var(--sky-deep)}
+.header .subtitle{font-size:1.05rem;color:var(--ink-muted);max-width:760px;margin:.6rem auto 0;font-weight:300;line-height:1.7}
+.header .meta{margin-top:1.3rem;font-size:.8rem;color:var(--ink-muted);font-family:var(--font-mono);letter-spacing:.04em}
+.header .meta a{color:var(--sky-deep);text-decoration:underline;text-decoration-style:dotted}
+
+/* ── Layout ── */
+.container{max-width:980px;margin:0 auto;padding:2.5rem 2.5rem 6rem}
+@media(min-width:1400px){
+  body:has(.toc-toggle) .container{margin-left:calc(50vw - 490px + 6rem);margin-right:auto}
+}
+
+/* ── Legend ── */
+.legend{display:flex;flex-wrap:wrap;gap:.7rem 1.8rem;justify-content:center;margin:1.8rem 0 2.5rem;padding:1.2rem 1.6rem;background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:var(--radius);backdrop-filter:blur(8px);box-shadow:var(--shadow)}
+.legend-item{display:flex;align-items:center;gap:.5rem;font-size:.85rem;color:var(--ink-soft)}
+.legend-swatch{width:14px;height:14px;border-radius:3px;border:1.5px solid;flex-shrink:0}
+.sw-input{background:var(--darkred-light);border-color:var(--darkred)}
+.sw-model{background:var(--sky-light);border-color:var(--sky-deep)}
+.sw-compute{background:var(--orange-light);border-color:var(--orange)}
+.sw-result{background:var(--darkgreen-light);border-color:var(--darkgreen)}
+.sw-gray{background:var(--gray-light);border-color:var(--ink-muted)}
+
+/* ── Flow ── */
+.flow{display:flex;flex-direction:column;align-items:center;gap:0}
+.arrow{display:flex;flex-direction:column;align-items:center;color:var(--arrow);line-height:1}
+.arrow svg{display:block}
+.arrow-label{font-size:.8rem;color:var(--ink-muted);margin:3px 0;font-family:var(--font-mono);letter-spacing:.03em}
+
+/* ── Nodes ── */
+.node{position:relative;width:100%;max-width:900px;border-radius:var(--radius);box-shadow:var(--shadow);transition:box-shadow var(--transition);overflow:hidden;margin:0}
+.node:hover{box-shadow:var(--shadow-lg)}
+.node-header{display:flex;align-items:center;gap:.75rem;padding:1.05rem 1.5rem;cursor:pointer;user-select:none;font-weight:500;font-size:1rem;letter-spacing:.01em;border-bottom:1px solid transparent}
+.node-header .badge{font-size:.68rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;padding:.2rem .6rem;border-radius:999px;white-space:nowrap}
+.node-header .toggle{margin-left:auto;font-size:.8rem;opacity:.4;transition:transform .25s}
+.node-header .toggle.open{transform:rotate(90deg)}
+.node-body{display:none;padding:1.5rem 1.7rem 1.6rem;font-size:.97rem;line-height:1.85;border-top:1px solid rgba(0,0,0,.06);background:var(--white);color:var(--ink-soft)}
+.node-body.show{display:block}
+.node-body p{margin-bottom:.9rem}
+.node-body .eq-block{background:#f4faff;border-left:3px solid var(--sky-blue);padding:.8rem 1.1rem;margin:.8rem 0;border-radius:0 var(--radius) var(--radius) 0;overflow-x:auto;font-size:.95rem}
+.node-body .eq-block.orange-eq{border-left-color:var(--orange)}
+.node-body .eq-block.teal-eq{border-left-color:var(--teal)}
+.node-body .source-block{background:#1a2535;color:#cfe0ec;font-family:var(--font-mono);font-size:.84rem;line-height:1.65;padding:.95rem 1.2rem;border-radius:10px;margin:.8rem 0;overflow-x:auto;white-space:pre}
+.node-body .source-block .ln{color:#4e6a7a;display:inline-block;width:2.8em;text-align:right;margin-right:.9em;user-select:none}
+.node-body .ref{font-size:.84rem;color:var(--ink-muted);margin-top:.9rem}
+.node-body .ref a{color:var(--sky-deep);text-decoration:underline;text-decoration-style:dotted}
+.node-body .ref a:hover{color:var(--ink)}
+.node-body code{font-family:var(--font-mono);font-size:.86rem;background:rgba(74,154,190,.10);color:var(--sky-deep);padding:.1rem .42rem;border-radius:4px}
+.node-body ul{margin:.4rem 0 .8rem 1.5rem}
+.node-body li{margin-bottom:.35rem}
+.node-body .reads-writes{display:grid;grid-template-columns:auto 1fr;gap:.45rem 1.3rem;font-size:.9rem;background:var(--sky-light);padding:.8rem 1.1rem;border-radius:8px;margin:.8rem 0;border:1px solid var(--glass-border)}
+.node-body .reads-writes .rw-label{color:var(--ink-muted);font-weight:500;font-size:.73rem;text-transform:uppercase;letter-spacing:.07em;padding-top:2px}
+.node-body .pair{display:grid;grid-template-columns:1fr;gap:0;margin:.8rem 0;align-items:stretch}
+@media(min-width:920px){.node-body .pair{grid-template-columns:1fr 1fr;gap:.75rem}}
+.node-body .pair > .eq-block,.node-body .pair > .source-block{margin:0;height:100%}
+
+/* ── Node themes ── */
+.node-config{background:var(--glass-bg);border:1px solid var(--glass-border);backdrop-filter:blur(8px)}
+.node-config .node-header{color:var(--ink-soft)}
+.node-config .badge{background:var(--gray-light);color:var(--ink-muted)}
+
+.node-model{background:var(--sky-light);border:1px solid var(--sky-blue)}
+.node-model .node-header{color:var(--sky-deep)}
+.node-model .badge{background:var(--sky-mid);color:#1a5f80}
+
+.node-input{background:var(--darkred-light);border:1px solid var(--darkred-border)}
+.node-input .node-header{color:var(--darkred)}
+.node-input .badge{background:#e8c0c0;color:var(--darkred)}
+
+.node-compute{background:var(--orange-light);border:1px solid var(--orange-border)}
+.node-compute .node-header{color:var(--orange)}
+.node-compute .badge{background:#ead9aa;color:#7a5218}
+
+.node-result{background:var(--darkgreen-light);border:1px solid var(--darkgreen-border)}
+.node-result .node-header{color:var(--darkgreen)}
+.node-result .badge{background:#c0e8ce;color:var(--darkgreen)}
+
+.node-decision{background:var(--glass-bg);border:1.5px dashed var(--glass-border);max-width:700px;backdrop-filter:blur(8px)}
+.node-decision .node-header{color:var(--ink-muted);font-size:.94rem;cursor:default}
+.node-decision .node-header .toggle{display:none}
+.node-decision .node-body{display:block;border-top:none;padding:.7rem 1.5rem 1.1rem;font-size:.94rem;background:transparent}
+
+/* ── Loop wrapper ── */
+.loop-wrapper{width:100%;max-width:960px;border:1.5px dashed var(--sky-blue);border-radius:calc(var(--radius)*1.4);padding:1.7rem 1.1rem 1.4rem;position:relative;margin:0;background:linear-gradient(180deg,rgba(234,244,251,.55) 0%,transparent 120px)}
+.loop-label{position:absolute;top:-15px;left:26px;background:var(--sky-light);padding:.1rem .7rem;font-size:.8rem;font-weight:600;color:var(--sky-deep);text-transform:uppercase;letter-spacing:.07em;border:1px solid var(--sky-blue);border-radius:999px}
+.loop-label .cond{font-family:var(--font-mono);text-transform:none;background:var(--white);padding:.05rem .5rem;border-radius:4px;margin-left:.38rem;border:1px solid var(--sky-blue);color:var(--sky-deep)}
+.loop-inner{display:flex;flex-direction:column;align-items:center;gap:0}
+.loop-feedback{font-size:.82rem;color:var(--sky-deep);text-align:center;padding:.55rem 0;font-family:var(--font-mono);opacity:.75}
+.loop-meta{font-size:.82rem;color:var(--sky-deep);text-align:center;padding:.2rem 0 .9rem;font-family:var(--font-mono);opacity:.7}
+
+/* ── Parallel branches ── */
+.parallel-wrapper{width:100%;max-width:960px;display:grid;grid-template-columns:1fr 1fr;gap:1.3rem;align-items:start}
+.parallel-col{display:flex;flex-direction:column;align-items:center;gap:0}
+.branch-tag{display:inline-block;font-size:.73rem;font-weight:600;text-transform:uppercase;letter-spacing:.07em;padding:.22rem .75rem;border-radius:999px;margin-bottom:.5rem;font-family:var(--font-mono)}
+.branch-tag.m15{background:var(--sky-mid);color:#1a5f80;border:1px solid var(--sky-blue)}
+.branch-tag.i5{background:var(--darkgreen-light);color:var(--darkgreen);border:1.5px dashed var(--darkgreen-border)}
+.col-i5 .node{border-style:dashed}
+.col-i5 .arrow svg line,.col-i5 .arrow svg polyline{stroke-dasharray:5 3}
+@media(max-width:680px){.parallel-wrapper{grid-template-columns:1fr}}
+
+/* ── Sidebar callout ── */
+.sidebar-callout{width:100%;max-width:900px;margin:2.2rem 0 0;padding:1.4rem 1.7rem;background:var(--glass-bg);border:1px solid var(--teal-border);border-left:4px solid var(--teal);border-radius:var(--radius);box-shadow:var(--shadow);backdrop-filter:blur(8px)}
+.sidebar-callout h3{font-family:var(--font-serif);font-size:1.2rem;font-weight:400;color:var(--teal);margin-bottom:.7rem;display:flex;align-items:center;gap:.55rem}
+.sidebar-callout h3 .badge{font-size:.67rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;padding:.2rem .55rem;border-radius:999px;background:var(--teal-light);color:var(--teal)}
+.sidebar-callout p{font-size:.97rem;margin-bottom:.7rem;color:var(--ink-soft)}
+.sidebar-callout .eq-block{background:#eef9f7;border-left:3px solid var(--teal);padding:.7rem 1.1rem;margin:.7rem 0;border-radius:0 8px 8px 0;font-size:.95rem}
+.sidebar-callout .source-block{background:#1a2535;color:#cfe0ec;font-family:var(--font-mono);font-size:.84rem;line-height:1.65;padding:.95rem 1.2rem;border-radius:10px;margin:.7rem 0;overflow-x:auto;white-space:pre}
+.sidebar-callout .source-block .ln{color:#4e6a7a;display:inline-block;width:2.8em;text-align:right;margin-right:.9em;user-select:none}
+
+/* ── TOC rail ── */
+.toc-rail{position:fixed;top:1rem;left:1rem;width:244px;max-height:calc(100vh - 2rem);overflow-y:auto;background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:var(--radius);box-shadow:var(--shadow);padding:.95rem .85rem;font-size:.77rem;line-height:1.5;z-index:10;backdrop-filter:blur(14px);transform:translateX(-120%);opacity:0;pointer-events:none;transition:transform .2s ease,opacity .2s ease}
+.toc-rail.open{transform:translateX(0);opacity:1;pointer-events:auto}
+.toc-toggle{position:fixed;top:1rem;left:1rem;width:38px;height:38px;background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:8px;box-shadow:var(--shadow);cursor:pointer;z-index:11;display:flex;align-items:center;justify-content:center;font-size:15px;color:var(--ink-soft);padding:0;backdrop-filter:blur(10px);transition:left .2s ease,color var(--transition),border-color var(--transition)}
+.toc-toggle::before{content:'☰';line-height:1;font-weight:500}
+.toc-toggle.open{left:calc(1rem + 244px + .5rem);color:var(--sky-deep);border-color:var(--sky-blue)}
+.toc-toggle.open::before{content:'✕';font-size:13px}
+.toc-toggle:hover{color:var(--sky-deep);border-color:var(--sky-blue);box-shadow:var(--shadow-lg)}
+.toc-toggle:focus-visible{outline:2px solid var(--sky-deep);outline-offset:2px}
+@media print{.toc-toggle{display:none}}
+.toc-rail .toc-title{font-size:.65rem;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-muted);font-weight:500;margin:0 0 .35rem;padding:0 .45rem}
+.toc-rail .toc-section{margin-top:.75rem;padding-top:.65rem;border-top:1px solid var(--glass-border)}
+.toc-rail .toc-section:first-of-type{margin-top:0;padding-top:0;border-top:none}
+.toc-rail .toc-section-label{font-size:.65rem;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-muted);font-weight:500;margin:0 0 .3rem;padding:0 .45rem;display:flex;align-items:center;gap:.3rem}
+.toc-rail .toc-section-label .toc-badge{font-size:.58rem;background:rgba(74,154,190,.10);color:var(--sky-deep);padding:.05rem .38rem;border-radius:999px;font-weight:500;border:1px solid var(--glass-border)}
+.toc-rail ul{list-style:none;margin:0;padding:0}
+.toc-rail li{margin:0}
+.toc-rail a{display:block;color:var(--ink-soft);text-decoration:none;padding:.22rem .52rem;border-radius:6px;border-left:2px solid transparent;transition:background .1s,color .1s,border-color .1s;font-size:.76rem}
+.toc-rail a:hover{background:var(--sky-light);color:var(--sky-deep)}
+.toc-rail a.active{background:rgba(74,154,190,.12);color:var(--sky-deep);border-left-color:var(--sky-deep);font-weight:500}
+.toc-rail a .toc-marker{display:inline-block;width:.6rem;color:var(--ink-muted);font-family:var(--font-mono);font-size:.65rem;margin-right:.15rem}
+.toc-rail .toc-loop{margin:.38rem 0 .22rem;font-size:.68rem;text-transform:uppercase;letter-spacing:.07em;color:var(--sky-deep);font-weight:600;padding:.2rem .45rem;background:rgba(74,154,190,.08);border-left:2px solid var(--sky-blue);border-radius:0 4px 4px 0}
+.toc-rail .toc-nested{padding-left:1rem;border-left:1px dashed var(--glass-border);margin-left:.45rem}
+.toc-rail::-webkit-scrollbar{width:4px}
+.toc-rail::-webkit-scrollbar-thumb{background:var(--sky-mid);border-radius:2px}
+@media print{.toc-rail{display:none}}
+
+/* ── Footer ── */
+.footer-block{margin-top:4rem;padding-top:2rem;border-top:1px solid var(--glass-border);font-size:.84rem;color:var(--ink-muted);text-align:center;letter-spacing:.04em}
+.footer-block a{color:var(--sky-deep);text-decoration:none}
+.footer-block a:hover{text-decoration:underline}
+
+/* ── Responsive ── */
+@media(max-width:680px){
+  .header{padding:2.8rem 1.5rem 2.2rem}
+  .header h1{font-size:1.7rem}
+  .container{padding:1.5rem 1.2rem 3rem}
+  .node-header{font-size:.92rem;padding:.85rem 1.1rem}
+  .node-body{padding:1.1rem 1rem;font-size:.9rem}
+  .wt-nav{padding:.85rem 1.5rem}
+}
+@media print{
+  .header{break-after:avoid}
+  .node-body{display:block!important}
+  .toggle{display:none}
+  .loop-wrapper{page-break-inside:avoid}
+  body{font-size:12pt}
+  .wt-nav{position:static;box-shadow:none;backdrop-filter:none}
+}
+</style>
+</head>
+<body>
+
+<!-- ── Nav ── -->
+<nav class="wt-nav">
+  <a href="../index.html" class="wt-nav-logo">MVE</a>
+  <a href="../walkthroughs.html" class="wt-nav-back">← Walkthroughs</a>
+</nav>
+
+<!-- ── TOC ── -->
+<button class="toc-toggle" type="button" aria-label="Toggle walkthrough navigation" aria-controls="toc-rail" aria-expanded="false"></button>
+
+<nav class="toc-rail" id="toc-rail" aria-label="Walkthrough navigation">
+  <div class="toc-title">Walkthrough</div>
+
+  <div class="toc-section">
+    <div class="toc-section-label">Setup</div>
+    <ul>
+      <li><a href="#node-cli-setup" data-toggle="cli-setup"><span class="toc-marker">▸</span>CLI constants &amp; pipeline</a></li>
+    </ul>
+  </div>
+
+  <div class="toc-section">
+    <div class="toc-section-label">Channel variant <span class="toc-badge">M15 | I5</span></div>
+    <ul>
+      <li><a href="#node-norm-stats-m15" data-toggle="norm-stats-m15"><span class="toc-marker">▸</span>M15 norm stats</a></li>
+      <li><a href="#node-norm-stats-i5" data-toggle="norm-stats-i5"><span class="toc-marker">▸</span>I5 norm stats</a></li>
+    </ul>
+  </div>
+
+  <div class="toc-section">
+    <div class="toc-section-label">Phase 1 · Extract</div>
+    <ul>
+      <li><a href="#node-feature-extract" data-toggle="feature-extract"><span class="toc-marker">▸</span>Load MAnet; run encoder+decoder</a></li>
+      <li><a href="#node-save-features" data-toggle="save-features"><span class="toc-marker">▸</span>Save features &amp; labels to disk</a></li>
+    </ul>
+  </div>
+
+  <div class="toc-section">
+    <div class="toc-section-label">Phase 2 · Check</div>
+    <ul>
+      <li><a href="#node-separability" data-toggle="separability"><span class="toc-marker">▸</span>PCA + logistic regression</a></li>
+    </ul>
+  </div>
+
+  <div class="toc-section">
+    <div class="toc-section-label">Phase 3 · Train</div>
+    <ul>
+      <li><a href="#node-patch-build" data-toggle="patch-build"><span class="toc-marker">▸</span>Build PatchDataset</a></li>
+      <li><a href="#node-freeze-head" data-toggle="freeze-head"><span class="toc-marker">▸</span>Freeze network; unfreeze head</a></li>
+    </ul>
+    <div class="toc-loop">↻ Epoch loop</div>
+    <div class="toc-nested">
+      <ul>
+        <li><a href="#node-forward-loss" data-toggle="forward-loss"><span class="toc-marker">▸</span>Forward + focal loss</a></li>
+        <li><a href="#node-best-ckpt" data-toggle="best-ckpt"><span class="toc-marker">▸</span>Adam step; save best ckpt</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="toc-section">
+    <div class="toc-section-label">Phase 4 · Evaluate</div>
+    <ul>
+      <li><a href="#node-val-inference" data-toggle="val-inference"><span class="toc-marker">▸</span>Load ckpt; val inference</a></li>
+      <li><a href="#node-eval-metrics" data-toggle="eval-metrics"><span class="toc-marker">▸</span>PR/ROC + threshold sweep</a></li>
+    </ul>
+  </div>
+
+  <div class="toc-section">
+    <div class="toc-section-label">Reference</div>
+    <ul>
+      <li><a href="#sidebar-softmax">Logits → probability</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- ── Header ── -->
+<div class="header">
+  <span class="header-eyebrow">Code Walkthrough</span>
+  <h1>VIIRS Fine-tuning — <em>Segmentation Head</em></h1>
+  <p class="subtitle">Four-phase pipeline: extract frozen encoder–decoder features, check linear separability, train <code>segmentation_head</code> with focal loss, evaluate with PR/ROC curves. Entry: <code>scripts/finetune_output_layer.py</code></p>
+  <p class="meta"><a href="https://github.mit.edu/euchmv/viirs_detections">euchmv/viirs_detections</a> @ f8b56c3</p>
+</div>
+
+<div class="container">
+
+<div class="legend">
+  <div class="legend-item"><span class="legend-swatch sw-input"></span>VIIRS data / features on disk</div>
+  <div class="legend-item"><span class="legend-swatch sw-model"></span>MAnet model components</div>
+  <div class="legend-item"><span class="legend-swatch sw-compute"></span>Loss computation &amp; diagnostics</div>
+  <div class="legend-item"><span class="legend-swatch sw-result"></span>Saved outputs &amp; metrics</div>
+  <div class="legend-item"><span class="legend-swatch sw-gray"></span>CLI setup &amp; constants</div>
+</div>
+
+<div class="flow">
+
+<!-- ── Node 1: CLI setup ── -->
+<div class="node node-config" id="node-cli-setup">
+  <div class="node-header" onclick="toggle('cli-setup')">
+    <span class="badge">Setup</span>
+    CLI constants &amp; four-subcommand pipeline
+    <span class="toggle" id="toggle-cli-setup">&#9654;</span>
+  </div>
+  <div class="node-body" id="body-cli-setup">
+    <p>Defines the four subcommands that form a sequential workflow: <code>extract → check-separability → train → evaluate</code>. Global constants fix the output directories and focal-loss hyperparameters used throughout.</p>
+    <pre class="source-block"><span class="ln">L52</span>FEATURES_DIR    = Path('output/features')
+<span class="ln">L53</span>CHECKPOINTS_DIR = Path('output/checkpoints')
+<span class="ln">L55</span>FOCAL_GAMMA = 2.0
+<span class="ln">L56</span>FOCAL_ALPHA = 0.25</pre>
+    <p class="ref"><strong>Source:</strong> <a href="https://github.mit.edu/euchmv/viirs_detections/blob/f8b56c3dc515545d93213f0b8d27a843e9b4301c/scripts/finetune_output_layer.py#L50-L57">scripts/finetune_output_layer.py:L50–L57</a></p>
+  </div>
+</div>
+
+<div class="arrow">
+  <svg width="2" height="30"><line x1="1" y1="0" x2="1" y2="30" stroke="var(--sky-blue)" stroke-width="1.5"/></svg>
+  <svg width="10" height="6"><polyline points="0,0 5,6 10,0" fill="none" stroke="var(--sky-blue)" stroke-width="1.5"/></svg>
+</div>
+
+<!-- ── Decision: channel variant ── -->
+<div class="node node-decision">
+  <div class="node-header"><span class="badge">Branch</span>&nbsp;<code>--c14-substitute M15 | I5</code></div>
+  <div class="node-body">
+    Selects which VIIRS thermal band substitutes for ABI C14 (11.2 µm). M15 (10.76 µm) is the default; I5 (11.45 µm) is a closer spectral match but requires a separate IMG geolocation file. Both paths share identical code — they differ only in which pre-computed normalization stats file is loaded and which output subdirectory (<code>output/features/M15/</code> vs <code>output/features/I5/</code>) is written to. This walkthrough follows <strong>both paths in parallel</strong>.
+  </div>
+</div>
+
+<div class="arrow">
+  <svg width="2" height="30"><line x1="1" y1="0" x2="1" y2="30" stroke="var(--sky-blue)" stroke-width="1.5"/></svg>
+  <svg width="10" height="6"><polyline points="0,0 5,6 10,0" fill="none" stroke="var(--sky-blue)" stroke-width="1.5"/></svg>
+</div>
+
+<!-- ── Parallel: norm stats ── -->
+<div class="parallel-wrapper" id="parallel-channel">
+
+  <div class="parallel-col col-m15">
+    <span class="branch-tag m15">M15 · 10.76 µm</span>
+    <div class="node node-input" id="node-norm-stats-m15">
+      <div class="node-header" onclick="toggle('norm-stats-m15')">
+        <span class="badge">Norm</span>
+        Load M15 normalization stats
+        <span class="toggle" id="toggle-norm-stats-m15">&#9654;</span>
+      </div>
+      <div class="node-body" id="body-norm-stats-m15">
+        <p>Loads per-channel mean and std from a pre-computed <code>.npz</code> file. The three stats correspond to the three input channels: M14 (≈ ABI C11), M15 used for both C13 and C14, and the brightness temperature difference BTD M15−M16 (≈ ABI BTD C13−C15).</p>
+        <pre class="source-block"><span class="ln">L66</span>means = [float(stats['M14_mean']), float(stats['M15_mean']), float(stats['BTD_M15_M16_mean'])]
+<span class="ln">L67</span>stds  = [float(stats['M14_std']),  float(stats['M15_std']),  float(stats['BTD_M15_M16_std'])]</pre>
+        <div class="reads-writes">
+          <span class="rw-label">Reads</span><span><code>norm_stats_path('M15')</code> .npz file</span>
+          <span class="rw-label">Returns</span><span><code>means</code>, <code>stds</code> — each a list of 3 floats</span>
+        </div>
+        <p class="ref"><strong>Source:</strong> <a href="https://github.mit.edu/euchmv/viirs_detections/blob/f8b56c3dc515545d93213f0b8d27a843e9b4301c/scripts/finetune_output_layer.py#L61-L68">scripts/finetune_output_layer.py:L61–L68</a></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="parallel-col col-i5">
+    <span class="branch-tag i5">I5 · 11.45 µm</span>
+    <div class="node node-input" id="node-norm-stats-i5">
+      <div class="node-header" onclick="toggle('norm-stats-i5')">
+        <span class="badge">Norm</span>
+        Load I5 normalization stats
+        <span class="toggle" id="toggle-norm-stats-i5">&#9654;</span>
+      </div>
+      <div class="node-body" id="body-norm-stats-i5">
+        <p>Same structure as the M15 path, but reads from the I5 stats file. The C14 slot is populated with I5 statistics instead of M15 statistics; the BTD channels (M15, M16) remain unchanged.</p>
+        <pre class="source-block"><span class="ln">L66</span>means = [float(stats['M14_mean']), float(stats['I5_mean']), float(stats['BTD_M15_M16_mean'])]
+<span class="ln">L67</span>stds  = [float(stats['M14_std']),  float(stats['I5_std']),  float(stats['BTD_M15_M16_std'])]</pre>
+        <div class="reads-writes">
+          <span class="rw-label">Reads</span><span><code>norm_stats_path('I5')</code> .npz file</span>
+          <span class="rw-label">Returns</span><span><code>means</code>, <code>stds</code> — each a list of 3 floats</span>
+        </div>
+        <p class="ref"><strong>Source:</strong> <a href="https://github.mit.edu/euchmv/viirs_detections/blob/f8b56c3dc515545d93213f0b8d27a843e9b4301c/scripts/finetune_output_layer.py#L61-L68">scripts/finetune_output_layer.py:L61–L68</a></p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="arrow">
+  <svg width="2" height="30"><line x1="1" y1="0" x2="1" y2="30" stroke="var(--sky-blue)" stroke-width="1.5"/></svg>
+  <span class="arrow-label">means, stds → (3,)</span>
+  <svg width="10" height="6"><polyline points="0,0 5,6 10,0" fill="none" stroke="var(--sky-blue)" stroke-width="1.5"/></svg>
+</div>
+
+<!-- ── Node 2: feature extraction ── -->
+<div class="node node-model" id="node-feature-extract">
+  <div class="node-header" onclick="toggle('feature-extract')">
+    <span class="badge">Extract</span>
+    Load MAnet; run frozen encoder+decoder on each train scene
+    <span class="toggle" id="toggle-feature-extract">&#9654;</span>
+  </div>
+  <div class="node-body" id="body-feature-extract">
+    <p>Loads <code>marvelous-moth-137</code> — an <code>smp.MAnet</code> with a ResNet-18 encoder (pretrained on ImageNet), 5 encoder stages, and decoder channels <code>[256, 128, 64, 32, 16]</code>. Each training scene is processed in a worker pool (worker count = <code>os.sched_getaffinity(0)</code>, respecting SLURM limits). The encoder and decoder run under <code>torch.no_grad()</code>; the segmentation head is never called here.</p>
+    <p>Each scene's three input channels are z-score normalized, padded to the nearest multiple of 32, then forwarded through encoder and decoder only. Padding is stripped before saving.</p>
+    <div class="pair">
+      <div class="eq-block">
+        $$ \tilde{x}_c = \frac{x_c - \mu_c}{\sigma_c}, \quad c \in \{\text{C11},\,\text{C14},\,\text{BTD}\} $$
+      </div>
+      <pre class="source-block" style="margin:0"><span class="ln">L41</span>array[0, 0] = (ds.CMI_C11.values - means[0]) / stds[0]
+<span class="ln">L42</span>array[0, 1] = (ds.CMI_C14.values - means[1]) / stds[1]
+<span class="ln">L43</span>array[0, 2] = ((ds.CMI_C13 - ds.CMI_C15).values - means[2]) / stds[2]</pre>
+    </div>
+    <pre class="source-block"><span class="ln">L53</span>with torch.no_grad():
+<span class="ln">L54</span>    enc_out = model.encoder(tensor)
+<span class="ln">L58</span>    features = model.decoder(*enc_out)  # (1, C, H_pad, W_pad)</pre>
+    <p>Model architecture defined in <code>model_utils.py</code>:</p>
+    <pre class="source-block"><span class="ln">L18</span>_MARVELOUS_MOTH_ARCH = dict(
+<span class="ln">L19</span>    encoder_name='resnet18',
+<span class="ln">L20</span>    encoder_weights='imagenet',
+<span class="ln">L21</span>    in_channels=3,
+<span class="ln">L22</span>    classes=2,
+<span class="ln">L23</span>    encoder_depth=5,
+<span class="ln">L24</span>    decoder_channels=[256, 128, 64, 32, 16],
+<span class="ln">L25</span>)</pre>
+    <div class="reads-writes">
+      <span class="rw-label">Reads</span><span>VIIRS L1B xr.Dataset, <code>means</code>, <code>stds</code></span>
+      <span class="rw-label">Writes</span><span><code>feat</code> — ndarray <code>(16, H, W)</code> float32 decoder feature maps</span>
+    </div>
+    <p class="ref"><strong>Source:</strong> <a href="https://github.mit.edu/euchmv/viirs_detections/blob/f8b56c3dc515545d93213f0b8d27a843e9b4301c/viirs_detection/feature_extractor.py#L9-L61">viirs_detection/feature_extractor.py:L9–L61</a> &nbsp;·&nbsp; <a href="https://github.mit.edu/euchmv/viirs_detections/blob/f8b56c3dc515545d93213f0b8d27a843e9b4301c/viirs_detection/model_utils.py#L18-L57">viirs_detection/model_utils.py:L18–L57</a> &nbsp;·&nbsp; <a href="https://github.mit.edu/euchmv/viirs_detections/blob/f8b56c3dc515545d93213f0b8d27a843e9b4301c/scripts/finetune_output_layer.py#L72-L101">scripts/finetune_output_layer.py:L72–L101</a></p>
+  </div>
+</div>
+
+<div class="arrow">
+  <svg width="2" height="30"><line x1="1" y1="0" x2="1" y2="30" stroke="var(--sky-blue)" stroke-width="1.5"/></svg>
+  <svg width="10" height="6"><polyline points="0,0 5,6 10,0" fill="none" stroke="var(--sky-blue)" stroke-width="1.5"/></svg>
+</div>
+
+<!-- ── Node 3: save features ── -->
+<div class="node node-result" id="node-save-features">
+  <div class="node-header" onclick="toggle('save-features')">
+    <span class="badge">Save</span>
+    Save (16, H, W) feature maps and rasterized label masks to disk
+    <span class="toggle" id="toggle-save-features">&#9654;</span>
+  </div>
+  <div class="node-body" id="body-save-features">
+    <p>Feature maps and label masks are written as <code>.npy</code> files, one pair per training scene. Labels are rasterized from a GeoDataFrame of polygon annotations onto the swath pixel grid — pixel value = contrail ID (integer ≥ 1) for labeled contrails, 0 for background. Saving features once avoids re-running the frozen encoder+decoder on every training epoch.</p>
+    <pre class="source-block"><span class="ln">L99</span>np.save(out_dir / f'features_scene{scene_id:02d}.npy', feat)
+<span class="ln">L100</span>np.save(out_dir / f'labels_scene{scene_id:02d}.npy', label)</pre>
+    <div class="reads-writes">
+      <span class="rw-label">Reads</span><span><code>feat (16, H, W)</code>, <code>label_gdf</code>, <code>lat</code>, <code>lon</code></span>
+      <span class="rw-label">Writes</span><span><code>output/features/{M15|I5}/features_sceneXX.npy</code>, <code>labels_sceneXX.npy</code></span>
+    </div>
+    <p class="ref"><strong>Source:</strong> <a href="https://github.mit.edu/euchmv/viirs_detections/blob/f8b56c3dc515545d93213f0b8d27a843e9b4301c/scripts/finetune_output_layer.py#L96-L101">scripts/finetune_output_layer.py:L96–L101</a></p>
+  </div>
+</div>
+
+<div class="arrow">
+  <svg width="2" height="30"><line x1="1" y1="0" x2="1" y2="30" stroke="var(--sky-blue)" stroke-width="1.5"/></svg>
+  <span class="arrow-label">features (16, H, W) · labels (H, W)</span>
+  <svg width="10" height="6"><polyline points="0,0 5,6 10,0" fill="none" stroke="var(--sky-blue)" stroke-width="1.5"/></svg>
+</div>
+
+<!-- ── Node 4: separability check ── -->
+<div class="node node-compute" id="node-separability">
+  <div class="node-header" onclick="toggle('separability')">
+    <span class="badge">Check</span>
+    Optional: PCA + logistic regression to verify linear separability
+    <span class="toggle" id="toggle-separability">&#9654;</span>
+  </div>
+  <div class="node-body" id="body-separability">
+    <p>Runs before committing to training. Loads saved feature maps, reshapes each scene to <code>(H×W, 16)</code> pixel vectors, and splits by <code>label &gt; 0</code> (contrail) vs. background. Up to 50,000 pixels per class are sampled (seeded RNG for reproducibility). If the frozen decoder features are already linearly separable in this 16-dimensional space, training only the segmentation head — which is effectively a linear classifier — is sufficient.</p>
+    <pre class="source-block"><span class="ln">L204</span>pca = PCA(n_components=min(16, X.shape[1]))
+<span class="ln">L205</span>pca.fit(X)
+<span class="ln">L206</span>evr = pca.explained_variance_ratio_
+<span class="ln">L210</span>lr     = LogisticRegression(max_iter=500, C=1.0)
+<span class="ln">L211</span>scores = cross_val_score(lr, X, y, cv=5, scoring='roc_auc')</pre>
+    <p>Reported at the CLI (source L213): <em>">0.8 suggests head-only fine-tuning is viable"</em></p>
+    <div class="reads-writes">
+      <span class="rw-label">Reads</span><span><code>features_sceneXX.npy</code>, <code>labels_sceneXX.npy</code></span>
+      <span class="rw-label">Writes</span><span>stdout only — PCA variance ratios + 5-fold ROC-AUC</span>
+    </div>
+    <p class="ref"><strong>Source:</strong> <a href="https://github.mit.edu/euchmv/viirs_detections/blob/f8b56c3dc515545d93213f0b8d27a843e9b4301c/scripts/finetune_output_layer.py#L161-L215">scripts/finetune_output_layer.py:L161–L215</a></p>
+  </div>
+</div>
+
+<div class="arrow">
+  <svg width="2" height="30"><line x1="1" y1="0" x2="1" y2="30" stroke="var(--sky-blue)" stroke-width="1.5"/></svg>
+  <span class="arrow-label">AUC &gt; 0.8 → proceed</span>
+  <svg width="10" height="6"><polyline points="0,0 5,6 10,0" fill="none" stroke="var(--sky-blue)" stroke-width="1.5"/></svg>
+</div>
+
+<!-- ── Node 5: patch dataset ── -->
+<div class="node node-input" id="node-patch-build">
+  <div class="node-header" onclick="toggle('patch-build')">
+    <span class="badge">Dataset</span>
+    Build PatchDataset: scan scenes, keep only contrail-positive patches
+    <span class="toggle" id="toggle-patch-build">&#9654;</span>
+  </div>
+  <div class="node-body" id="body-patch-build">
+    <p>Loads all training scene <code>.npy</code> pairs from <code>FEATURES_DIR / c14_substitute</code>. <code>PatchDataset</code> pre-scans every valid <code>(top, left)</code> patch position at construction time using a stride of 512 px on 1024 px patches. Only positions where the label mask contains at least 50 contrail pixels are retained — this filters out background-only patches and keeps <code>__len__</code> exact before any epoch begins.</p>
+    <pre class="source-block"><span class="ln">L60</span>    n_contrail = int(np.sum(
+<span class="ln">L61</span>        label[top:top + patch_size, left:left + patch_size] &gt; 0
+<span class="ln">L62</span>    ))
+<span class="ln">L63</span>    if n_contrail &gt;= min_contrail_pixels:
+<span class="ln">L64</span>        self.patches.append((scene_idx, top, left))</pre>
+    <p><code>__getitem__</code> returns the feature patch as a tensor and a binarized label tensor (<code>(label &gt; 0).astype(int64)</code>, so all contrail IDs collapse to 1). Wrapped in <code>DataLoader(batch_size=4, shuffle=True, num_workers=0)</code>.</p>
+    <div class="reads-writes">
+      <span class="rw-label">Reads</span><span><code>features_sceneXX.npy</code>, <code>labels_sceneXX.npy</code></span>
+      <span class="rw-label">Writes</span><span><code>self.patches</code> list of <code>(scene_idx, top, left)</code> tuples (in-memory)</span>
+    </div>
+    <p class="ref"><strong>Source:</strong> <a href="https://github.mit.edu/euchmv/viirs_detections/blob/f8b56c3dc515545d93213f0b8d27a843e9b4301c/viirs_detection/patch_dataset.py#L6-L79">viirs_detection/patch_dataset.py:L6–L79</a> &nbsp;·&nbsp; <a href="https://github.mit.edu/euchmv/viirs_detections/blob/f8b56c3dc515545d93213f0b8d27a843e9b4301c/scripts/finetune_output_layer.py#L241-L261">scripts/finetune_output_layer.py:L241–L261</a></p>
+  </div>
+</div>
+
+<div class="arrow">
+  <svg width="2" height="30"><line x1="1" y1="0" x2="1" y2="30" stroke="var(--sky-blue)" stroke-width="1.5"/></svg>
+  <svg width="10" height="6"><polyline points="0,0 5,6 10,0" fill="none" stroke="var(--sky-blue)" stroke-width="1.5"/></svg>
+</div>
+
+<!-- ── Node 6: freeze / unfreeze ── -->
+<div class="node node-model" id="node-freeze-head">
+  <div class="node-header" onclick="toggle('freeze-head')">
+    <span class="badge">Freeze</span>
+    Freeze entire network; unfreeze segmentation_head; keep model.eval()
+    <span class="toggle" id="toggle-freeze-head">&#9654;</span>
+  </div>
+  <div class="node-body" id="body-freeze-head">
+    <p>All parameters in the MAnet are frozen first; then <code>segmentation_head</code> parameters are selectively unfrozen. The model is kept in <code>eval()</code> mode for the entire training run — this is intentional: it prevents the frozen encoder's BatchNorm layers from accumulating VIIRS-domain batch statistics, which would corrupt the pretrained ImageNet running means and variances.</p>
+    <pre class="source-block"><span class="ln">L266</span>for param in model.parameters():
+<span class="ln">L267</span>    param.requires_grad = False
+<span class="ln">L268</span>for param in model.segmentation_head.parameters():
+<span class="ln">L269</span>    param.requires_grad = True
+<span class="ln">L271</span># Keep model in eval mode so frozen BatchNorm layers use running stats
+<span class="ln">L272</span>model.eval()
+<span class="ln">L274</span>optimizer = torch.optim.Adam(model.segmentation_head.parameters(), lr=lr)</pre>
+    <p>Adam is constructed on <code>segmentation_head.parameters()</code> only (default <code>lr=1e-3</code>). The segmentation head is a single <code>Conv2d(16 → 2, kernel_size=1)</code> mapping the 16 decoder features per pixel to 2 class logits.</p>
+    <div class="reads-writes">
+      <span class="rw-label">Reads</span><span>full MAnet (all parameters)</span>
+      <span class="rw-label">Writes</span><span><code>requires_grad</code> flags on all parameters; <code>optimizer</code> state</span>
+    </div>
+    <p class="ref"><strong>Source:</strong> <a href="https://github.mit.edu/euchmv/viirs_detections/blob/f8b56c3dc515545d93213f0b8d27a843e9b4301c/scripts/finetune_output_layer.py#L263-L274">scripts/finetune_output_layer.py:L263–L274</a></p>
+  </div>
+</div>
+
+<div class="arrow">
+  <svg width="2" height="30"><line x1="1" y1="0" x2="1" y2="30" stroke="var(--sky-blue)" stroke-width="1.5"/></svg>
+  <svg width="10" height="6"><polyline points="0,0 5,6 10,0" fill="none" stroke="var(--sky-blue)" stroke-width="1.5"/></svg>
+</div>
+
+<!-- ── Epoch loop ── -->
+<div class="loop-wrapper" id="loop-epoch">
+  <div class="loop-label">Epoch loop <span class="cond">for epoch in range(1, epochs + 1)</span></div>
+  <div class="loop-meta">epochs=20 (default) · batch_size=4 · lr=1e-3 · no early stopping</div>
+  <div class="loop-inner">
+
+    <div class="node node-compute" id="node-forward-loss">
+      <div class="node-header" onclick="toggle('forward-loss')">
+        <span class="badge">Focal</span>
+        Forward through segmentation_head; compute focal loss
+        <span class="toggle" id="toggle-forward-loss">&#9654;</span>
+      </div>
+      <div class="node-body" id="body-forward-loss">
+        <p>Each mini-batch of pre-extracted features (<code>B, 16, 1024, 1024</code>) is passed directly into <code>model.segmentation_head</code>, which produces logits of shape <code>(B, 2, 1024, 1024)</code> — one score per class per pixel. Focal loss down-weights easy, well-classified pixels (background dominates by count) and focuses gradient on uncertain ones.</p>
+        <div class="pair">
+          <div class="eq-block orange-eq">
+            $$ \mathcal{L}_\text{focal} = \frac{1}{N}\sum_i \alpha\,(1 - p_{t,i})^\gamma \cdot \text{CE}_i $$
+            <p style="font-size:.85rem;margin-top:.4rem;color:var(--ink-muted)">where $p_{t,i} = e^{-\text{CE}_i}$, &nbsp; $\alpha = 0.25$, &nbsp; $\gamma = 2$</p>
+          </div>
+          <pre class="source-block" style="margin:0"><span class="ln">L106</span>ce = F.cross_entropy(logits, targets, reduction='none')
+<span class="ln">L107</span>pt = torch.exp(-ce)
+<span class="ln">L108</span>return (FOCAL_ALPHA * (1 - pt) ** FOCAL_GAMMA * ce).mean()</pre>
+        </div>
+        <pre class="source-block"><span class="ln">L295</span>logits = model.segmentation_head(feat_batch)
+<span class="ln">L296</span>loss   = _focal_loss(logits, label_batch)</pre>
+        <div class="reads-writes">
+          <span class="rw-label">Reads</span><span><code>feat_batch (B, 16, 1024, 1024)</code>, <code>label_batch (B, 1024, 1024)</code></span>
+          <span class="rw-label">Writes</span><span><code>loss</code> — scalar tensor</span>
+        </div>
+        <p class="ref"><strong>Source:</strong> <a href="https://github.mit.edu/euchmv/viirs_detections/blob/f8b56c3dc515545d93213f0b8d27a843e9b4301c/scripts/finetune_output_layer.py#L104-L108">scripts/finetune_output_layer.py:L104–L108</a> &nbsp;·&nbsp; <a href="https://github.mit.edu/euchmv/viirs_detections/blob/f8b56c3dc515545d93213f0b8d27a843e9b4301c/scripts/finetune_output_layer.py#L289-L301">scripts/finetune_output_layer.py:L289–L301</a></p>
+      </div>
+    </div>
+
+    <div class="arrow">
+      <svg width="2" height="22"><line x1="1" y1="0" x2="1" y2="22" stroke="var(--sky-blue)" stroke-width="1.5"/></svg>
+      <svg width="10" height="6"><polyline points="0,0 5,6 10,0" fill="none" stroke="var(--sky-blue)" stroke-width="1.5"/></svg>
+    </div>
+
+    <div class="node node-result" id="node-best-ckpt">
+      <div class="node-header" onclick="toggle('best-ckpt')">
+        <span class="badge">Ckpt</span>
+        Adam step; log epoch loss; save state_dict if new best
+        <span class="toggle" id="toggle-best-ckpt">&#9654;</span>
+      </div>
+      <div class="node-body" id="body-best-ckpt">
+        <p>Each batch: <code>optimizer.zero_grad() → loss.backward() → optimizer.step()</code>. After all batches in the epoch, the average loss is computed and compared to the running best. If improved, the full model <code>state_dict</code> is saved. Loss is also appended to a CSV log for inspection after training.</p>
+        <pre class="source-block"><span class="ln">L305</span>avg_loss = total_loss / max(n_batches, 1)
+<span class="ln">L310</span>if avg_loss &lt; best_loss:
+<span class="ln">L311</span>    best_loss = avg_loss
+<span class="ln">L312</span>    torch.save(model.state_dict(), ckpt_path)</pre>
+        <div class="reads-writes">
+          <span class="rw-label">Reads</span><span><code>loss</code> scalar, <code>best_loss</code></span>
+          <span class="rw-label">Writes</span><span><code>output/checkpoints/marvelous-moth-137_finetuned_{c14}_best.pt</code>, <code>training_log_{c14}.csv</code></span>
+        </div>
+        <p class="ref"><strong>Source:</strong> <a href="https://github.mit.edu/euchmv/viirs_detections/blob/f8b56c3dc515545d93213f0b8d27a843e9b4301c/scripts/finetune_output_layer.py#L298-L317">scripts/finetune_output_layer.py:L298–L317</a></p>
+      </div>
+    </div>
+
+    <div class="arrow">
+      <svg width="2" height="22"><line x1="1" y1="0" x2="1" y2="22" stroke="var(--sky-blue)" stroke-width="1.5"/></svg>
+      <svg width="10" height="6"><polyline points="0,0 5,6 10,0" fill="none" stroke="var(--sky-blue)" stroke-width="1.5"/></svg>
+    </div>
+
+    <div class="node node-decision">
+      <div class="node-header"><span class="badge">Convergence</span>&nbsp;<code>avg_loss &lt; best_loss</code> ?</div>
+      <div class="node-body">
+        <strong>Yes</strong> → overwrite best checkpoint with current <code>model.state_dict()</code>, continue to next epoch.<br>
+        <strong>No</strong> → skip checkpoint write, continue to next epoch.<br>
+        Loop exits when <code>epoch == epochs</code>. There is no early stopping; all epochs run.
+      </div>
+    </div>
+
+    <div class="loop-feedback">↩ if epoch &lt; epochs, restart from forward-loss node above</div>
+
+  </div>
+</div>
+
+<div class="arrow">
+  <svg width="2" height="30"><line x1="1" y1="0" x2="1" y2="30" stroke="var(--sky-blue)" stroke-width="1.5"/></svg>
+  <span class="arrow-label">best checkpoint</span>
+  <svg width="10" height="6"><polyline points="0,0 5,6 10,0" fill="none" stroke="var(--sky-blue)" stroke-width="1.5"/></svg>
+</div>
+
+<!-- ── Node 9: val inference ── -->
+<div class="node node-model" id="node-val-inference">
+  <div class="node-header" onclick="toggle('val-inference')">
+    <span class="badge">Eval</span>
+    Load best checkpoint; run full end-to-end inference on val scenes
+    <span class="toggle" id="toggle-val-inference">&#9654;</span>
+  </div>
+  <div class="node-body" id="body-val-inference">
+    <p>Loads the best checkpoint into a fresh model instance and sets <code>model.eval()</code>. For each validation scene, the full pipeline runs end-to-end from raw L1B data: band mapping, normalization, padding, full MAnet forward pass (encoder + decoder + segmentation head), softmax, and unpadding. This returns a raw probability map in [0, 1] per pixel; no threshold is applied here so the caller can sweep thresholds independently.</p>
+    <pre class="source-block"><span class="ln">L341</span>model.load_state_dict(torch.load(str(ckpt_path), map_location=device, weights_only=True))
+<span class="ln">L342</span>model.eval()</pre>
+    <pre class="source-block"><span class="ln">L133</span>probs = nn.functional.softmax(model(pad(torch.Tensor(array))), dim=1)
+<span class="ln">L136</span>result = probs.cpu().numpy()[0, 1, hedge:-hedge, wedge:-wedge]</pre>
+    <p><code>dim=1</code> = class axis (2 classes). Channel 1 = contrail probability. See the sidebar callout below for the softmax derivation.</p>
+    <div class="reads-writes">
+      <span class="rw-label">Reads</span><span>best <code>.pt</code> checkpoint, val L1B files, <code>means</code>, <code>stds</code></span>
+      <span class="rw-label">Writes</span><span><code>prob_map (H, W)</code> in [0, 1] per val scene (in-memory)</span>
+    </div>
+    <p class="ref"><strong>Source:</strong> <a href="https://github.mit.edu/euchmv/viirs_detections/blob/f8b56c3dc515545d93213f0b8d27a843e9b4301c/scripts/finetune_output_layer.py#L339-L370">scripts/finetune_output_layer.py:L339–L370</a> &nbsp;·&nbsp; <a href="https://github.mit.edu/euchmv/viirs_detections/blob/f8b56c3dc515545d93213f0b8d27a843e9b4301c/viirs_detection/viirs_adapter.py#L94-L144">viirs_detection/viirs_adapter.py:L94–L144</a></p>
+  </div>
+</div>
+
+<div class="arrow">
+  <svg width="2" height="30"><line x1="1" y1="0" x2="1" y2="30" stroke="var(--sky-blue)" stroke-width="1.5"/></svg>
+  <span class="arrow-label">prob_map (H, W) ∈ [0, 1]</span>
+  <svg width="10" height="6"><polyline points="0,0 5,6 10,0" fill="none" stroke="var(--sky-blue)" stroke-width="1.5"/></svg>
+</div>
+
+<!-- ── Node 10: metrics ── -->
+<div class="node node-result" id="node-eval-metrics">
+  <div class="node-header" onclick="toggle('eval-metrics')">
+    <span class="badge">Metrics</span>
+    PR/ROC curves and per-contrail threshold sweep; write metrics JSON
+    <span class="toggle" id="toggle-eval-metrics">&#9654;</span>
+  </div>
+  <div class="node-body" id="body-eval-metrics">
+    <p>Concatenates probability maps and binary labels from all validation scenes. Computes pixel-level precision-recall and ROC curves via sklearn, then runs a per-contrail threshold sweep: for each labeled contrail polygon (identified by ID <code>k</code>), it measures what fraction of that contrail's pixels exceed each of 20 evenly-spaced thresholds from 0.05 to 0.95. This is more informative than pixel-level metrics alone — a contrail can be partially or fully detected.</p>
+    <pre class="source-block"><span class="ln">L375</span>precision_arr, recall_arr, pr_thresholds = precision_recall_curve(labels, probs)
+<span class="ln">L376</span>pr_auc  = float(auc(recall_arr, precision_arr))
+<span class="ln">L377</span>fpr_arr, tpr_arr, _ = roc_curve(labels, probs)
+<span class="ln">L369</span>    scene_rates.append([float(np.mean(px &gt;= t)) for t in thresholds])</pre>
+    <div class="reads-writes">
+      <span class="rw-label">Reads</span><span><code>prob_map</code> + <code>label_mask</code> per val scene</span>
+      <span class="rw-label">Writes</span><span><code>output/checkpoints/val_metrics_{c14}.json</code> — precision, recall, PR-AUC, FPR, TPR, per-contrail detection rates</span>
+    </div>
+    <p class="ref"><strong>Source:</strong> <a href="https://github.mit.edu/euchmv/viirs_detections/blob/f8b56c3dc515545d93213f0b8d27a843e9b4301c/scripts/finetune_output_layer.py#L375-L408">scripts/finetune_output_layer.py:L375–L408</a></p>
+  </div>
+</div>
+
+</div><!-- /flow -->
+
+<!-- ── Sidebar: softmax ── -->
+<div class="sidebar-callout" id="sidebar-softmax">
+  <h3><span class="badge">Ref</span> Logits → probability: how softmax works</h3>
+  <p>The model outputs two raw logit scores per pixel — one for background ($z_0$), one for contrail ($z_1$). Softmax normalizes these to probabilities that sum to 1. Only the contrail channel (index 1) is extracted as the output probability map.</p>
+  <div class="eq-block">
+    $$ p_\text{contrail} = \frac{e^{z_1}}{e^{z_0} + e^{z_1}} $$
+  </div>
+  <pre class="source-block"><span class="ln">L133</span>probs = nn.functional.softmax(model(pad(torch.Tensor(array))), dim=1)
+<span class="ln">L136</span>result = probs.cpu().numpy()[0, 1, hedge:-hedge, wedge:-wedge]</pre>
+  <p><code>dim=1</code> is the class axis. No threshold is applied by <code>detect_contrails_viirs</code> — the raw probability map is returned so callers can sweep thresholds in the evaluate step.</p>
+</div>
+
+<div class="footer-block">
+  <p>Color conventions: darkred = VIIRS data &amp; features on disk &nbsp;·&nbsp; sky blue = MAnet model &nbsp;·&nbsp; orange = loss &amp; diagnostics &nbsp;·&nbsp; darkgreen = saved outputs &amp; metrics &nbsp;·&nbsp; glass = CLI setup</p>
+  <p style="margin-top:.5rem">Generated from <a href="https://github.mit.edu/euchmv/viirs_detections/tree/f8b56c3dc515545d93213f0b8d27a843e9b4301c">euchmv/viirs_detections @ f8b56c3</a> &nbsp;·&nbsp; <code>scripts/finetune_output_layer.py</code></p>
+</div>
+
+</div><!-- /container -->
+
+<script>
+function toggle(id){
+  const body=document.getElementById('body-'+id);
+  const icon=document.getElementById('toggle-'+id);
+  if(body.classList.contains('show')){body.classList.remove('show');icon.classList.remove('open')}
+  else{
+    body.classList.add('show');icon.classList.add('open');
+    if(window.renderMathInElement){renderMathInElement(body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]});}
+  }
+}
+window.addEventListener('beforeprint',function(){
+  document.querySelectorAll('.node-body').forEach(function(el){el.classList.add('show')});
+  document.querySelectorAll('.toggle').forEach(function(el){el.classList.add('open')});
+  if(window.renderMathInElement){renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]});}
+});
+(function(){
+  var rail=document.querySelector('.toc-rail');
+  var btn=document.querySelector('.toc-toggle');
+  if(rail&&btn){
+    var openByDefault=window.matchMedia('(min-width:1500px)').matches;
+    function setOpen(open){rail.classList.toggle('open',open);btn.classList.toggle('open',open);btn.setAttribute('aria-expanded',open?'true':'false')}
+    setOpen(openByDefault);
+    btn.addEventListener('click',function(){setOpen(!rail.classList.contains('open'))});
+    document.addEventListener('keydown',function(e){if(e.key==='Escape'&&rail.classList.contains('open')){setOpen(false)}});
+  }
+  var tocLinks=document.querySelectorAll('.toc-rail a[href^="#"]');
+  if(!tocLinks.length)return;
+  tocLinks.forEach(function(link){
+    link.addEventListener('click',function(){
+      var slug=link.dataset.toggle;
+      if(!slug)return;
+      var body=document.getElementById('body-'+slug);
+      if(body&&!body.classList.contains('show')&&typeof toggle==='function'){toggle(slug)}
+    });
+  });
+  var targets=Array.prototype.map.call(tocLinks,function(link){var id=link.getAttribute('href').slice(1);var el=document.getElementById(id);return el?{link:link,el:el}:null}).filter(Boolean);
+  var ticking=false;
+  function updateActive(){
+    var focus=window.innerHeight*0.28;var active=null;
+    for(var i=0;i<targets.length;i++){if(targets[i].el.getBoundingClientRect().top<=focus){active=targets[i].link}}
+    tocLinks.forEach(function(l){l.classList.remove('active')});
+    if(active)active.classList.add('active');
+    ticking=false;
+  }
+  function onScroll(){if(!ticking){requestAnimationFrame(updateActive);ticking=true}}
+  window.addEventListener('scroll',onScroll,{passive:true});
+  window.addEventListener('resize',onScroll,{passive:true});
+  updateActive();
+})();
+</script>
+</body>
+</html>

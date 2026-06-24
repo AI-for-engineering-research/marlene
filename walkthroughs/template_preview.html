@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VIIRS Contrail Detection — Walkthrough Preview</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]});"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --sky-light:#eaf4fb;--sky-mid:#c8e6f5;--sky-blue:#7bbfdd;--sky-deep:#4a9abe;
+  --ink:#1a2a35;--ink-soft:#3d5566;--ink-muted:#6b8899;--white:#ffffff;
+  --glass-bg:rgba(255,255,255,0.72);--glass-border:rgba(123,191,221,0.35);
+  --radius:14px;--shadow:0 4px 32px rgba(74,154,190,0.10);--shadow-lg:0 8px 40px rgba(74,154,190,0.18);
+  --transition:0.35s cubic-bezier(0.4,0,0.2,1);
+  --font-sans:'Inter',system-ui,-apple-system,sans-serif;
+  --font-serif:'Cormorant Garamond','Georgia',serif;
+  --font-mono:'SF Mono','Fira Mono','Consolas',monospace;
+  --green:#2d7a4a;--green-light:#e8f5ee;--green-border:#90c9a8;
+  --orange:#8f6020;--orange-light:#fdf4e7;--orange-border:#d9b072;
+  --teal:#1a7068;--teal-light:#e5f5f3;--teal-border:#70c0b8;
+  --darkgreen:#1e6640;--darkgreen-light:#e8f5ee;--darkgreen-border:#90c9a8;
+  --gray-light:#f0f5f8;--arrow:var(--sky-blue);
+}
+html{font-size:16px;scroll-behavior:smooth}
+body{font-family:var(--font-sans);font-weight:300;background:var(--sky-light);color:var(--ink);line-height:1.75;padding:0;overflow-x:hidden}
+
+.wt-nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:1rem 2.5rem;background:rgba(255,255,255,0.88);backdrop-filter:blur(14px);box-shadow:0 1px 24px rgba(74,154,190,0.10);border-bottom:1px solid var(--glass-border)}
+.wt-nav-logo{font-family:var(--font-serif);font-size:1.35rem;font-weight:600;letter-spacing:.12em;color:var(--ink);text-decoration:none}
+.wt-nav-links{list-style:none;display:flex;gap:2rem;align-items:center}
+.wt-nav-links a{text-decoration:none;font-size:.8rem;font-weight:400;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft);transition:color var(--transition)}
+.wt-nav-links a:hover{color:var(--sky-deep)}
+.wt-nav-back{font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--sky-deep);text-decoration:none;font-weight:400;border:1px solid var(--glass-border);border-radius:999px;padding:.3rem .95rem;transition:background var(--transition),color var(--transition)}
+.wt-nav-back:hover{background:var(--sky-deep);color:var(--white)}
+
+.header{background:var(--white);border-bottom:1px solid var(--glass-border);padding:4rem 2.5rem 3.5rem;text-align:center}
+.header-eyebrow{font-size:.78rem;letter-spacing:.2em;text-transform:uppercase;color:var(--sky-deep);font-weight:400;margin-bottom:1rem;display:block}
+.header h1{font-family:var(--font-serif);font-size:clamp(1.9rem,4vw,3rem);font-weight:300;color:var(--ink);line-height:1.15;letter-spacing:-.01em;margin-bottom:.7rem}
+.header h1 em{font-style:italic;color:var(--sky-deep)}
+.header .subtitle{font-size:1.05rem;color:var(--ink-muted);max-width:740px;margin:.6rem auto 0;font-weight:300;line-height:1.7}
+.header .meta{margin-top:1.3rem;font-size:.8rem;color:var(--ink-muted);font-family:var(--font-mono);letter-spacing:.04em}
+.header .meta a{color:var(--sky-deep);text-decoration:underline;text-decoration-style:dotted}
+
+.container{max-width:980px;margin:0 auto;padding:2.5rem 2.5rem 6rem}
+
+.legend{display:flex;flex-wrap:wrap;gap:.7rem 1.8rem;justify-content:center;margin:1.8rem 0 2.5rem;padding:1.2rem 1.6rem;background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:var(--radius);backdrop-filter:blur(8px);box-shadow:var(--shadow)}
+.legend-item{display:flex;align-items:center;gap:.5rem;font-size:.85rem;color:var(--ink-soft)}
+.legend-swatch{width:14px;height:14px;border-radius:3px;border:1.5px solid;flex-shrink:0}
+.sw-blue{background:var(--sky-light);border-color:var(--sky-deep)}
+.sw-green{background:var(--green-light);border-color:var(--green)}
+.sw-orange{background:var(--orange-light);border-color:var(--orange)}
+.sw-teal{background:var(--teal-light);border-color:var(--teal)}
+
+.flow{display:flex;flex-direction:column;align-items:center;gap:0}
+.arrow{display:flex;flex-direction:column;align-items:center;color:var(--arrow);line-height:1}
+.arrow svg{display:block}
+
+.node{position:relative;width:100%;max-width:900px;border-radius:var(--radius);box-shadow:var(--shadow);transition:box-shadow var(--transition);overflow:hidden;margin:0}
+.node:hover{box-shadow:var(--shadow-lg)}
+.node-header{display:flex;align-items:center;gap:.75rem;padding:1.05rem 1.5rem;cursor:pointer;user-select:none;font-weight:500;font-size:1rem;letter-spacing:.01em;border-bottom:1px solid transparent}
+.node-header .badge{font-size:.68rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;padding:.2rem .6rem;border-radius:999px;white-space:nowrap}
+.node-header .toggle{margin-left:auto;font-size:.8rem;opacity:.4;transition:transform .25s}
+.node-header .toggle.open{transform:rotate(90deg)}
+.node-body{display:none;padding:1.5rem 1.7rem 1.6rem;font-size:.97rem;line-height:1.85;border-top:1px solid rgba(0,0,0,.06);background:var(--white);color:var(--ink-soft)}
+.node-body.show{display:block}
+.node-body p{margin-bottom:.9rem}
+.node-body .eq-block{background:#f4faff;border-left:3px solid var(--sky-blue);padding:.8rem 1.1rem;margin:.8rem 0;border-radius:0 var(--radius) var(--radius) 0;overflow-x:auto;font-size:.95rem}
+.node-body .source-block{background:#1a2535;color:#cfe0ec;font-family:var(--font-mono);font-size:.84rem;line-height:1.65;padding:.95rem 1.2rem;border-radius:10px;margin:.8rem 0;overflow-x:auto;white-space:pre}
+.node-body .source-block .ln{color:#4e6a7a;display:inline-block;width:2.4em;text-align:right;margin-right:.9em;user-select:none}
+.node-body .ref{font-size:.84rem;color:var(--ink-muted);margin-top:.9rem}
+.node-body .ref a{color:var(--sky-deep);text-decoration:underline;text-decoration-style:dotted}
+.node-body code{font-family:var(--font-mono);font-size:.86rem;background:rgba(74,154,190,.10);color:var(--sky-deep);padding:.1rem .42rem;border-radius:4px}
+.node-body ul{margin:.4rem 0 .8rem 1.5rem}
+.node-body li{margin-bottom:.35rem}
+.node-body .reads-writes{display:grid;grid-template-columns:auto 1fr;gap:.45rem 1.3rem;font-size:.9rem;background:var(--sky-light);padding:.8rem 1.1rem;border-radius:8px;margin:.8rem 0;border:1px solid var(--glass-border)}
+.node-body .reads-writes .rw-label{color:var(--ink-muted);font-weight:500;font-size:.73rem;text-transform:uppercase;letter-spacing:.07em;padding-top:2px}
+
+.node-blue{background:var(--sky-light);border:1px solid var(--sky-blue)}
+.node-blue .node-header{color:var(--sky-deep)}
+.node-blue .badge{background:var(--sky-mid);color:#1a5f80}
+.node-orange{background:var(--orange-light);border:1px solid var(--orange-border)}
+.node-orange .node-header{color:var(--orange)}
+.node-orange .badge{background:#ead9aa;color:#7a5218}
+.node-teal{background:var(--teal-light);border:1px solid var(--teal-border)}
+.node-teal .node-header{color:var(--teal)}
+.node-teal .badge{background:#b0ddd8;color:#1a7068}
+.node-result{background:var(--darkgreen-light);border:1px solid var(--darkgreen-border)}
+.node-result .node-header{color:var(--darkgreen)}
+.node-result .badge{background:#c0e8ce;color:var(--darkgreen)}
+.node-decision{background:var(--glass-bg);border:1.5px dashed var(--glass-border);max-width:660px;backdrop-filter:blur(8px)}
+.node-decision .node-header{color:var(--ink-muted);font-size:.94rem;cursor:default}
+.node-decision .node-header .toggle{display:none}
+.node-decision .node-body{display:block;border-top:none;padding:.7rem 1.5rem 1.1rem;font-size:.94rem;background:transparent}
+
+.loop-wrapper{width:100%;max-width:960px;border:1.5px dashed var(--sky-blue);border-radius:calc(var(--radius)*1.4);padding:1.7rem 1.1rem 1.4rem;position:relative;margin:0;background:linear-gradient(180deg,rgba(234,244,251,.55) 0%,transparent 120px)}
+.loop-label{position:absolute;top:-15px;left:26px;background:var(--sky-light);padding:.1rem .7rem;font-size:.8rem;font-weight:600;color:var(--sky-deep);text-transform:uppercase;letter-spacing:.07em;border:1px solid var(--sky-blue);border-radius:999px}
+.loop-label .cond{font-family:var(--font-mono);text-transform:none;background:var(--white);padding:.05rem .5rem;border-radius:4px;margin-left:.38rem;border:1px solid var(--sky-blue);color:var(--sky-deep)}
+.loop-inner{display:flex;flex-direction:column;align-items:center;gap:0}
+.loop-feedback{font-size:.82rem;color:var(--sky-deep);text-align:center;padding:.55rem 0;font-family:var(--font-mono);opacity:.75}
+
+.sidebar-callout{width:100%;max-width:900px;margin:2.2rem 0 0;padding:1.4rem 1.7rem;background:var(--glass-bg);border:1px solid var(--teal-border);border-left:4px solid var(--teal);border-radius:var(--radius);box-shadow:var(--shadow);backdrop-filter:blur(8px)}
+.sidebar-callout h3{font-family:var(--font-serif);font-size:1.2rem;font-weight:400;color:var(--teal);margin-bottom:.7rem}
+.sidebar-callout p{font-size:.97rem;margin-bottom:.7rem;color:var(--ink-soft)}
+
+.footer-block{margin-top:4rem;padding-top:2rem;border-top:1px solid var(--glass-border);font-size:.84rem;color:var(--ink-muted);text-align:center;letter-spacing:.04em}
+.footer-block a{color:var(--sky-deep);text-decoration:none}
+</style>
+</head>
+<body>
+
+<nav class="wt-nav">
+  <a href="../index.html" class="wt-nav-logo">MVE</a>
+  <ul class="wt-nav-links">
+    <li><a href="../index.html">Home</a></li>
+    <li><a href="../progress/">Progress</a></li>
+    <li><a href="../walkthroughs.html">Walkthroughs</a></li>
+  </ul>
+  <a href="../walkthroughs.html" class="wt-nav-back">← Walkthroughs</a>
+</nav>
+
+<div class="header">
+  <span class="header-eyebrow">Code Walkthrough</span>
+  <h1>VIIRS Contrail Detection — <em>Zero-Shot Pipeline</em></h1>
+  <p class="subtitle">Traces the full detection flow from raw radiance input through normalisation, threshold classification, and evaluation against hand-labelled scenes.</p>
+  <p class="meta">Entry point: <code>detect.py · predict()</code> &nbsp;·&nbsp; commit <a href="#">a3f9c2d</a> &nbsp;·&nbsp; June 2026</p>
+</div>
+
+<div class="container">
+
+<div class="legend">
+  <div class="legend-item"><span class="legend-swatch sw-blue"></span>Data / I/O</div>
+  <div class="legend-item"><span class="legend-swatch sw-orange"></span>Computation</div>
+  <div class="legend-item"><span class="legend-swatch sw-teal"></span>Model / Inference</div>
+  <div class="legend-item"><span class="legend-swatch sw-green"></span>Results</div>
+</div>
+
+<div class="flow">
+
+  <div class="node node-blue" id="node-load">
+    <div class="node-header" onclick="toggle('load')">
+      <span class="badge">Input</span>
+      Load VIIRS Scene
+      <span class="toggle" id="toggle-load">▶</span>
+    </div>
+    <div class="node-body" id="body-load">
+      <p>Reads a granule from disk as a NetCDF4 file and extracts radiance arrays for the selected channel set. Missing-value fill pixels and the bowtie-deletion mask are applied immediately, reducing the working array to valid retrievals only.</p>
+      <div class="reads-writes">
+        <span class="rw-label">Reads</span><span><code>granule_path</code>, <code>channel_ids</code></span>
+        <span class="rw-label">Writes</span><span><code>radiance[C, H, W]</code>, <code>valid_mask[H, W]</code></span>
+      </div>
+      <pre class="source-block"><span class="ln">42</span>ds = xr.open_dataset(granule_path, engine="netcdf4")
+<span class="ln">43</span>rad = ds[channel_ids].to_array().values   # (C, H, W)
+<span class="ln">44</span>valid = ~ds["bowtie_deletion"].values</pre>
+      <p class="ref"><a href="#">detect.py · L42–44 · a3f9c2d</a></p>
+    </div>
+  </div>
+
+  <div class="arrow">
+    <svg width="2" height="36"><line x1="1" y1="0" x2="1" y2="36" stroke="#7bbfdd" stroke-width="1.5"/></svg>
+    <svg width="10" height="6"><polyline points="0,0 5,6 10,0" fill="none" stroke="#7bbfdd" stroke-width="1.5"/></svg>
+  </div>
+
+  <div class="node node-orange" id="node-norm">
+    <div class="node-header" onclick="toggle('norm')">
+      <span class="badge">Transform</span>
+      Per-Channel Normalisation
+      <span class="toggle" id="toggle-norm">▶</span>
+    </div>
+    <div class="node-body" id="body-norm">
+      <p>Each channel is normalised independently using statistics computed over the training split. The operation clips first to the 1st–99th percentile range to suppress hot pixels, then applies a linear rescaling to $[0, 1]$.</p>
+      <div class="eq-block">$$\hat{r}_c = \frac{\text{clip}(r_c,\, p_1^c,\, p_{99}^c) - p_1^c}{p_{99}^c - p_1^c}$$</div>
+      <pre class="source-block"><span class="ln">61</span>lo, hi = np.percentile(rad[c][valid], [1, 99])
+<span class="ln">62</span>rad[c] = np.clip(rad[c], lo, hi)
+<span class="ln">63</span>rad[c] = (rad[c] - lo) / (hi - lo + 1e-8)</pre>
+      <p class="ref"><a href="#">detect.py · L61–63 · a3f9c2d</a></p>
+    </div>
+  </div>
+
+  <div class="arrow">
+    <svg width="2" height="36"><line x1="1" y1="0" x2="1" y2="36" stroke="#7bbfdd" stroke-width="1.5"/></svg>
+    <svg width="10" height="6"><polyline points="0,0 5,6 10,0" fill="none" stroke="#7bbfdd" stroke-width="1.5"/></svg>
+  </div>
+
+  <div class="loop-wrapper">
+    <div class="loop-label">Tile loop <span class="cond">for tile in tiles(scene, size=512)</span></div>
+    <div class="loop-inner">
+
+      <div class="arrow"><svg width="2" height="22"><line x1="1" y1="0" x2="1" y2="22" stroke="#7bbfdd" stroke-width="1.5"/></svg></div>
+
+      <div class="node node-teal" id="node-infer">
+        <div class="node-header" onclick="toggle('infer')">
+          <span class="badge">Model</span>
+          mcast Zero-Shot Inference
+          <span class="toggle" id="toggle-infer">▶</span>
+        </div>
+        <div class="node-body" id="body-infer">
+          <p>Runs the <code>mcast</code> foundation model on a 512 × 512 tile. The model returns a per-pixel logit map; a sigmoid converts these to detection probabilities. No gradient computation is performed — weights are frozen throughout.</p>
+          <pre class="source-block"><span class="ln">88</span>with torch.no_grad():
+<span class="ln">89</span>    logits = model(tile_tensor)          # (1, 1, 512, 512)
+<span class="ln">90</span>prob = torch.sigmoid(logits).squeeze().numpy()</pre>
+          <p class="ref"><a href="#">detect.py · L88–90 · a3f9c2d</a></p>
+        </div>
+      </div>
+
+      <div class="arrow"><svg width="2" height="22"><line x1="1" y1="0" x2="1" y2="22" stroke="#7bbfdd" stroke-width="1.5"/></svg></div>
+
+      <div class="node node-decision">
+        <div class="node-header">prob ≥ threshold → contrail pixel</div>
+        <div class="node-body">
+          Pixels above <code>threshold</code> (default 0.5, tunable) are labelled as contrail. The binary mask is written into the scene-level accumulation buffer; overlapping tile edges are resolved via max-pooling.
+        </div>
+      </div>
+
+      <div class="loop-feedback">↩ next tile</div>
+    </div>
+  </div>
+
+  <div class="arrow">
+    <svg width="2" height="36"><line x1="1" y1="0" x2="1" y2="36" stroke="#7bbfdd" stroke-width="1.5"/></svg>
+    <svg width="10" height="6"><polyline points="0,0 5,6 10,0" fill="none" stroke="#7bbfdd" stroke-width="1.5"/></svg>
+  </div>
+
+  <div class="node node-result" id="node-eval">
+    <div class="node-header" onclick="toggle('eval')">
+      <span class="badge">Result</span>
+      Evaluation against Hand Labels
+      <span class="toggle" id="toggle-eval">▶</span>
+    </div>
+    <div class="node-body" id="body-eval">
+      <p>The assembled binary detection map is compared pixel-wise to hand-labelled scenes from the validation set. Precision, recall, and F1 are computed over valid (non-bowtie) pixels only, then aggregated across granules via micro-averaging.</p>
+      <div class="reads-writes">
+        <span class="rw-label">Reads</span><span><code>pred_mask[H, W]</code>, <code>label_mask[H, W]</code>, <code>valid_mask</code></span>
+        <span class="rw-label">Writes</span><span><code>metrics</code>: precision, recall, F1, IoU</span>
+      </div>
+      <p class="ref"><a href="#">eval.py · L112–130 · a3f9c2d</a></p>
+    </div>
+  </div>
+
+</div>
+
+<div class="sidebar-callout">
+  <h3>Alternative path: Threshold Sweep</h3>
+  <p>Rather than a fixed threshold, <code>sweep_thresholds()</code> evaluates every value in <code>np.linspace(0.1, 0.9, 17)</code> and returns the full precision–recall curve. The optimal operating point is chosen by maximising F1 on the validation split independently of the test set.</p>
+</div>
+
+<div class="footer-block">
+  Generated from <a href="#">detect.py @ a3f9c2d</a> &nbsp;·&nbsp; Multi-sensor contrail observation framework &nbsp;·&nbsp; MVE / MIT LAE 2026
+</div>
+
+</div>
+
+<script>
+function toggle(id){
+  const body=document.getElementById('body-'+id);
+  const icon=document.getElementById('toggle-'+id);
+  if(body.classList.contains('show')){body.classList.remove('show');icon.classList.remove('open')}
+  else{
+    body.classList.add('show');icon.classList.add('open');
+    if(window.renderMathInElement){renderMathInElement(body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]});}
+  }
+}
+</script>
+</body>
+</html>
