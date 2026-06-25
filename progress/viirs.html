@@ -360,6 +360,12 @@
               </div>
               <span class="thresh-value-badge" id="viirs-opacity-value">0.00</span>
             </div>
+            <div class="thresh-run-row">
+              <span class="thresh-ctrl-label">Labels</span>
+              <div class="thresh-run-pills">
+                <button class="thresh-pill active" id="viirs-labels-toggle">On</button>
+              </div>
+            </div>
           </div>
           <!-- Right: two scenes stacked + legend -->
           <div class="thresh-panel-scenes">
@@ -428,6 +434,7 @@
     let prData = null, manifest = null;
     let probData = {}, nanData = {}, labelImgs = {}, ashImgs = {};
     let detectionOpacity = 1;
+    let showLabels = true;
     let loaded = false, loading = false;
 
     const SCENE_IDS = ['1', '7'];
@@ -650,8 +657,10 @@
       ctx.drawImage(tmp, dx, dy, dw, dh);
       ctx.globalAlpha = 1;
 
-      ctx.imageSmoothingEnabled = true;
-      ctx.drawImage(labelImgs[sid], dx, dy, dw, dh);
+      if (showLabels) {
+        ctx.imageSmoothingEnabled = true;
+        ctx.drawImage(labelImgs[sid], dx, dy, dw, dh);
+      }
     }
 
     function renderScene(sid) {
@@ -774,7 +783,23 @@
       hint.className = 'thresh-modal-hint';
       hint.textContent = 'click outside or press Esc to close';
 
-      modal.append(header, canvas, ctrl, opacityCtrl, modelCtrl, channelCtrl, hint);
+      // Labels toggle row
+      const labelsCtrl = document.createElement('div');
+      labelsCtrl.className = 'thresh-modal-ctrl';
+
+      const labelsCtrlLabel = document.createElement('span');
+      labelsCtrlLabel.className = 'thresh-ctrl-label';
+      labelsCtrlLabel.textContent = 'Labels';
+
+      const labelsPills = document.createElement('div');
+      labelsPills.className = 'thresh-run-pills';
+      const labelsBtn = document.createElement('button');
+      labelsBtn.className = 'thresh-pill' + (showLabels ? ' active' : '');
+      labelsBtn.textContent = showLabels ? 'On' : 'Off';
+      labelsPills.appendChild(labelsBtn);
+      labelsCtrl.append(labelsCtrlLabel, labelsPills);
+
+      modal.append(header, canvas, ctrl, opacityCtrl, labelsCtrl, modelCtrl, channelCtrl, hint);
       backdrop.appendChild(modal);
       document.body.appendChild(backdrop);
 
@@ -806,6 +831,18 @@
         document.getElementById('viirs-channel-pills').querySelectorAll('.thresh-pill').forEach(p =>
           p.classList.toggle('active', p.dataset.channel === selectedChannel)
         );
+        renderSceneToCanvas(canvas, sid);
+        render();
+      });
+
+      // Labels toggle syncs globally
+      labelsBtn.addEventListener('click', () => {
+        showLabels = !showLabels;
+        labelsBtn.textContent = showLabels ? 'On' : 'Off';
+        labelsBtn.classList.toggle('active', showLabels);
+        const mainToggle = document.getElementById('viirs-labels-toggle');
+        mainToggle.textContent = showLabels ? 'On' : 'Off';
+        mainToggle.classList.toggle('active', showLabels);
         renderSceneToCanvas(canvas, sid);
         render();
       });
@@ -911,6 +948,15 @@
         detectionOpacity = 1 - t;
         opacityBadge.textContent = t.toFixed(2);
         opacitySlider.style.setProperty('--fill', opacitySlider.value + '%');
+        render();
+      });
+
+      // Labels toggle
+      const labelsToggle = document.getElementById('viirs-labels-toggle');
+      labelsToggle.addEventListener('click', () => {
+        showLabels = !showLabels;
+        labelsToggle.textContent = showLabels ? 'On' : 'Off';
+        labelsToggle.classList.toggle('active', showLabels);
         render();
       });
 
