@@ -1377,30 +1377,6 @@ figure.sp-figure img {
   font-variant-numeric: tabular-nums;
 }
 
-.thresh-modal-select {
-  flex: 1;
-  appearance: none;
-  background: rgba(255,255,255,0.55);
-  border: 1px solid var(--glass-border);
-  border-radius: 8px;
-  padding: 0.35rem 2rem 0.35rem 0.65rem;
-  font-size: 0.8rem;
-  font-family: inherit;
-  color: inherit;
-  cursor: pointer;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%236b8899'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 0.6rem center;
-  transition: border-color 0.15s, background 0.15s;
-}
-.thresh-modal-select:hover {
-  border-color: var(--sky-deep);
-  background-color: rgba(255,255,255,0.75);
-}
-.thresh-modal-select:focus {
-  outline: none;
-  border-color: var(--sky-deep);
-}
 
 .thresh-panel {
   background: var(--glass-bg);

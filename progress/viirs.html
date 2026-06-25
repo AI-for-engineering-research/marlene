@@ -655,16 +655,16 @@
       modelLabel.className = 'thresh-ctrl-label';
       modelLabel.textContent = 'Model';
 
-      const modelSelect = document.createElement('select');
-      modelSelect.className = 'thresh-modal-select';
+      const modelPills = document.createElement('div');
+      modelPills.className = 'thresh-run-pills';
       for (const { key, label } of MODELS) {
-        const opt = document.createElement('option');
-        opt.value = key;
-        opt.textContent = label;
-        if (key === selectedModel) opt.selected = true;
-        modelSelect.appendChild(opt);
+        const btn = document.createElement('button');
+        btn.className = 'thresh-pill' + (key === selectedModel ? ' active' : '');
+        btn.textContent = label;
+        btn.dataset.model = key;
+        modelPills.appendChild(btn);
       }
-      modelCtrl.append(modelLabel, modelSelect);
+      modelCtrl.append(modelLabel, modelPills);
 
       // Channel selector row
       const channelCtrl = document.createElement('div');
@@ -674,16 +674,16 @@
       channelLabel.className = 'thresh-ctrl-label';
       channelLabel.textContent = 'Channel';
 
-      const channelSelect = document.createElement('select');
-      channelSelect.className = 'thresh-modal-select';
+      const channelPills = document.createElement('div');
+      channelPills.className = 'thresh-run-pills';
       for (const ch of CHANNELS) {
-        const opt = document.createElement('option');
-        opt.value = ch;
-        opt.textContent = ch;
-        if (ch === selectedChannel) opt.selected = true;
-        channelSelect.appendChild(opt);
+        const btn = document.createElement('button');
+        btn.className = 'thresh-pill' + (ch === selectedChannel ? ' active' : '');
+        btn.textContent = ch;
+        btn.dataset.channel = ch;
+        channelPills.appendChild(btn);
       }
-      channelCtrl.append(channelLabel, channelSelect);
+      channelCtrl.append(channelLabel, channelPills);
 
       const hint = document.createElement('div');
       hint.className = 'thresh-modal-hint';
@@ -695,9 +695,14 @@
 
       renderSceneToCanvas(canvas, sid);
 
-      modelSelect.addEventListener('change', () => {
-        selectedModel = modelSelect.value;
+      modelPills.addEventListener('click', e => {
+        const btn = e.target.closest('.thresh-pill');
+        if (!btn) return;
+        selectedModel = btn.dataset.model;
         selectedRun   = RUN_KEYS[selectedModel][selectedChannel];
+        modelPills.querySelectorAll('.thresh-pill').forEach(p =>
+          p.classList.toggle('active', p.dataset.model === selectedModel)
+        );
         document.getElementById('viirs-model-pills').querySelectorAll('.thresh-pill').forEach(p =>
           p.classList.toggle('active', p.dataset.model === selectedModel)
         );
@@ -705,9 +710,14 @@
         render();
       });
 
-      channelSelect.addEventListener('change', () => {
-        selectedChannel = channelSelect.value;
+      channelPills.addEventListener('click', e => {
+        const btn = e.target.closest('.thresh-pill');
+        if (!btn) return;
+        selectedChannel = btn.dataset.channel;
         selectedRun     = RUN_KEYS[selectedModel][selectedChannel];
+        channelPills.querySelectorAll('.thresh-pill').forEach(p =>
+          p.classList.toggle('active', p.dataset.channel === selectedChannel)
+        );
         document.getElementById('viirs-channel-pills').querySelectorAll('.thresh-pill').forEach(p =>
           p.classList.toggle('active', p.dataset.channel === selectedChannel)
         );
