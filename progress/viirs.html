@@ -353,6 +353,13 @@
               <span class="thresh-ctrl-label">Channel</span>
               <div class="thresh-run-pills" id="viirs-channel-pills"></div>
             </div>
+            <div class="thresh-slider-row">
+              <span class="thresh-ctrl-label">Transparency</span>
+              <div class="thresh-slider-wrap">
+                <input type="range" id="viirs-opacity-slider" min="0" max="100" value="0" step="1">
+              </div>
+              <span class="thresh-value-badge" id="viirs-opacity-value">0.00</span>
+            </div>
           </div>
           <!-- Right: two scenes stacked + legend -->
           <div class="thresh-panel-scenes">
@@ -419,7 +426,8 @@
     let selectedChannel = CHANNELS[0];
     let selectedRun     = RUN_KEYS[selectedModel][selectedChannel];
     let prData = null, manifest = null;
-    let probData = {}, nanData = {}, labelImgs = {};
+    let probData = {}, nanData = {}, labelImgs = {}, ashImgs = {};
+    let detectionOpacity = 1;
     let loaded = false, loading = false;
 
     const SCENE_IDS = ['1', '7'];
@@ -455,6 +463,11 @@
         const p = new Promise(res => { img.onload = res; });
         img.src = BASE + `label_overlay_scene${sid2(sid)}.png`;
         fetches.push(p.then(() => { labelImgs[sid] = img; }));
+
+        const ashImg = new Image();
+        const ap = new Promise(res => { ashImg.onload = res; ashImg.onerror = res; });
+        ashImg.src = `../assets/images/progress/viirs/ash_scene${sid2(sid)}.png`;
+        fetches.push(ap.then(() => { ashImgs[sid] = ashImg; }));
       }
 
       await Promise.all(fetches);
@@ -624,8 +637,19 @@
       const dx = (CW - dw) / 2, dy = (CH - dh) / 2;
 
       ctx.clearRect(0, 0, CW, CH);
+
+      // Ash composite background
+      if (ashImgs[sid]) {
+        ctx.imageSmoothingEnabled = true;
+        ctx.drawImage(ashImgs[sid], dx, dy, dw, dh);
+      }
+
+      // Detection mask on top with controllable opacity
+      ctx.globalAlpha = detectionOpacity;
       ctx.imageSmoothingEnabled = false;
       ctx.drawImage(tmp, dx, dy, dw, dh);
+      ctx.globalAlpha = 1;
+
       ctx.imageSmoothingEnabled = true;
       ctx.drawImage(labelImgs[sid], dx, dy, dw, dh);
     }
@@ -722,11 +746,35 @@
       }
       channelCtrl.append(channelLabel, channelPills);
 
+      // Detection transparency slider row
+      const opacityCtrl = document.createElement('div');
+      opacityCtrl.className = 'thresh-modal-ctrl';
+
+      const opacityCtrlLabel = document.createElement('span');
+      opacityCtrlLabel.className = 'thresh-ctrl-label';
+      opacityCtrlLabel.textContent = 'Transparency';
+
+      const opacitySliderWrap = document.createElement('div');
+      opacitySliderWrap.className = 'thresh-slider-wrap';
+      const opacitySliderEl = document.createElement('input');
+      opacitySliderEl.type = 'range';
+      opacitySliderEl.min = '0'; opacitySliderEl.max = '100'; opacitySliderEl.step = '1';
+      const curTransparency = Math.round((1 - detectionOpacity) * 100);
+      opacitySliderEl.value = String(curTransparency);
+      opacitySliderEl.style.setProperty('--fill', curTransparency + '%');
+      opacitySliderWrap.appendChild(opacitySliderEl);
+
+      const opacityBadgeModal = document.createElement('span');
+      opacityBadgeModal.className = 'thresh-modal-badge';
+      opacityBadgeModal.textContent = (curTransparency / 100).toFixed(2);
+
+      opacityCtrl.append(opacityCtrlLabel, opacitySliderWrap, opacityBadgeModal);
+
       const hint = document.createElement('div');
       hint.className = 'thresh-modal-hint';
       hint.textContent = 'click outside or press Esc to close';
 
-      modal.append(header, canvas, ctrl, modelCtrl, channelCtrl, hint);
+      modal.append(header, canvas, ctrl, opacityCtrl, modelCtrl, channelCtrl, hint);
       backdrop.appendChild(modal);
       document.body.appendChild(backdrop);
 
@@ -758,6 +806,20 @@
         document.getElementById('viirs-channel-pills').querySelectorAll('.thresh-pill').forEach(p =>
           p.classList.toggle('active', p.dataset.channel === selectedChannel)
         );
+        renderSceneToCanvas(canvas, sid);
+        render();
+      });
+
+      // Opacity slider syncs globally
+      opacitySliderEl.addEventListener('input', () => {
+        const t = +opacitySliderEl.value / 100;
+        detectionOpacity = 1 - t;
+        opacityBadgeModal.textContent = t.toFixed(2);
+        opacitySliderEl.style.setProperty('--fill', opacitySliderEl.value + '%');
+        const mainOpacity = document.getElementById('viirs-opacity-slider');
+        mainOpacity.value = String(opacitySliderEl.value);
+        mainOpacity.style.setProperty('--fill', opacitySliderEl.value + '%');
+        document.getElementById('viirs-opacity-value').textContent = t.toFixed(2);
         renderSceneToCanvas(canvas, sid);
         render();
       });
@@ -839,6 +901,18 @@
       }
       slider.addEventListener('input', () => updateSlider(+slider.value));
       updateSlider(+slider.value);
+
+      // Detection transparency slider
+      const opacitySlider = document.getElementById('viirs-opacity-slider');
+      const opacityBadge  = document.getElementById('viirs-opacity-value');
+      opacitySlider.style.setProperty('--fill', '0%');
+      opacitySlider.addEventListener('input', () => {
+        const t = +opacitySlider.value / 100;
+        detectionOpacity = 1 - t;
+        opacityBadge.textContent = t.toFixed(2);
+        opacitySlider.style.setProperty('--fill', opacitySlider.value + '%');
+        render();
+      });
 
       // Lazy-load via IntersectionObserver
       const section = document.getElementById('viirs-threshold-explorer');
