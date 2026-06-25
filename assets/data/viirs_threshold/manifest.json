@@ -1,0 +1,75 @@
+{
+  "scenes": {
+    "1": {
+      "rows": [
+        1362,
+        2063
+      ],
+      "cols": [
+        1801,
+        2853
+      ],
+      "label_overlay": "label_overlay_scene01.png"
+    },
+    "7": {
+      "rows": [
+        176,
+        878
+      ],
+      "cols": [
+        818,
+        1695
+      ],
+      "label_overlay": "label_overlay_scene07.png"
+    }
+  },
+  "runs": [
+    "detection-1.1 / M15",
+    "detection-1.1 / I5",
+    "marvelous-moth-137 / M15",
+    "marvelous-moth-137 / I5"
+  ],
+  "crop_dims": {
+    "detection-1.1 / M15": {
+      "1": {
+        "h": 701,
+        "w": 1052
+      },
+      "7": {
+        "h": 702,
+        "w": 877
+      }
+    },
+    "detection-1.1 / I5": {
+      "1": {
+        "h": 701,
+        "w": 1052
+      },
+      "7": {
+        "h": 702,
+        "w": 877
+      }
+    },
+    "marvelous-moth-137 / M15": {
+      "1": {
+        "h": 701,
+        "w": 1052
+      },
+      "7": {
+        "h": 702,
+        "w": 877
+      }
+    },
+    "marvelous-moth-137 / I5": {
+      "1": {
+        "h": 701,
+        "w": 1052
+      },
+      "7": {
+        "h": 702,
+        "w": 877
+      }
+    }
+  },
+  "n_thresholds": 101
+}

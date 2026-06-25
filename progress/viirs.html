@@ -247,15 +247,73 @@
         </div>
       </div>
 
+      <!-- ─── THRESHOLD EXPLORER ───────────────────── -->
+      <div class="sp-section" id="viirs-threshold-explorer">
+        <div class="sp-section-label">Interactive Results</div>
+        <h2 class="sp-section-title">Threshold explorer</h2>
+        <p class="sp-text">
+          Drag the slider to set a detection threshold and see how it moves the operating point along the precision–recall curve — and how the actual detection mask changes across two held-out val scenes. All four model variants are shown simultaneously on the curve; select one to update the scene previews. Yellow outlines are the manually labeled contrail boundaries.
+        </p>
+
+        <!-- Controls -->
+        <div class="thresh-controls">
+          <div class="thresh-slider-row">
+            <span class="thresh-ctrl-label">Threshold</span>
+            <div class="thresh-slider-wrap">
+              <input type="range" id="viirs-slider" min="0" max="100" value="42" step="1">
+            </div>
+            <span class="thresh-value-badge" id="viirs-thresh-value">0.42</span>
+          </div>
+          <div class="thresh-run-row">
+            <span class="thresh-ctrl-label">Model</span>
+            <div class="thresh-run-pills" id="viirs-run-pills"></div>
+          </div>
+        </div>
+
+        <!-- Loading -->
+        <div class="thresh-loading" id="viirs-loading">
+          <span class="thresh-loading-dot"></span>
+          Loading detection data&hellip;
+        </div>
+
+        <!-- Panels -->
+        <div class="thresh-panels" id="viirs-explorer-panels" style="display:none">
+          <div class="thresh-panel">
+            <div class="thresh-panel-header">Precision–Recall</div>
+            <canvas id="viirs-pr-curve" class="thresh-canvas"></canvas>
+            <div class="thresh-stats">
+              <span>P&nbsp;<strong id="viirs-stat-p">—</strong></span>
+              <span>R&nbsp;<strong id="viirs-stat-r">—</strong></span>
+              <span>F1&nbsp;<strong id="viirs-stat-f1">—</strong></span>
+            </div>
+          </div>
+          <div class="thresh-panel">
+            <div class="thresh-panel-header">Scene 01 &middot; lon &minus;103&hellip;&minus;97, lat 29&hellip;33</div>
+            <canvas id="viirs-scene01" class="thresh-canvas"></canvas>
+          </div>
+          <div class="thresh-panel">
+            <div class="thresh-panel-header">Scene 07 &middot; lon &minus;103&hellip;&minus;98, lat 44&hellip;48</div>
+            <canvas id="viirs-scene07" class="thresh-canvas"></canvas>
+          </div>
+        </div>
+
+        <!-- Legend -->
+        <div class="thresh-legend" id="viirs-legend" style="display:none">
+          <span><span class="thresh-swatch" style="background:#fff;border:1px solid #ccc;"></span>Detected</span>
+          <span><span class="thresh-swatch" style="background:#0d0d0d;border:1px solid #444;"></span>Not detected</span>
+          <span><span class="thresh-swatch" style="background:#666e7a;"></span>No data</span>
+          <span><span class="thresh-swatch" style="background:rgba(255,215,0,0.85);"></span>Label boundary</span>
+        </div>
+      </div>
+
       <!-- ─── NEXT STEPS ─────────────────────────── -->
       <div class="sp-section">
         <div class="sp-section-label">In Progress</div>
         <h2 class="sp-section-title">Next steps</h2>
         <ul class="sp-text sp-list">
-          <li><strong>Threshold sweep.</strong> The default threshold (0.42) was calibrated on ABI data. An interactive notebook sweeps thresholds over the saved probability maps and plots precision-recall curves with scene previews.</li>
           <li><strong>Normalization comparison.</strong> VIIRS-derived normalization statistics have been computed from 48 stratified CONUS swaths. Next: compare detection performance with VIIRS stats vs. ABI training stats to quantify the impact of distribution shift.</li>
           <li><strong>I5 channel for C14.</strong> I5 (11.45 µm) is a closer spectral match to ABI C14 (11.2 µm) than M15 (10.76 µm). The full pipeline is implemented; pending re-download of 2 missing IMG geolocation files and a re-run of <code>compute_norm_stats</code> to produce the I5 statistics file.</li>
-          <li><strong>Interactive result viewer.</strong> Coming soon — browse detection results across all scenes with threshold slider.</li>
+          <li><strong>Fine-tuning.</strong> The output layer of <code>marvelous-moth-137</code> has been fine-tuned on the VIIRS train split. Initial results are included in the threshold explorer above.</li>
         </ul>
       </div>
 
@@ -267,5 +325,273 @@
   </footer>
 
   <script src="../script.js"></script>
+  <script>
+  (function () {
+    const BASE = '../assets/data/viirs_threshold/';
+    const RUNS = [
+      'detection-1.1 / M15',
+      'detection-1.1 / I5',
+      'marvelous-moth-137 / M15',
+      'marvelous-moth-137 / I5',
+    ];
+    const RUN_COLOR = { 'detection-1.1': '#4a9abe', 'marvelous-moth-137': '#8a6bbf' };
+
+    let threshold = 0.42;
+    let selectedRun = RUNS[0];
+    let prData = null, manifest = null;
+    let probData = {}, nanData = {}, labelImgs = {};
+    let loaded = false, loading = false;
+
+    const SCENE_IDS = ['1', '7'];
+    const sid2 = s => s.padStart(2, '0');
+
+    function binName(run, sid, type) {
+      const [model, c14] = run.split(' / ');
+      return `${type}_scene${sid2(sid)}_${model}_${c14}.bin`;
+    }
+
+    /* ── Load ──────────────────────────────────────────────────────────── */
+    async function loadData() {
+      if (loaded || loading) return;
+      loading = true;
+
+      [manifest, prData] = await Promise.all([
+        fetch(BASE + 'manifest.json').then(r => r.json()),
+        fetch(BASE + 'pr_curves.json').then(r => r.json()),
+      ]);
+
+      const fetches = [];
+      for (const run of RUNS) {
+        probData[run] = {}; nanData[run] = {};
+        for (const sid of SCENE_IDS) {
+          fetches.push(
+            fetch(BASE + binName(run, sid, 'prob')).then(r => r.arrayBuffer()).then(b => { probData[run][sid] = new Uint8Array(b); }),
+            fetch(BASE + binName(run, sid, 'nan')).then(r => r.arrayBuffer()).then(b => { nanData[run][sid] = new Uint8Array(b); })
+          );
+        }
+      }
+      for (const sid of SCENE_IDS) {
+        const img = new Image();
+        const p = new Promise(res => { img.onload = res; });
+        img.src = BASE + `label_overlay_scene${sid2(sid)}.png`;
+        fetches.push(p.then(() => { labelImgs[sid] = img; }));
+      }
+
+      await Promise.all(fetches);
+      loaded = true;
+      loading = false;
+
+      document.getElementById('viirs-loading').style.display = 'none';
+      document.getElementById('viirs-explorer-panels').style.display = 'grid';
+      document.getElementById('viirs-legend').style.display = 'flex';
+      sizeAllCanvases();
+      render();
+    }
+
+    /* ── Canvas sizing ─────────────────────────────────────────────────── */
+    function sizeCanvas(canvas, w, h) {
+      canvas.width = w;
+      canvas.height = h;
+    }
+
+    function sizeAllCanvases() {
+      const prCanvas = document.getElementById('viirs-pr-curve');
+      const cw = prCanvas.parentElement.clientWidth - 18; // subtract panel padding
+      sizeCanvas(prCanvas, cw, cw);
+
+      for (const sid of SCENE_IDS) {
+        const c = document.getElementById(`viirs-scene${sid2(sid)}`);
+        const dims = manifest.crop_dims[selectedRun][sid];
+        const pw = c.parentElement.clientWidth - 18;
+        sizeCanvas(c, pw, Math.round(pw * dims.h / dims.w));
+      }
+    }
+
+    /* ── PR curve ──────────────────────────────────────────────────────── */
+    function renderPR() {
+      const canvas = document.getElementById('viirs-pr-curve');
+      const ctx = canvas.getContext('2d');
+      const W = canvas.width, H = canvas.height;
+      const PAD = { top: 14, right: 14, bottom: 30, left: 30 };
+      const pw = W - PAD.left - PAD.right;
+      const ph = H - PAD.top  - PAD.bottom;
+
+      ctx.clearRect(0, 0, W, H);
+
+      // Grid lines
+      ctx.strokeStyle = 'rgba(100,140,160,0.13)';
+      ctx.lineWidth = 1;
+      for (let i = 0; i <= 4; i++) {
+        const x = PAD.left + pw * i / 4;
+        const y = PAD.top  + ph * i / 4;
+        ctx.beginPath(); ctx.moveTo(x, PAD.top); ctx.lineTo(x, PAD.top + ph); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(PAD.left, y); ctx.lineTo(PAD.left + pw, y); ctx.stroke();
+      }
+
+      // No-skill diagonal
+      ctx.strokeStyle = 'rgba(150,170,185,0.35)';
+      ctx.setLineDash([4, 4]);
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(PAD.left, PAD.top + ph);
+      ctx.lineTo(PAD.left + pw, PAD.top);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // Prevalence baseline
+      const prevY = PAD.top + ph * (1 - prData.prevalence);
+      ctx.strokeStyle = 'rgba(107,136,153,0.4)';
+      ctx.setLineDash([3, 5]);
+      ctx.beginPath();
+      ctx.moveTo(PAD.left, prevY); ctx.lineTo(PAD.left + pw, prevY);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // Axis labels
+      ctx.fillStyle = '#8899aa';
+      ctx.font = '9px Inter, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('Recall', PAD.left + pw / 2, H - 2);
+      ctx.save();
+      ctx.translate(9, PAD.top + ph / 2);
+      ctx.rotate(-Math.PI / 2);
+      ctx.fillText('Precision', 0, 0);
+      ctx.restore();
+      for (let i = 0; i <= 4; i++) {
+        const v = i / 4;
+        ctx.textAlign = 'center';
+        ctx.fillText(v.toFixed(1), PAD.left + pw * v, PAD.top + ph + 10);
+        ctx.textAlign = 'right';
+        ctx.fillText(v.toFixed(1), PAD.left - 3, PAD.top + ph * (1 - v) + 3);
+      }
+
+      // PR curves
+      for (const run of RUNS) {
+        const isActive = run === selectedRun;
+        const [model, c14] = run.split(' / ');
+        const color = RUN_COLOR[model];
+        ctx.strokeStyle = isActive ? color : color + '44';
+        ctx.lineWidth = isActive ? 2.5 : 1.5;
+        if (c14 === 'I5') ctx.setLineDash([5, 3]); else ctx.setLineDash([]);
+
+        const { precision, recall } = prData.runs[run];
+        ctx.beginPath();
+        for (let i = 0; i < precision.length; i++) {
+          const x = PAD.left + pw * recall[i];
+          const y = PAD.top  + ph * (1 - precision[i]);
+          if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+        ctx.setLineDash([]);
+      }
+
+      // Dot at current threshold
+      const idx = Math.round(threshold * 100);
+      const { precision, recall } = prData.runs[selectedRun];
+      const p = precision[idx], r = recall[idx];
+      const f1 = (p + r) > 0 ? 2 * p * r / (p + r) : 0;
+      const dotX = PAD.left + pw * r;
+      const dotY = PAD.top  + ph * (1 - p);
+
+      ctx.fillStyle = '#e63946';
+      ctx.beginPath(); ctx.arc(dotX, dotY, 5.5, 0, 2 * Math.PI); ctx.fill();
+      ctx.strokeStyle = 'rgba(255,255,255,0.9)';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.arc(dotX, dotY, 5.5, 0, 2 * Math.PI); ctx.stroke();
+
+      // Stats
+      document.getElementById('viirs-stat-p').textContent  = p.toFixed(3);
+      document.getElementById('viirs-stat-r').textContent  = r.toFixed(3);
+      document.getElementById('viirs-stat-f1').textContent = f1.toFixed(3);
+    }
+
+    /* ── Scene preview ─────────────────────────────────────────────────── */
+    function renderScene(sid) {
+      const canvas = document.getElementById(`viirs-scene${sid2(sid)}`);
+      const ctx = canvas.getContext('2d');
+      const dims = manifest.crop_dims[selectedRun][sid];
+      const { h, w } = dims;
+      const probs = probData[selectedRun][sid];
+      const nans  = nanData[selectedRun][sid];
+      const threshU8 = Math.round(threshold * 255);
+
+      const tmp = document.createElement('canvas');
+      tmp.width = w; tmp.height = h;
+      const tctx = tmp.getContext('2d');
+      const imgd = tctx.createImageData(w, h);
+      const d = imgd.data;
+
+      for (let i = 0, n = w * h; i < n; i++) {
+        const idx = i << 2;
+        if (nans[i]) {
+          d[idx] = 102; d[idx+1] = 112; d[idx+2] = 122; d[idx+3] = 255;
+        } else if (probs[i] >= threshU8) {
+          d[idx] = 255; d[idx+1] = 255; d[idx+2] = 255; d[idx+3] = 255;
+        } else {
+          d[idx] = 13; d[idx+1] = 13; d[idx+2] = 13; d[idx+3] = 255;
+        }
+      }
+      tctx.putImageData(imgd, 0, 0);
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.imageSmoothingEnabled = false;
+      ctx.drawImage(tmp, 0, 0, canvas.width, canvas.height);
+      ctx.imageSmoothingEnabled = true;
+      ctx.drawImage(labelImgs[sid], 0, 0, canvas.width, canvas.height);
+    }
+
+    /* ── Render ────────────────────────────────────────────────────────── */
+    function render() {
+      if (!loaded) return;
+      renderPR();
+      for (const sid of SCENE_IDS) renderScene(sid);
+    }
+
+    /* ── Init ──────────────────────────────────────────────────────────── */
+    function init() {
+      // Build model pills
+      const pillsEl = document.getElementById('viirs-run-pills');
+      for (const run of RUNS) {
+        const btn = document.createElement('button');
+        btn.className = 'thresh-pill' + (run === selectedRun ? ' active' : '');
+        btn.textContent = run;
+        btn.dataset.run = run;
+        btn.addEventListener('click', () => {
+          selectedRun = run;
+          document.querySelectorAll('.thresh-pill').forEach(p =>
+            p.classList.toggle('active', p.dataset.run === run)
+          );
+          render();
+        });
+        pillsEl.appendChild(btn);
+      }
+
+      // Slider
+      const slider = document.getElementById('viirs-slider');
+      const badge  = document.getElementById('viirs-thresh-value');
+
+      function updateSlider(val) {
+        threshold = val / 100;
+        badge.textContent = threshold.toFixed(2);
+        slider.style.setProperty('--fill', val + '%');
+        render();
+      }
+      slider.addEventListener('input', () => updateSlider(+slider.value));
+      updateSlider(+slider.value);
+
+      // Lazy-load via IntersectionObserver
+      const section = document.getElementById('viirs-threshold-explorer');
+      const obs = new IntersectionObserver(entries => {
+        if (entries[0].isIntersecting) { loadData(); obs.disconnect(); }
+      }, { threshold: 0.1 });
+      obs.observe(section);
+
+      // Re-size canvases on window resize once data is loaded
+      window.addEventListener('resize', () => { if (loaded) { sizeAllCanvases(); render(); } });
+    }
+
+    document.addEventListener('DOMContentLoaded', init);
+  })();
+  </script>
 </body>
 </html>
