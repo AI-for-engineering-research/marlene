@@ -57,6 +57,7 @@
             <li><a href="#viirs-channels"            class="sp-sidenav-item" data-section="viirs-channels">Input Data</a></li>
             <li><a href="#viirs-bowtie"              class="sp-sidenav-item" data-section="viirs-bowtie">Zero-Shot Results</a></li>
             <li><a href="#viirs-dataset"             class="sp-sidenav-item" data-section="viirs-dataset">Data</a></li>
+            <li><a href="#viirs-finetuning"           class="sp-sidenav-item" data-section="viirs-finetuning">Model Fine-Tuning</a></li>
             <li><a href="#viirs-threshold-explorer"  class="sp-sidenav-item" data-section="viirs-threshold-explorer">Interactive Results</a></li>
             <li><a href="#viirs-next-steps"          class="sp-sidenav-item" data-section="viirs-next-steps">In Progress</a></li>
           </ul>
@@ -264,6 +265,53 @@
         </div>
       </div>
 
+      <!-- ─── MODEL FINE-TUNING ───────────────────── -->
+      <div class="sp-section" id="viirs-finetuning">
+        <div class="sp-section-label">Model Fine-Tuning</div>
+        <h2 class="sp-section-title">Retraining the segmentation head</h2>
+
+        <p class="sp-text">
+          Zero-shot transfer reveals a fundamental output calibration problem: both <code>detection-1.1</code> and <code>marvelous-moth-137</code> collapse nearly all pixels — contrail and background alike — to logit&nbsp;≈&nbsp;−13 on VIIRS data. This places the entire output distribution in the flat left tail of the sigmoid, far from the linear region where small logit shifts translate into large probability changes. There is simply no usable operating range to sweep.
+        </p>
+        <p class="sp-text">
+          The root cause is the original cross-entropy training loss, which is overwhelmed by the gradient from the vast majority of easy-negative background pixels at VIIRS class-imbalance ratios (~10,000:1). A linear separability check on pre-extracted decoder features confirms the fix is tractable: a 5-fold logistic regression on the 16-dimensional feature space achieves ROC-AUC&nbsp;=&nbsp;<strong>0.957</strong> for both channel variants, meaning the encoder and decoder features already separate the classes well — only the final output layer needs retraining.
+        </p>
+        <p class="sp-text">
+          The approach freezes the encoder and decoder entirely and retrains only <code>model.segmentation_head</code> — a single 1×1 convolution mapping 16 decoder channels to 2 class scores — using focal loss (γ&nbsp;=&nbsp;2, α&nbsp;=&nbsp;0.25) on 7 labeled training scenes. Features are extracted once from the frozen backbone and reused each epoch to keep training fast.
+        </p>
+
+        <figure class="sp-figure">
+          <img src="../assets/images/progress/viirs/logit_distributions.png"
+               alt="Logit distributions — contrail vs background pixels across all model variants" />
+          <figcaption class="sp-caption">
+            Logit distributions (log scale) for contrail and background pixels on val scenes 1 and 7, across all six model/channel combinations. Zero-shot models (rows 1–2) collapse both classes to logit&nbsp;≈&nbsp;−13 — the model assigns nearly identical scores to every pixel regardless of class. After fine-tuning (row 3), background pixels shift to around logit&nbsp;≈&nbsp;−2 and contrail pixels to around logit&nbsp;≈&nbsp;0, with visible but overlapping separation. M15 and I5 channel variants perform nearly identically.
+            <span class="sp-credit">Credit: MVE</span>
+          </figcaption>
+        </figure>
+
+        <figure class="sp-figure">
+          <img src="../assets/images/progress/viirs/sigmoid_mapping.png"
+               alt="Sigmoid mapping with logit density for all model variants" />
+          <figcaption class="sp-caption">
+            The same logit distributions overlaid on the sigmoid curve, showing where each model's outputs land on the probability axis. Zero-shot models (rows 1–2) concentrate both classes in the far-left tail where the sigmoid is flat — probability&nbsp;≈&nbsp;0 for everything, no threshold can separate them. After fine-tuning (row 3), both distributions move into the sigmoid's linear region, where the curve is steep and small logit differences produce meaningful probability differences.
+            <span class="sp-credit">Credit: MVE</span>
+          </figcaption>
+        </figure>
+
+        <figure class="sp-figure">
+          <img src="../assets/images/progress/viirs/probability_distributions.png"
+               alt="Probability distributions — contrail vs background pixels across all model variants" />
+          <figcaption class="sp-caption">
+            The operational result: probability distributions after applying the sigmoid. Zero-shot models (rows 1–2) assign near-zero probability to nearly every pixel, including true contrails — nothing to threshold. The fine-tuned model (row 3) spreads contrail predictions across 0.2–1.0, with the background distribution peaked near 0.05 but trailing off well past 0.5. The precision=recall crossover lands at threshold&nbsp;≈&nbsp;0.42, with P&nbsp;≈&nbsp;R&nbsp;≈&nbsp;0.48 on the val set.
+            <span class="sp-credit">Credit: MVE</span>
+          </figcaption>
+        </figure>
+
+        <p class="sp-text">
+          The fine-tuned model is a genuine improvement, but not a clean solution. The logit distributions (row 3 of the first figure) show the peaks only about 2 units apart — background at logit&nbsp;≈&nbsp;−2, contrails at logit&nbsp;≈&nbsp;0 — with heavily overlapping tails. The sigmoid mapping shows both classes sitting in the same steep portion of the curve, so any threshold that catches most contrail pixels also catches a meaningful fraction of background speckle. The probability distribution makes the practical consequence explicit: the background has a long tail past 0.5, so precision cannot be high without sacrificing recall. At the operating point this gives P&nbsp;≈&nbsp;R&nbsp;≈&nbsp;0.48 — modestly better than the zero-shot baselines (~0.45), but not a step change. The frozen decoder features are well-separated in the full 16-dimensional space (logistic regression ROC-AUC&nbsp;=&nbsp;0.957), so the remaining overlap likely reflects what a single linear layer can express from those features, not a fundamental limit. Unfreezing the decoder is the natural next step.
+        </p>
+      </div>
+
       <!-- ─── THRESHOLD EXPLORER ───────────────────── -->
       <div class="sp-section" id="viirs-threshold-explorer">
         <div class="sp-section-label">Interactive Results</div>
@@ -327,17 +375,6 @@
             </div>
           </div>
         </div>
-      </div>
-
-      <!-- ─── NEXT STEPS ─────────────────────────── -->
-      <div class="sp-section" id="viirs-next-steps">
-        <div class="sp-section-label">In Progress</div>
-        <h2 class="sp-section-title">Next steps</h2>
-        <ul class="sp-text sp-list">
-          <li><strong>Normalization comparison.</strong> VIIRS-derived normalization statistics have been computed from 48 stratified CONUS swaths. Next: compare detection performance with VIIRS stats vs. ABI training stats to quantify the impact of distribution shift.</li>
-          <li><strong>I5 channel for C14.</strong> I5 (11.45 µm) is a closer spectral match to ABI C14 (11.2 µm) than M15 (10.76 µm). The full pipeline is implemented; pending re-download of 2 missing IMG geolocation files and a re-run of <code>compute_norm_stats</code> to produce the I5 statistics file.</li>
-          <li><strong>Fine-tuning.</strong> The output layer of <code>marvelous-moth-137</code> has been fine-tuned on the VIIRS train split. Initial results are included in the threshold explorer above.</li>
-        </ul>
       </div>
 
         </div><!-- /.sp-page-content -->
@@ -463,7 +500,7 @@
       ctx.clearRect(0, 0, W, H);
 
       // Grid lines
-      ctx.strokeStyle = 'rgba(100,140,160,0.13)';
+      ctx.strokeStyle = 'rgba(80,110,135,0.22)';
       ctx.lineWidth = 1;
       for (let i = 0; i <= 4; i++) {
         const x = PAD.left + pw * i / 4;
@@ -492,7 +529,7 @@
       ctx.setLineDash([]);
 
       // Axis labels
-      ctx.fillStyle = '#8899aa';
+      ctx.fillStyle = '#3d5268';
       ctx.font = '9px Inter, sans-serif';
       ctx.textAlign = 'center';
       ctx.fillText('Recall', PAD.left + pw / 2, H - 2);
@@ -826,7 +863,7 @@
 
   <script>
   (() => {
-    const SECTION_IDS = ['viirs-pipeline','viirs-channels','viirs-bowtie','viirs-dataset','viirs-threshold-explorer','viirs-next-steps'];
+    const SECTION_IDS = ['viirs-pipeline','viirs-channels','viirs-bowtie','viirs-dataset','viirs-finetuning','viirs-threshold-explorer','viirs-next-steps'];
     const navItems = {};
     for (const id of SECTION_IDS) {
       const el = document.querySelector(`.sp-sidenav-item[data-section="${id}"]`);
