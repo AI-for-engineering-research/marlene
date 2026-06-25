@@ -255,21 +255,6 @@
           Drag the slider to set a detection threshold and see how it moves the operating point along the precision–recall curve — and how the actual detection mask changes across two held-out val scenes. All four model variants are shown simultaneously on the curve; select one to update the scene previews. Yellow outlines are the manually labeled contrail boundaries.
         </p>
 
-        <!-- Controls -->
-        <div class="thresh-controls">
-          <div class="thresh-slider-row">
-            <span class="thresh-ctrl-label">Threshold</span>
-            <div class="thresh-slider-wrap">
-              <input type="range" id="viirs-slider" min="0" max="100" value="42" step="1">
-            </div>
-            <span class="thresh-value-badge" id="viirs-thresh-value">0.42</span>
-          </div>
-          <div class="thresh-run-row">
-            <span class="thresh-ctrl-label">Model</span>
-            <div class="thresh-run-pills" id="viirs-run-pills"></div>
-          </div>
-        </div>
-
         <!-- Loading -->
         <div class="thresh-loading" id="viirs-loading">
           <span class="thresh-loading-dot"></span>
@@ -278,31 +263,52 @@
 
         <!-- Panels -->
         <div class="thresh-panels" id="viirs-explorer-panels" style="display:none">
-          <div class="thresh-panel">
+          <!-- Left: PR curve + controls -->
+          <div class="thresh-panel thresh-panel--pr">
             <div class="thresh-panel-header">Precision–Recall</div>
-            <canvas id="viirs-pr-curve" class="thresh-canvas"></canvas>
+            <canvas id="viirs-pr-curve" class="thresh-canvas thresh-canvas--pr"></canvas>
             <div class="thresh-stats">
               <span>P&nbsp;<strong id="viirs-stat-p">—</strong></span>
               <span>R&nbsp;<strong id="viirs-stat-r">—</strong></span>
               <span>F1&nbsp;<strong id="viirs-stat-f1">—</strong></span>
             </div>
+            <div class="thresh-divider"></div>
+            <div class="thresh-slider-row">
+              <span class="thresh-ctrl-label">Threshold</span>
+              <div class="thresh-slider-wrap">
+                <input type="range" id="viirs-slider" min="0" max="100" value="42" step="1">
+              </div>
+              <span class="thresh-value-badge" id="viirs-thresh-value">0.42</span>
+            </div>
+            <div class="thresh-run-row">
+              <span class="thresh-ctrl-label">Model</span>
+              <div class="thresh-run-pills" id="viirs-model-pills"></div>
+            </div>
+            <div class="thresh-run-row">
+              <span class="thresh-ctrl-label">Channel</span>
+              <div class="thresh-run-pills" id="viirs-channel-pills"></div>
+            </div>
           </div>
-          <div class="thresh-panel">
-            <div class="thresh-panel-header">Scene 01 &middot; lon &minus;103&hellip;&minus;97, lat 29&hellip;33</div>
-            <canvas id="viirs-scene01" class="thresh-canvas"></canvas>
+          <!-- Right: two scenes stacked + legend -->
+          <div class="thresh-panel-scenes">
+            <div class="thresh-panel thresh-panel--scene" id="viirs-scene01-panel">
+              <div class="thresh-panel-header">Scene 01 &middot; lon &minus;103&hellip;&minus;97, lat 29&hellip;33</div>
+              <canvas id="viirs-scene01" class="thresh-canvas"></canvas>
+            </div>
+            <div class="thresh-panel thresh-panel--scene" id="viirs-scene07-panel">
+              <div class="thresh-panel-header">Scene 07 &middot; lon &minus;103&hellip;&minus;98, lat 44&hellip;48</div>
+              <canvas id="viirs-scene07" class="thresh-canvas"></canvas>
+            </div>
+            <!-- Legend box — pushed to bottom to align with left panel -->
+            <div class="thresh-panel thresh-panel--legend" id="viirs-legend" style="display:none">
+              <div class="thresh-legend">
+                <span><span class="thresh-swatch" style="background:#fff;border:1px solid #ccc;"></span>Detected</span>
+                <span><span class="thresh-swatch" style="background:#0d0d0d;border:1px solid #444;"></span>Not detected</span>
+                <span><span class="thresh-swatch" style="background:#666e7a;"></span>No data</span>
+                <span><span class="thresh-swatch" style="background:transparent;border:2px solid rgba(255,215,0,0.85);"></span>Label boundary</span>
+              </div>
+            </div>
           </div>
-          <div class="thresh-panel">
-            <div class="thresh-panel-header">Scene 07 &middot; lon &minus;103&hellip;&minus;98, lat 44&hellip;48</div>
-            <canvas id="viirs-scene07" class="thresh-canvas"></canvas>
-          </div>
-        </div>
-
-        <!-- Legend -->
-        <div class="thresh-legend" id="viirs-legend" style="display:none">
-          <span><span class="thresh-swatch" style="background:#fff;border:1px solid #ccc;"></span>Detected</span>
-          <span><span class="thresh-swatch" style="background:#0d0d0d;border:1px solid #444;"></span>Not detected</span>
-          <span><span class="thresh-swatch" style="background:#666e7a;"></span>No data</span>
-          <span><span class="thresh-swatch" style="background:rgba(255,215,0,0.85);"></span>Label boundary</span>
         </div>
       </div>
 
@@ -328,16 +334,34 @@
   <script>
   (function () {
     const BASE = '../assets/data/viirs_threshold/';
-    const RUNS = [
-      'detection-1.1 / M15',
-      'detection-1.1 / I5',
-      'marvelous-moth-137 / M15',
-      'marvelous-moth-137 / I5',
+    const MODELS = [
+      { key: 'detection-1.1',               label: 'detection-1.1' },
+      { key: 'marvelous-moth-137',           label: 'marvelous-moth-137' },
+      { key: 'marvelous-moth-137-finetuned', label: 'marvelous-moth-137 (finetuned)' },
     ];
-    const RUN_COLOR = { 'detection-1.1': '#4a9abe', 'marvelous-moth-137': '#8a6bbf' };
+    const CHANNELS = ['M15', 'I5'];
+    // Maps (model key, channel) → the run key used in data files
+    const RUN_KEYS = {
+      'detection-1.1':               { M15: 'detection-1.1 / M15',                    I5: 'detection-1.1 / I5' },
+      'marvelous-moth-137':          { M15: 'marvelous-moth-137 / M15',                I5: 'marvelous-moth-137 / I5' },
+      'marvelous-moth-137-finetuned':{ M15: 'marvelous-moth-137-finetuned-M15 / M15', I5: 'marvelous-moth-137-finetuned-I5 / I5' },
+    };
+    // Flat list of all run keys (for data loading and PR curve iteration)
+    const RUNS = Object.values(RUN_KEYS).flatMap(ch => Object.values(ch));
+    // Reverse map: run key → model key (for colour lookup)
+    const RUN_MODEL = {};
+    for (const [m, ch] of Object.entries(RUN_KEYS))
+      for (const run of Object.values(ch)) RUN_MODEL[run] = m;
+    const RUN_COLOR = {
+      'detection-1.1':               '#4a9abe',
+      'marvelous-moth-137':          '#8a6bbf',
+      'marvelous-moth-137-finetuned':'#4a7c59',
+    };
 
     let threshold = 0.42;
-    let selectedRun = RUNS[0];
+    let selectedModel   = MODELS[0].key;
+    let selectedChannel = CHANNELS[0];
+    let selectedRun     = RUN_KEYS[selectedModel][selectedChannel];
     let prData = null, manifest = null;
     let probData = {}, nanData = {}, labelImgs = {};
     let loaded = false, loading = false;
@@ -389,6 +413,8 @@
     }
 
     /* ── Canvas sizing ─────────────────────────────────────────────────── */
+    const SCENE_PREVIEW_H = 260; // preview height; keeps right column ≈ left panel height
+
     function sizeCanvas(canvas, w, h) {
       canvas.width = w;
       canvas.height = h;
@@ -396,14 +422,13 @@
 
     function sizeAllCanvases() {
       const prCanvas = document.getElementById('viirs-pr-curve');
-      const cw = prCanvas.parentElement.clientWidth - 18; // subtract panel padding
+      const cw = prCanvas.parentElement.clientWidth - 18;
       sizeCanvas(prCanvas, cw, cw);
 
       for (const sid of SCENE_IDS) {
         const c = document.getElementById(`viirs-scene${sid2(sid)}`);
-        const dims = manifest.crop_dims[selectedRun][sid];
         const pw = c.parentElement.clientWidth - 18;
-        sizeCanvas(c, pw, Math.round(pw * dims.h / dims.w));
+        sizeCanvas(c, pw, SCENE_PREVIEW_H);
       }
     }
 
@@ -468,8 +493,8 @@
       // PR curves
       for (const run of RUNS) {
         const isActive = run === selectedRun;
-        const [model, c14] = run.split(' / ');
-        const color = RUN_COLOR[model];
+        const color = RUN_COLOR[RUN_MODEL[run]];
+        const c14   = run.split(' / ')[1];
         ctx.strokeStyle = isActive ? color : color + '44';
         ctx.lineWidth = isActive ? 2.5 : 1.5;
         if (c14 === 'I5') ctx.setLineDash([5, 3]); else ctx.setLineDash([]);
@@ -505,23 +530,26 @@
       document.getElementById('viirs-stat-f1').textContent = f1.toFixed(3);
     }
 
-    /* ── Scene preview ─────────────────────────────────────────────────── */
-    function renderScene(sid) {
-      const canvas = document.getElementById(`viirs-scene${sid2(sid)}`);
+    /* ── Scene rendering ───────────────────────────────────────────────── */
+    const SCENE_LABELS = {
+      '1': 'Scene 01 · lon −103…−97, lat 29…33',
+      '7': 'Scene 07 · lon −103…−98, lat 44…48',
+    };
+
+    function renderSceneToCanvas(canvas, sid) {
       const ctx = canvas.getContext('2d');
       const dims = manifest.crop_dims[selectedRun][sid];
-      const { h, w } = dims;
+      const { h: srcH, w: srcW } = dims;
       const probs = probData[selectedRun][sid];
       const nans  = nanData[selectedRun][sid];
       const threshU8 = Math.round(threshold * 255);
 
       const tmp = document.createElement('canvas');
-      tmp.width = w; tmp.height = h;
+      tmp.width = srcW; tmp.height = srcH;
       const tctx = tmp.getContext('2d');
-      const imgd = tctx.createImageData(w, h);
+      const imgd = tctx.createImageData(srcW, srcH);
       const d = imgd.data;
-
-      for (let i = 0, n = w * h; i < n; i++) {
+      for (let i = 0, n = srcW * srcH; i < n; i++) {
         const idx = i << 2;
         if (nans[i]) {
           d[idx] = 102; d[idx+1] = 112; d[idx+2] = 122; d[idx+3] = 255;
@@ -533,11 +561,101 @@
       }
       tctx.putImageData(imgd, 0, 0);
 
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      // Letterbox: scale to fit canvas, centered
+      const CW = canvas.width, CH = canvas.height;
+      const scale = Math.min(CW / srcW, CH / srcH);
+      const dw = srcW * scale, dh = srcH * scale;
+      const dx = (CW - dw) / 2, dy = (CH - dh) / 2;
+
+      ctx.clearRect(0, 0, CW, CH);
       ctx.imageSmoothingEnabled = false;
-      ctx.drawImage(tmp, 0, 0, canvas.width, canvas.height);
+      ctx.drawImage(tmp, dx, dy, dw, dh);
       ctx.imageSmoothingEnabled = true;
-      ctx.drawImage(labelImgs[sid], 0, 0, canvas.width, canvas.height);
+      ctx.drawImage(labelImgs[sid], dx, dy, dw, dh);
+    }
+
+    function renderScene(sid) {
+      renderSceneToCanvas(document.getElementById(`viirs-scene${sid2(sid)}`), sid);
+    }
+
+    /* ── Scene popup modal ─────────────────────────────────────────────── */
+    function openSceneModal(sid) {
+      const dims = manifest.crop_dims[selectedRun][sid];
+      const { h: srcH, w: srcW } = dims;
+
+      // Size popup to source aspect ratio, capped to viewport
+      const maxW = Math.min(window.innerWidth * 0.85, 980);
+      const maxH = window.innerHeight * 0.72;
+      let cw = maxW, ch = Math.round(cw * srcH / srcW);
+      if (ch > maxH) { ch = maxH; cw = Math.round(ch * srcW / srcH); }
+
+      const backdrop = document.createElement('div');
+      backdrop.className = 'thresh-modal-backdrop';
+
+      const modal = document.createElement('div');
+      modal.className = 'thresh-modal';
+      modal.addEventListener('click', e => e.stopPropagation());
+
+      const header = document.createElement('div');
+      header.className = 'thresh-panel-header';
+      header.textContent = SCENE_LABELS[sid];
+
+      const canvas = document.createElement('canvas');
+      canvas.className = 'thresh-modal-canvas';
+      canvas.width = Math.round(cw);
+      canvas.height = Math.round(ch);
+
+      // Threshold slider row
+      const ctrl = document.createElement('div');
+      ctrl.className = 'thresh-modal-ctrl';
+
+      const ctrlLabel = document.createElement('span');
+      ctrlLabel.className = 'thresh-ctrl-label';
+      ctrlLabel.textContent = 'Threshold';
+
+      const sliderWrap = document.createElement('div');
+      sliderWrap.className = 'thresh-slider-wrap';
+      const sliderEl = document.createElement('input');
+      sliderEl.type = 'range';
+      sliderEl.min = '0'; sliderEl.max = '100'; sliderEl.step = '1';
+      sliderEl.value = String(Math.round(threshold * 100));
+      sliderEl.style.setProperty('--fill', sliderEl.value + '%');
+      sliderWrap.appendChild(sliderEl);
+
+      const badge = document.createElement('span');
+      badge.className = 'thresh-modal-badge';
+      badge.textContent = threshold.toFixed(2);
+
+      ctrl.append(ctrlLabel, sliderWrap, badge);
+
+      const hint = document.createElement('div');
+      hint.className = 'thresh-modal-hint';
+      hint.textContent = 'click outside or press Esc to close';
+
+      modal.append(header, canvas, ctrl, hint);
+      backdrop.appendChild(modal);
+      document.body.appendChild(backdrop);
+
+      renderSceneToCanvas(canvas, sid);
+
+      // Slider syncs threshold globally and re-renders both popup and main view
+      sliderEl.addEventListener('input', () => {
+        const val = +sliderEl.value;
+        threshold = val / 100;
+        badge.textContent = threshold.toFixed(2);
+        sliderEl.style.setProperty('--fill', val + '%');
+        const mainSlider = document.getElementById('viirs-slider');
+        mainSlider.value = val;
+        mainSlider.style.setProperty('--fill', val + '%');
+        document.getElementById('viirs-thresh-value').textContent = threshold.toFixed(2);
+        renderSceneToCanvas(canvas, sid);
+        render();
+      });
+
+      const close = () => backdrop.remove();
+      backdrop.addEventListener('click', close);
+      const handler = e => { if (e.key === 'Escape') { close(); document.removeEventListener('keydown', handler); } };
+      document.addEventListener('keydown', handler);
     }
 
     /* ── Render ────────────────────────────────────────────────────────── */
@@ -550,20 +668,39 @@
     /* ── Init ──────────────────────────────────────────────────────────── */
     function init() {
       // Build model pills
-      const pillsEl = document.getElementById('viirs-run-pills');
-      for (const run of RUNS) {
+      const modelPillsEl = document.getElementById('viirs-model-pills');
+      for (const { key, label } of MODELS) {
         const btn = document.createElement('button');
-        btn.className = 'thresh-pill' + (run === selectedRun ? ' active' : '');
-        btn.textContent = run;
-        btn.dataset.run = run;
+        btn.className = 'thresh-pill' + (key === selectedModel ? ' active' : '');
+        btn.textContent = label;
+        btn.dataset.model = key;
         btn.addEventListener('click', () => {
-          selectedRun = run;
-          document.querySelectorAll('.thresh-pill').forEach(p =>
-            p.classList.toggle('active', p.dataset.run === run)
+          selectedModel = key;
+          selectedRun   = RUN_KEYS[selectedModel][selectedChannel];
+          modelPillsEl.querySelectorAll('.thresh-pill').forEach(p =>
+            p.classList.toggle('active', p.dataset.model === key)
           );
           render();
         });
-        pillsEl.appendChild(btn);
+        modelPillsEl.appendChild(btn);
+      }
+
+      // Build channel pills
+      const channelPillsEl = document.getElementById('viirs-channel-pills');
+      for (const ch of CHANNELS) {
+        const btn = document.createElement('button');
+        btn.className = 'thresh-pill' + (ch === selectedChannel ? ' active' : '');
+        btn.textContent = ch;
+        btn.dataset.channel = ch;
+        btn.addEventListener('click', () => {
+          selectedChannel = ch;
+          selectedRun     = RUN_KEYS[selectedModel][selectedChannel];
+          channelPillsEl.querySelectorAll('.thresh-pill').forEach(p =>
+            p.classList.toggle('active', p.dataset.channel === ch)
+          );
+          render();
+        });
+        channelPillsEl.appendChild(btn);
       }
 
       // Slider
@@ -585,6 +722,12 @@
         if (entries[0].isIntersecting) { loadData(); obs.disconnect(); }
       }, { threshold: 0.1 });
       obs.observe(section);
+
+      // Clickable scene panels → open modal
+      for (const sid of SCENE_IDS) {
+        document.getElementById(`viirs-scene${sid2(sid)}-panel`)
+          .addEventListener('click', () => { if (loaded) openSceneModal(sid); });
+      }
 
       // Re-size canvases on window resize once data is loaded
       window.addEventListener('resize', () => { if (loaded) { sizeAllCanvases(); render(); } });
