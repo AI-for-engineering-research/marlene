@@ -48,8 +48,25 @@
         LAE's existing contrail ABI-trained <code>mcast</code> contrail detection model operates on geostationary imagery with 2 km resolution at nadir. Imagery from the lo-Earth orbiting VIIRS instrument aboard Suomi-NPP and NOAA-20/21 offers 750 m (375 m) resolution at nadir and similar — but not identical — spectral channels. If the current detection model generalizes to VIIRS with little or no retraining, it unlocks additional higher-resolution contrail detections whenever VIIRS data is available, contributing to multi-sensor observational contrail verification.
       </p>
 
+      <div class="sp-page-layout">
+
+        <!-- Sticky side-nav -->
+        <nav class="sp-sidenav" aria-label="Page sections">
+          <ul class="sp-sidenav-list">
+            <li><a href="#viirs-pipeline"            class="sp-sidenav-item" data-section="viirs-pipeline">Overview</a></li>
+            <li><a href="#viirs-channels"            class="sp-sidenav-item" data-section="viirs-channels">Input Data</a></li>
+            <li><a href="#viirs-bowtie"              class="sp-sidenav-item" data-section="viirs-bowtie">Zero-Shot Results</a></li>
+            <li><a href="#viirs-dataset"             class="sp-sidenav-item" data-section="viirs-dataset">Data</a></li>
+            <li><a href="#viirs-threshold-explorer"  class="sp-sidenav-item" data-section="viirs-threshold-explorer">Interactive Results</a></li>
+            <li><a href="#viirs-next-steps"          class="sp-sidenav-item" data-section="viirs-next-steps">In Progress</a></li>
+          </ul>
+        </nav>
+
+        <!-- Main content -->
+        <div class="sp-page-content">
+
       <!-- ─── PIPELINE ───────────────────────────── -->
-      <div class="sp-section">
+      <div class="sp-section" id="viirs-pipeline">
         <div class="sp-section-label">Overview</div>
         <h2 class="sp-section-title">Pipeline</h2>
         <p class="sp-text">
@@ -123,7 +140,7 @@
       </div>
 
       <!-- ─── CHANNEL MAPPING ───────────────────── -->
-      <div class="sp-section">
+      <div class="sp-section" id="viirs-channels">
         <div class="sp-section-label">Input Data</div>
         <h2 class="sp-section-title">Channel mapping</h2>
         <p class="sp-text">
@@ -174,7 +191,7 @@
       </div>
 
       <!-- ─── BOWTIE & RESULTS ───────────────────── -->
-      <div class="sp-section">
+      <div class="sp-section" id="viirs-bowtie">
         <div class="sp-section-label">Zero-Shot Results</div>
         <h2 class="sp-section-title">Bowtie handling &amp; detection performance</h2>
 
@@ -225,7 +242,7 @@
       </div>
 
       <!-- ─── DATASET ───────────────────────────── -->
-      <div class="sp-section">
+      <div class="sp-section" id="viirs-dataset">
         <div class="sp-section-label">Data</div>
         <h2 class="sp-section-title">Labeled dataset</h2>
         <p class="sp-text">
@@ -313,7 +330,7 @@
       </div>
 
       <!-- ─── NEXT STEPS ─────────────────────────── -->
-      <div class="sp-section">
+      <div class="sp-section" id="viirs-next-steps">
         <div class="sp-section-label">In Progress</div>
         <h2 class="sp-section-title">Next steps</h2>
         <ul class="sp-text sp-list">
@@ -323,8 +340,10 @@
         </ul>
       </div>
 
-    </div>
-  </div>
+        </div><!-- /.sp-page-content -->
+      </div><!-- /.sp-page-layout -->
+    </div><!-- /.container -->
+  </div><!-- /.updates-page -->
 
   <footer>
     <p>Marlene V. Euchenhofer · MIT Laboratory for Aviation and the Environment · 2026</p>
@@ -628,15 +647,73 @@
 
       ctrl.append(ctrlLabel, sliderWrap, badge);
 
+      // Model selector row
+      const modelCtrl = document.createElement('div');
+      modelCtrl.className = 'thresh-modal-ctrl';
+
+      const modelLabel = document.createElement('span');
+      modelLabel.className = 'thresh-ctrl-label';
+      modelLabel.textContent = 'Model';
+
+      const modelSelect = document.createElement('select');
+      modelSelect.className = 'thresh-modal-select';
+      for (const { key, label } of MODELS) {
+        const opt = document.createElement('option');
+        opt.value = key;
+        opt.textContent = label;
+        if (key === selectedModel) opt.selected = true;
+        modelSelect.appendChild(opt);
+      }
+      modelCtrl.append(modelLabel, modelSelect);
+
+      // Channel selector row
+      const channelCtrl = document.createElement('div');
+      channelCtrl.className = 'thresh-modal-ctrl';
+
+      const channelLabel = document.createElement('span');
+      channelLabel.className = 'thresh-ctrl-label';
+      channelLabel.textContent = 'Channel';
+
+      const channelSelect = document.createElement('select');
+      channelSelect.className = 'thresh-modal-select';
+      for (const ch of CHANNELS) {
+        const opt = document.createElement('option');
+        opt.value = ch;
+        opt.textContent = ch;
+        if (ch === selectedChannel) opt.selected = true;
+        channelSelect.appendChild(opt);
+      }
+      channelCtrl.append(channelLabel, channelSelect);
+
       const hint = document.createElement('div');
       hint.className = 'thresh-modal-hint';
       hint.textContent = 'click outside or press Esc to close';
 
-      modal.append(header, canvas, ctrl, hint);
+      modal.append(header, canvas, ctrl, modelCtrl, channelCtrl, hint);
       backdrop.appendChild(modal);
       document.body.appendChild(backdrop);
 
       renderSceneToCanvas(canvas, sid);
+
+      modelSelect.addEventListener('change', () => {
+        selectedModel = modelSelect.value;
+        selectedRun   = RUN_KEYS[selectedModel][selectedChannel];
+        document.getElementById('viirs-model-pills').querySelectorAll('.thresh-pill').forEach(p =>
+          p.classList.toggle('active', p.dataset.model === selectedModel)
+        );
+        renderSceneToCanvas(canvas, sid);
+        render();
+      });
+
+      channelSelect.addEventListener('change', () => {
+        selectedChannel = channelSelect.value;
+        selectedRun     = RUN_KEYS[selectedModel][selectedChannel];
+        document.getElementById('viirs-channel-pills').querySelectorAll('.thresh-pill').forEach(p =>
+          p.classList.toggle('active', p.dataset.channel === selectedChannel)
+        );
+        renderSceneToCanvas(canvas, sid);
+        render();
+      });
 
       // Slider syncs threshold globally and re-renders both popup and main view
       sliderEl.addEventListener('input', () => {
@@ -734,6 +811,34 @@
     }
 
     document.addEventListener('DOMContentLoaded', init);
+  })();
+  </script>
+
+  <script>
+  (() => {
+    const SECTION_IDS = ['viirs-pipeline','viirs-channels','viirs-bowtie','viirs-dataset','viirs-threshold-explorer','viirs-next-steps'];
+    const navItems = {};
+    for (const id of SECTION_IDS) {
+      const el = document.querySelector(`.sp-sidenav-item[data-section="${id}"]`);
+      if (el) navItems[id] = el;
+    }
+
+    function updateActive() {
+      const scrollY = window.scrollY + window.innerHeight * 0.25;
+      let active = SECTION_IDS[0];
+      for (const id of SECTION_IDS) {
+        const sec = document.getElementById(id);
+        if (sec && sec.getBoundingClientRect().top + window.scrollY <= scrollY) active = id;
+      }
+      for (const [id, el] of Object.entries(navItems)) {
+        el.classList.toggle('active', id === active);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      updateActive();
+      window.addEventListener('scroll', updateActive, { passive: true });
+    });
   })();
   </script>
 </body>
