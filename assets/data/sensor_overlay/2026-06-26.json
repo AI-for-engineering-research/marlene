@@ -1,6 +1,7 @@
 {
   "date": "2026-06-26",
-  "generated_at_utc": "2026-06-26T20:06:11Z",
+  "generated_at_utc": "2026-06-26T20:57:40Z",
   "total_timesteps_with_detections": 0,
-  "timesteps": []
+  "timesteps": [],
+  "viirs_overpasses": []
 }
