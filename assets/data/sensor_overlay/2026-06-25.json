@@ -1,7 +1,73 @@
 {
   "date": "2026-06-25",
-  "generated_at_utc": "2026-06-26T20:55:15Z",
+  "generated_at_utc": "2026-06-29T15:18:44Z",
   "total_timesteps_with_detections": 0,
   "timesteps": [],
-  "viirs_overpasses": []
+  "viirs_overpasses": [
+    {
+      "time_utc": "2026-06-25 05:36:00",
+      "time_local": "2026-06-25 01:36:00",
+      "mcast_url": "https://mcast-lae.mit.edu/map?current_time=202606250536&layers=cnv&lon=-71.089236&lat=42.360442&zoom=7"
+    },
+    {
+      "time_utc": "2026-06-25 06:12:00",
+      "time_local": "2026-06-25 02:12:00",
+      "mcast_url": "https://mcast-lae.mit.edu/map?current_time=202606250612&layers=cnv&lon=-71.089236&lat=42.360442&zoom=7"
+    },
+    {
+      "time_utc": "2026-06-25 06:30:00",
+      "time_local": "2026-06-25 02:30:00",
+      "mcast_url": "https://mcast-lae.mit.edu/map?current_time=202606250630&layers=cnv&lon=-71.089236&lat=42.360442&zoom=7"
+    },
+    {
+      "time_utc": "2026-06-25 06:36:00",
+      "time_local": "2026-06-25 02:36:00",
+      "mcast_url": "https://mcast-lae.mit.edu/map?current_time=202606250636&layers=cnv&lon=-71.089236&lat=42.360442&zoom=7"
+    },
+    {
+      "time_utc": "2026-06-25 07:18:00",
+      "time_local": "2026-06-25 03:18:00",
+      "mcast_url": "https://mcast-lae.mit.edu/map?current_time=202606250718&layers=cnv&lon=-71.089236&lat=42.360442&zoom=7"
+    },
+    {
+      "time_utc": "2026-06-25 07:54:00",
+      "time_local": "2026-06-25 03:54:00",
+      "mcast_url": "https://mcast-lae.mit.edu/map?current_time=202606250754&layers=cnv&lon=-71.089236&lat=42.360442&zoom=7"
+    },
+    {
+      "time_utc": "2026-06-25 16:18:00",
+      "time_local": "2026-06-25 12:18:00",
+      "mcast_url": "https://mcast-lae.mit.edu/map?current_time=202606251618&layers=cnv&lon=-71.089236&lat=42.360442&zoom=7"
+    },
+    {
+      "time_utc": "2026-06-25 17:00:00",
+      "time_local": "2026-06-25 13:00:00",
+      "mcast_url": "https://mcast-lae.mit.edu/map?current_time=202606251700&layers=cnv&lon=-71.089236&lat=42.360442&zoom=7"
+    },
+    {
+      "time_utc": "2026-06-25 17:06:00",
+      "time_local": "2026-06-25 13:06:00",
+      "mcast_url": "https://mcast-lae.mit.edu/map?current_time=202606251706&layers=cnv&lon=-71.089236&lat=42.360442&zoom=7"
+    },
+    {
+      "time_utc": "2026-06-25 17:36:00",
+      "time_local": "2026-06-25 13:36:00",
+      "mcast_url": "https://mcast-lae.mit.edu/map?current_time=202606251736&layers=cnv&lon=-71.089236&lat=42.360442&zoom=7"
+    },
+    {
+      "time_utc": "2026-06-25 17:54:00",
+      "time_local": "2026-06-25 13:54:00",
+      "mcast_url": "https://mcast-lae.mit.edu/map?current_time=202606251754&layers=cnv&lon=-71.089236&lat=42.360442&zoom=7"
+    },
+    {
+      "time_utc": "2026-06-25 18:00:00",
+      "time_local": "2026-06-25 14:00:00",
+      "mcast_url": "https://mcast-lae.mit.edu/map?current_time=202606251800&layers=cnv&lon=-71.089236&lat=42.360442&zoom=7"
+    },
+    {
+      "time_utc": "2026-06-25 18:42:00",
+      "time_local": "2026-06-25 14:42:00",
+      "mcast_url": "https://mcast-lae.mit.edu/map?current_time=202606251842&layers=cnv&lon=-71.089236&lat=42.360442&zoom=7"
+    }
+  ]
 }
