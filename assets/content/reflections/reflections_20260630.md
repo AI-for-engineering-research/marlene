@@ -1,0 +1,7 @@
+# @agent - please clean up and make look nicer
+- Lots of rapid progress and learning this week. I was actively trying to eductae myself (with the help of the agent) about the ML work flow and build a better understanding of what is going on. The visual workflow helped a lot, especially the second one that was more high-level.
+- It was also helpful to just paste figures from the notebooks into the terminal and ask the agent to confirm my conclusions.
+- I really like the interactive results viewer, it was one of the aspects I was most excited about setting up throughout the week.
+- I dove into the next spotlight, this time not as much from scratch but based on docuemntation and a framework that Prashanth has already started setting up. At the same time, I was working on a side quest =, which is another aspect of my summer goals (a sensot availability overlay tool that shouls also be interactive).
+- I was therefore workign with multiple agents in multiple terminals and different repos at the same time, and sometimes several agents in the same repo but one just to read files and explain output. This required a lot of mental bandwidth for keeping traack of what agent/session did what (I anmed my terminals by task).
+- __1:2__ - that was painful. Instead of celebrating I finished my viirs detection fine-tuning results viewer!
