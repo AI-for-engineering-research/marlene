@@ -1,61 +1,52 @@
 {
   "date": "2026-06-28",
-  "generated_at_utc": "2026-06-29T13:18:42Z",
+  "generated_at_utc": "2026-06-29T14:09:06Z",
   "total_timesteps_with_detections": 0,
   "timesteps": [],
   "viirs_overpasses": [
     {
       "time_utc": "2026-06-28 05:36:00",
       "time_local": "2026-06-28 01:36:00",
-      "abi_pixels_in_fov": null,
       "mcast_url": "https://mcast-lae.mit.edu/map?current_time=202606280536&layers=cnv&lon=-71.089236&lat=42.360442&zoom=7"
     },
     {
       "time_utc": "2026-06-28 06:24:00",
       "time_local": "2026-06-28 02:24:00",
-      "abi_pixels_in_fov": null,
       "mcast_url": "https://mcast-lae.mit.edu/map?current_time=202606280624&layers=cnv&lon=-71.089236&lat=42.360442&zoom=7"
     },
     {
       "time_utc": "2026-06-28 07:00:00",
       "time_local": "2026-06-28 03:00:00",
-      "abi_pixels_in_fov": null,
       "mcast_url": "https://mcast-lae.mit.edu/map?current_time=202606280700&layers=cnv&lon=-71.089236&lat=42.360442&zoom=7"
     },
     {
       "time_utc": "2026-06-28 07:18:00",
       "time_local": "2026-06-28 03:18:00",
-      "abi_pixels_in_fov": null,
       "mcast_url": "https://mcast-lae.mit.edu/map?current_time=202606280718&layers=cnv&lon=-71.089236&lat=42.360442&zoom=7"
     },
     {
       "time_utc": "2026-06-28 16:42:00",
       "time_local": "2026-06-28 12:42:00",
-      "abi_pixels_in_fov": null,
       "mcast_url": "https://mcast-lae.mit.edu/map?current_time=202606281642&layers=cnv&lon=-71.089236&lat=42.360442&zoom=7"
     },
     {
       "time_utc": "2026-06-28 17:00:00",
       "time_local": "2026-06-28 13:00:00",
-      "abi_pixels_in_fov": null,
       "mcast_url": "https://mcast-lae.mit.edu/map?current_time=202606281700&layers=cnv&lon=-71.089236&lat=42.360442&zoom=7"
     },
     {
       "time_utc": "2026-06-28 17:48:00",
       "time_local": "2026-06-28 13:48:00",
-      "abi_pixels_in_fov": null,
       "mcast_url": "https://mcast-lae.mit.edu/map?current_time=202606281748&layers=cnv&lon=-71.089236&lat=42.360442&zoom=7"
     },
     {
       "time_utc": "2026-06-28 18:24:00",
       "time_local": "2026-06-28 14:24:00",
-      "abi_pixels_in_fov": null,
       "mcast_url": "https://mcast-lae.mit.edu/map?current_time=202606281824&layers=cnv&lon=-71.089236&lat=42.360442&zoom=7"
     },
     {
       "time_utc": "2026-06-28 18:42:00",
       "time_local": "2026-06-28 14:42:00",
-      "abi_pixels_in_fov": null,
       "mcast_url": "https://mcast-lae.mit.edu/map?current_time=202606281842&layers=cnv&lon=-71.089236&lat=42.360442&zoom=7"
     }
   ]
