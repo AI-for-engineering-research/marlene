@@ -8,6 +8,253 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <style>
+    /* ── Sensor overview table ───────────────────────── */
+    .so-sensor-table {
+      width: 100%;
+      max-width: 760px;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+      margin-top: 1.5rem;
+    }
+    .so-sensor-table th {
+      font-size: 0.68rem;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--ink-muted);
+      text-align: left;
+      padding: 0.4rem 0.75rem 0.4rem 0;
+      border-bottom: 1px solid var(--glass-border);
+    }
+    .so-sensor-table td {
+      padding: 0.65rem 0.75rem 0.65rem 0;
+      color: var(--ink-soft);
+      line-height: 1.5;
+      border-bottom: 1px solid rgba(123,191,221,0.15);
+      vertical-align: top;
+    }
+    .so-sensor-table tr:last-child td { border-bottom: none; }
+    /* ── Sensor dots in table ───────────────────────── */
+    .so-sensor-table .sensor-dot {
+      display: inline-block;
+      vertical-align: middle;
+      margin-bottom: 0;
+      margin-right: 0.4rem;
+      position: relative;
+      top: -1px;
+    }
+
+    /* ── Coverage map ────────────────────────────────── */
+    #so-fov-map {
+      height: 340px;
+      border-radius: var(--radius);
+      border: 1px solid var(--glass-border);
+      margin-bottom: 0.75rem;
+    }
+
+    /* ── Timeline legend ─────────────────────────────── */
+    .so-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .so-legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      font-size: 0.75rem;
+      color: var(--ink-soft);
+    }
+    .so-legend-swatch {
+      width: 22px;
+      height: 10px;
+      border-radius: 3px;
+      flex-shrink: 0;
+    }
+    .so-legend-tick {
+      width: 4px;
+      height: 12px;
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
+
+    /* ── Date pills row ──────────────────────────────── */
+    .so-date-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 1.75rem;
+    }
+
+    /* ── Timeline container ──────────────────────────── */
+    .so-timeline {
+      margin-bottom: 1rem;
+    }
+    .so-sensor-row {
+      display: grid;
+      grid-template-columns: 90px 1fr;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 0.55rem;
+    }
+    .so-sensor-label {
+      font-size: 0.7rem;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--ink-muted);
+      text-align: right;
+    }
+
+    /* Always-on bar */
+    .so-bar-track {
+      position: relative;
+      height: 18px;
+      border-radius: 4px;
+    }
+    .so-bar-fill {
+      position: absolute;
+      inset: 0;
+      border-radius: 4px;
+    }
+
+    /* ABI detection mark on top of bar */
+    .so-detection-mark {
+      position: absolute;
+      top: 0;
+      width: 3px;
+      height: 18px;
+      border-radius: 2px;
+      transform: translateX(-50%);
+      cursor: pointer;
+      transition: opacity 0.15s;
+      z-index: 1;
+    }
+    .so-detection-mark:hover { opacity: 0.75; }
+
+    /* VIIRS sparse tick row */
+    .so-viirs-track {
+      position: relative;
+      height: 18px;
+    }
+    .so-tick {
+      position: absolute;
+      top: 0;
+      width: 4px;
+      height: 18px;
+      border-radius: 2px;
+      transform: translateX(-50%);
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    .so-tick:hover { opacity: 0.7; }
+
+    /* Time axis */
+    .so-axis {
+      display: grid;
+      grid-template-columns: 90px 1fr;
+      gap: 0.75rem;
+      margin-top: 0.3rem;
+      margin-bottom: 0.5rem;
+    }
+    .so-axis-labels {
+      position: relative;
+      height: 16px;
+    }
+    .so-axis-label {
+      position: absolute;
+      font-size: 0.63rem;
+      color: var(--ink-muted);
+      transform: translateX(-50%);
+      white-space: nowrap;
+    }
+    .so-axis-label:first-child { transform: translateX(0); }
+    .so-axis-label:last-child  { transform: translateX(-100%); }
+
+    /* Timezone labels on axis rows */
+    .so-axis-tz-label {
+      font-size: 0.62rem;
+      font-weight: 600;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: var(--ink-muted);
+      text-align: right;
+      line-height: 16px;
+    }
+    .so-axis-note {
+      font-size: 0.6rem;
+      color: var(--ink-muted);
+      font-style: italic;
+    }
+    .so-axis-et {
+      margin-top: 0.2rem;
+      margin-bottom: 0.1rem;
+    }
+
+    /* Inline status note under timeline */
+    .so-summary {
+      font-size: 0.8rem;
+      color: var(--ink-muted);
+      font-style: italic;
+      margin-top: 0.25rem;
+    }
+
+    /* ── Tooltip ─────────────────────────────────────── */
+    .so-tooltip {
+      position: fixed;
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 8px;
+      padding: 0.5rem 0.85rem;
+      font-size: 0.78rem;
+      line-height: 1.65;
+      color: var(--ink);
+      pointer-events: auto;
+      box-shadow: var(--shadow);
+      z-index: 9000;
+      display: none;
+      max-width: 240px;
+      backdrop-filter: blur(8px);
+    }
+    .so-tooltip-title {
+      font-weight: 500;
+      margin-bottom: 0.15rem;
+    }
+    .so-tooltip-hint {
+      display: block;
+      margin-top: 0.3rem;
+      font-size: 0.7rem;
+      color: var(--sky-deep);
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .so-tooltip-hint:hover {
+      text-decoration: underline;
+    }
+
+    /* ── What's Next list ────────────────────────────── */
+    .so-next-list {
+      list-style: none;
+      padding: 0;
+      max-width: 760px;
+    }
+    .so-next-list li {
+      padding: 0.8rem 0;
+      border-bottom: 1px solid rgba(123,191,221,0.15);
+      font-size: 0.9rem;
+      color: var(--ink-soft);
+      line-height: 1.65;
+    }
+    .so-next-list li:last-child { border-bottom: none; }
+    .so-next-list strong {
+      color: var(--ink);
+      font-weight: 500;
+    }
+  </style>
 </head>
 <body>
 
@@ -46,16 +293,430 @@
 
       <!-- ─── INTRO ─────────────────────────────── -->
       <p class="sp-intro">
-        No single sensor captures the full picture of a contrail formation an persistence. Geostationary satellites offer temporal continuity; low-Earth orbiters provide sharper spatial detail over still large spatial coverage; ground cameras give a direct visual reference at time of formation; lidars resolve the vertical structure and ice crystal properties; and radiosondes characterize the atmospheric conditions that govern persistence. Overlaying these sources onto a shared coordinate frame makes it possible to identify the same contrail across instruments and link its observable properties to the underlying meteorology. As a starting point, this tool shows the availability of data form various sensors over the MIT Sky Camera for the past seven days.
+        No single sensor captures the full picture of a contrail's formation and persistence. Geostationary satellites offer temporal continuity; low-Earth orbiters provide sharper spatial detail across large spatial coverage; ground cameras give a direct visual reference at the time of formation; lidars resolve the vertical structure and ice crystal properties; and radiosondes characterize the atmospheric conditions that govern persistence. Overlaying these sources onto a shared coordinate frame makes it possible to identify the same contrail across instruments and link its observable properties to the underlying meteorology. As a starting point, this tool shows the availability of data from various sensors over the MIT Sky Camera for the past seven days.
       </p>
 
-    </div>
-  </div>
+      <div class="sp-page-layout">
+
+        <!-- Sticky side-nav -->
+        <nav class="sp-sidenav" aria-label="Page sections">
+          <ul class="sp-sidenav-list">
+            <li><a href="#so-overview"     class="sp-sidenav-item" data-section="so-overview">Overview</a></li>
+            <li><a href="#so-coverage"     class="sp-sidenav-item" data-section="so-coverage">Coverage Map</a></li>
+            <li><a href="#so-availability" class="sp-sidenav-item" data-section="so-availability">Availability</a></li>
+            <li><a href="#so-next"         class="sp-sidenav-item" data-section="so-next">What's Next</a></li>
+          </ul>
+        </nav>
+
+        <!-- Main content -->
+        <div class="sp-page-content">
+
+          <!-- ─── OVERVIEW ──────────────────────────────── -->
+          <div class="sp-section" id="so-overview">
+            <div class="sp-section-label">Overview</div>
+            <h2 class="sp-section-title">Currently included sensors</h2>
+            <p class="sp-text">
+              The tool currently integrates three observation sources. Each covers a different spatial and temporal scale, and together they form the foundation of the multi-sensor observational framework.
+            </p>
+            <table class="so-sensor-table">
+              <thead>
+                <tr>
+                  <th>Sensor</th>
+                  <th>Platform</th>
+                  <th>Cadence</th>
+                  <th>Coverage</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><span class="sensor-dot ground"></span>MIT Sky Camera</td>
+                  <td>Ground (MIT campus)</td>
+                  <td>Continuous</td>
+                  <td>Fisheye hemispheric sky view; always on</td>
+                </tr>
+                <tr>
+                  <td><span class="sensor-dot geo"></span>GOES ABI</td>
+                  <td>Geostationary (GOES-16/18)</td>
+                  <td>5-minute CONUS</td>
+                  <td>Full eastern US; mcast contrail detections filtered to camera FOV</td>
+                </tr>
+                <tr>
+                  <td><span class="sensor-dot leo"></span>VIIRS</td>
+                  <td>Low-Earth orbit (Suomi-NPP, NOAA-20/21)</td>
+                  <td>~14 orbits / day</td>
+                  <td>750 m resolution swath; overpasses over camera FOV logged</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- ─── COVERAGE MAP ───────────────────────────── -->
+          <div class="sp-section" id="so-coverage">
+            <div class="sp-section-label">Coverage Map</div>
+            <h2 class="sp-section-title">Camera field of view</h2>
+            <p class="sp-text">
+              The shaded region shows the 50 km radius footprint used to filter sensor data. VIIRS overpasses and ABI detections are included in the availability record only when they fall within this area, centered on the MIT Sky Camera.
+            </p>
+            <div id="so-fov-map"></div>
+            <p class="sp-caption">MIT Sky Camera 50 km FOV. Basemap: CartoDB Positron / OpenStreetMap contributors.</p>
+          </div>
+
+          <!-- ─── DATA AVAILABILITY ─────────────────────── -->
+          <div class="sp-section" id="so-availability">
+            <div class="sp-section-label">Data Availability</div>
+            <h2 class="sp-section-title">Sensor timeline</h2>
+            <p class="sp-text">
+              Select a date to see the 24-hour UTC sensor record. Continuous bars indicate always-on instruments. VIIRS overpasses and ABI detections appear as individual markers — click any to open the corresponding mcast view. Times are shown in UTC and Eastern (ET).
+            </p>
+
+            <div class="so-legend">
+              <div class="so-legend-item">
+                <div class="so-legend-swatch" style="background:#4a9068;opacity:0.45"></div>
+                <span>MIT Sky Camera (always on)</span>
+              </div>
+              <div class="so-legend-item">
+                <div class="so-legend-swatch" style="background:#4a9abe;opacity:0.35"></div>
+                <span>GOES ABI (always on)</span>
+              </div>
+              <div class="so-legend-item">
+                <div class="so-legend-tick" style="background:#4a9abe"></div>
+                <span>ABI detection (currently unavailable)</span>
+              </div>
+              <div class="so-legend-item">
+                <div class="so-legend-tick" style="background:#6b4fa8"></div>
+                <span>VIIRS overpass</span>
+              </div>
+            </div>
+
+            <div class="so-date-pills" id="so-date-pills"></div>
+            <div class="so-timeline" id="so-timeline"></div>
+            <p class="so-summary" id="so-summary"></p>
+          </div>
+
+          <!-- ─── WHAT'S NEXT ────────────────────────────── -->
+          <div class="sp-section" id="so-next">
+            <div class="sp-section-label">What's Next</div>
+            <h2 class="sp-section-title">Upcoming sensors</h2>
+            <p class="sp-text">
+              The following observation sources are in preparation and will be added to the overlay tool as data pipelines are finalized.
+            </p>
+            <ul class="so-next-list">
+              <li>
+                <strong>Radiosondes — WindBorne Systems &amp; GRUAN.</strong>
+                Atmospheric profiles from WindBorne drifting balloon soundings and the GCOS Reference Upper-Air Network (GRUAN) will provide vertical temperature and humidity structure to characterize the atmospheric state at contrail formation times. Advected sounding positions will be shown in the spatial overlay.
+              </li>
+              <li>
+                <strong>EarthCARE.</strong>
+                Swath overpasses from ESA's EarthCARE satellite (launched 2024) will contribute collocated lidar profiles of ice cloud vertical structure, including potential contrail detections in the vertical dimension.
+              </li>
+              <li>
+                <strong>VIIRS detections.</strong>
+                Contrail detections derived from VIIRS imagery will be added as individual markers on the VIIRS overpass row, analogous to the ABI detection marks already shown for GOES. Where a VIIRS overpass coincides with a known contrail, the detection will link to the corresponding imagery.
+              </li>
+              <li>
+                <strong>AMDAR / IAGOS flight tracks.</strong>
+                Aircraft Meteorological Data Relay (AMDAR) and IAGOS in-situ measurements from commercial aircraft will supply flight-level atmospheric observations, helping link the meteorological environment to contrail observable properties.
+              </li>
+            </ul>
+          </div>
+
+        </div><!-- /.sp-page-content -->
+      </div><!-- /.sp-page-layout -->
+
+    </div><!-- /.container -->
+  </div><!-- /.updates-page -->
+
+  <div class="so-tooltip" id="so-tooltip"></div>
 
   <footer>
     <p>Marlene V. Euchenhofer · MIT Laboratory for Aviation and the Environment · 2026</p>
   </footer>
 
   <script src="../script.js"></script>
+
+  <script>
+  /* ── Sidenav scroll spy ──────────────────────────────────────────────────── */
+  (() => {
+    const SECTION_IDS = ['so-overview', 'so-coverage', 'so-availability', 'so-next'];
+    const navItems = {};
+    for (const id of SECTION_IDS) {
+      const el = document.querySelector(`.sp-sidenav-item[data-section="${id}"]`);
+      if (el) navItems[id] = el;
+    }
+    function updateActive() {
+      const scrollY = window.scrollY + window.innerHeight * 0.25;
+      let active = SECTION_IDS[0];
+      for (const id of SECTION_IDS) {
+        const sec = document.getElementById(id);
+        if (sec && sec.getBoundingClientRect().top + window.scrollY <= scrollY) active = id;
+      }
+      for (const [id, el] of Object.entries(navItems)) {
+        el.classList.toggle('active', id === active);
+      }
+    }
+    window.addEventListener('scroll', updateActive, { passive: true });
+    updateActive();
+  })();
+
+  /* ── Leaflet FOV map ─────────────────────────────────────────────────────── */
+  (() => {
+    const map = L.map('so-fov-map', {
+      center: [42.3601, -71.0942],
+      zoom: 8,
+      scrollWheelZoom: false
+    });
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+      maxZoom: 13
+    }).addTo(map);
+    fetch('../assets/data/sensor_overlay/camera_fov_50km.json')
+      .then(r => r.json())
+      .then(geojson => {
+        L.geoJSON(geojson, {
+          style: { color: '#4a9068', weight: 2, fillColor: '#4a9068', fillOpacity: 0.12 }
+        }).addTo(map);
+        L.circleMarker([42.3601, -71.0942], {
+          radius: 5, color: '#4a9068', fillColor: '#4a9068', fillOpacity: 1, weight: 2
+        }).bindTooltip('MIT Sky Camera', { permanent: false }).addTo(map);
+      });
+  })();
+
+  /* ── Sensor timeline ─────────────────────────────────────────────────────── */
+  (() => {
+    const DATA_BASE   = '../assets/data/sensor_overlay/';
+    const COLOR_CAM   = '#4a9068';
+    const COLOR_ABI   = '#4a9abe';
+    const COLOR_VIIRS = '#6b4fa8';
+
+    const tooltip    = document.getElementById('so-tooltip');
+    const pillsEl    = document.getElementById('so-date-pills');
+    const timelineEl = document.getElementById('so-timeline');
+    const summaryEl  = document.getElementById('so-summary');
+
+    /* ── Tooltip helpers ──────────────────────────────────────────────────── */
+    let _tipTimer = null;
+    function showTip(e, html) {
+      if (_tipTimer) { clearTimeout(_tipTimer); _tipTimer = null; }
+      tooltip.innerHTML = html;
+      tooltip.style.display = 'block';
+      moveTip(e);
+    }
+    function moveTip(e) {
+      const pad = 14, w = 250, h = 100;
+      let x = e.clientX + pad, y = e.clientY + pad;
+      if (x + w > window.innerWidth)  x = e.clientX - w - pad;
+      if (y + h > window.innerHeight) y = e.clientY - h - pad;
+      tooltip.style.left = x + 'px';
+      tooltip.style.top  = y + 'px';
+    }
+    function hideTip() {
+      _tipTimer = setTimeout(() => { tooltip.style.display = 'none'; _tipTimer = null; }, 160);
+    }
+    tooltip.addEventListener('mouseenter', () => { if (_tipTimer) { clearTimeout(_tipTimer); _tipTimer = null; } });
+    tooltip.addEventListener('mouseleave', () => { tooltip.style.display = 'none'; });
+
+    /* ── Time helpers ─────────────────────────────────────────────────────── */
+    function toFraction(timeStr) {
+      const t = timeStr.trim().split(' ').pop();
+      const [h, m] = t.split(':').map(Number);
+      return (h * 60 + m) / 1440;
+    }
+    function fmtTime(timeStr) {
+      return timeStr.trim().split(' ').pop().slice(0, 5);
+    }
+
+    /* ── Build a clickable element ────────────────────────────────────────── */
+    function attachInteraction(el, tipHtml, url) {
+      el.addEventListener('mouseenter', e => showTip(e, tipHtml));
+      el.addEventListener('mousemove',  moveTip);
+      el.addEventListener('mouseleave', hideTip);
+      if (url) {
+        el.style.cursor = 'pointer';
+        el.addEventListener('click', () => window.open(url, '_blank', 'noopener'));
+      }
+    }
+
+    /* ── Row builders ─────────────────────────────────────────────────────── */
+    function makeRow(labelText) {
+      const row = document.createElement('div');
+      row.className = 'so-sensor-row';
+      const lbl = document.createElement('div');
+      lbl.className = 'so-sensor-label';
+      lbl.textContent = labelText;
+      row.appendChild(lbl);
+      return row;
+    }
+
+    function buildAlwaysOnRow(label, color, opacity, marks) {
+      const row   = makeRow(label);
+      const track = document.createElement('div');
+      track.className = 'so-bar-track';
+      const fill = document.createElement('div');
+      fill.className = 'so-bar-fill';
+      fill.style.background = color;
+      fill.style.opacity = opacity;
+      track.appendChild(fill);
+
+      for (const m of marks) {
+        const mark = document.createElement('div');
+        mark.className = 'so-detection-mark';
+        mark.style.left       = (m.frac * 100) + '%';
+        mark.style.background = color;
+        const tip = `<div class="so-tooltip-title">ABI Detection</div>
+          <div>${m.utc} UTC / ${m.local ? m.local + ' ET' : '—'}</div>
+          ${m.url ? `<a class="so-tooltip-hint" href="${m.url}" target="_blank" rel="noopener">Open in mcast →</a>` : ''}`;
+        attachInteraction(mark, tip, m.url);
+        track.appendChild(mark);
+      }
+      row.appendChild(track);
+      return row;
+    }
+
+    function buildViirsRow(label, color, marks) {
+      const row   = makeRow(label);
+      const track = document.createElement('div');
+      track.className = 'so-viirs-track';
+
+      for (const m of marks) {
+        const tick = document.createElement('div');
+        tick.className = 'so-tick';
+        tick.style.left       = (m.frac * 100) + '%';
+        tick.style.background = color;
+        const tip = `<div class="so-tooltip-title">VIIRS Overpass</div>
+          <div>${m.utc} UTC / ${m.local} ET</div>
+          ${m.url ? `<a class="so-tooltip-hint" href="${m.url}" target="_blank" rel="noopener">Open in mcast →</a>` : ''}`;
+        attachInteraction(tick, tip, m.url);
+        track.appendChild(tick);
+      }
+      row.appendChild(track);
+      return row;
+    }
+
+    function getETOffset(dateStr) {
+      try {
+        const d = new Date((dateStr || '2026-01-01') + 'T12:00:00Z');
+        const fmt = new Intl.DateTimeFormat('en-US', {
+          timeZone: 'America/New_York', hour: 'numeric', hour12: false
+        });
+        const h = parseInt(fmt.format(d));
+        return (h === 24 ? 0 : h) - 12;
+      } catch { return -4; }
+    }
+
+    function buildAxis(dateStr) {
+      const wrapper = document.createElement('div');
+      const HOURS = [0, 3, 6, 9, 12, 15, 18, 21, 24];
+      const etOffset = getETOffset(dateStr);
+      const tzLabel  = etOffset === -5 ? 'EST' : 'EDT';
+
+      function makeAxisRow(tzName, labelFn, extraClass) {
+        const row = document.createElement('div');
+        row.className = 'so-axis' + (extraClass ? ' ' + extraClass : '');
+        const tzLbl = document.createElement('div');
+        tzLbl.className = 'so-axis-tz-label';
+        tzLbl.textContent = tzName;
+        row.appendChild(tzLbl);
+        const labelsCt = document.createElement('div');
+        labelsCt.className = 'so-axis-labels';
+        for (const h of HOURS) {
+          const lbl = document.createElement('span');
+          lbl.className = 'so-axis-label';
+          lbl.style.left = (h / 24 * 100) + '%';
+          lbl.textContent = labelFn(h);
+          labelsCt.appendChild(lbl);
+        }
+        row.appendChild(labelsCt);
+        return row;
+      }
+
+      wrapper.appendChild(makeAxisRow('UTC', h =>
+        String(h).padStart(2, '0') + ':00'
+      ));
+
+      let hasPrevDay = false;
+      wrapper.appendChild(makeAxisRow(tzLabel, h => {
+        const etH = ((h + etOffset) % 24 + 24) % 24;
+        const prev = (h + etOffset) < 0;
+        if (prev) hasPrevDay = true;
+        return String(etH).padStart(2, '0') + ':00' + (prev ? '*' : '');
+      }, 'so-axis-et'));
+
+      if (hasPrevDay) {
+        const noteRow = document.createElement('div');
+        noteRow.className = 'so-axis';
+        noteRow.style.marginTop = '0.1rem';
+        noteRow.style.marginBottom = '0.25rem';
+        noteRow.innerHTML = '<div></div>';
+        const note = document.createElement('div');
+        note.className = 'so-axis-note';
+        note.textContent = '* previous calendar day in ' + tzLabel;
+        noteRow.appendChild(note);
+        wrapper.appendChild(noteRow);
+      }
+
+      return wrapper;
+    }
+
+    /* ── Render timeline for a loaded day ────────────────────────────────── */
+    function renderDay(data) {
+      timelineEl.innerHTML = '';
+
+      const abiMarks = (data.timesteps || []).map(ts => ({
+        frac:  toFraction(ts.time_utc || ts.time),
+        utc:   fmtTime(ts.time_utc || ts.time),
+        local: ts.time_local ? fmtTime(ts.time_local) : null,
+        url:   ts.mcast_url || null
+      }));
+
+      const viirsMarks = (data.viirs_overpasses || []).map(op => ({
+        frac:  toFraction(op.time_utc),
+        utc:   fmtTime(op.time_utc),
+        local: fmtTime(op.time_local),
+        url:   op.mcast_url || null
+      }));
+
+      timelineEl.appendChild(buildAlwaysOnRow('MIT Camera', COLOR_CAM, 0.45, []));
+      timelineEl.appendChild(buildAlwaysOnRow('GOES ABI',   COLOR_ABI, 0.35, abiMarks));
+      timelineEl.appendChild(buildViirsRow('VIIRS', COLOR_VIIRS, viirsMarks));
+      timelineEl.appendChild(buildAxis(data.date));
+
+      const vCount = viirsMarks.length;
+      const aCount = abiMarks.length;
+      const parts  = [];
+      if (vCount > 0) parts.push(`${vCount} VIIRS overpass${vCount === 1 ? '' : 'es'}`);
+      else            parts.push('no VIIRS overpasses');
+      if (aCount > 0) parts.push(`${aCount} ABI detection${aCount === 1 ? '' : 's'}`);
+      else            parts.push('no ABI detections');
+      summaryEl.textContent = `${data.date}: ${parts.join(', ')} over camera FOV.`;
+    }
+
+    /* ── Load date ───────────────────────────────────────────────────────── */
+    async function loadDate(date) {
+      pillsEl.querySelectorAll('.thresh-pill').forEach(p =>
+        p.classList.toggle('active', p.dataset.date === date)
+      );
+      const data = await fetch(`${DATA_BASE}${date}.json`).then(r => r.json());
+      renderDay(data);
+    }
+
+    /* ── Init ────────────────────────────────────────────────────────────── */
+    async function init() {
+      const index = await fetch(`${DATA_BASE}index.json`).then(r => r.json());
+      const dates = index.available_dates || [];
+      for (const date of dates) {
+        const btn = document.createElement('button');
+        btn.className  = 'thresh-pill';
+        btn.dataset.date = date;
+        btn.textContent  = date;
+        btn.addEventListener('click', () => loadDate(date));
+        pillsEl.appendChild(btn);
+      }
+      if (dates.length > 0) await loadDate(dates[dates.length - 1]);
+    }
+
+    document.addEventListener('DOMContentLoaded', init);
+  })();
+  </script>
+
 </body>
 </html>
