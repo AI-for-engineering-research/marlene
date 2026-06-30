@@ -43,6 +43,42 @@
         <p class="section-sub">A running log of weekly progress notes and reflections on working with AI tools for research.</p>
       </div>
 
+      <!-- ─── WEEK 5 ─────────────────────────────── -->
+      <div class="update-entry" id="update-20260630">
+        <div class="update-entry-meta">
+          <span class="update-type update-type--update">AI Log</span>
+          <span class="update-date">June 30, 2026</span>
+        </div>
+        <h2>Week 5</h2>
+        <ul>
+          <li>Reached a temporary stopping point for the VIIRS detection spotlight; identified potential for improvement and fine-tuned the segmentation head.</li>
+          <li>Worked on the VIIRS detection progress overview page, which now has an interactive viewer of the detection results for the old, new, and new-finetuned models.</li>
+          <li>Added walkthroughs to explain fine-tuning (more of a coding walkthrough) and the ML model (more of a high-level walkthrough) using Prashanth's <code>/visual-walkthrough</code> skill, but adjusted to my personal preferences (especially for the second walkthrough) and to better fit my website design.</li>
+          <li>Started working on the WindBorne data (very early stage), taking over what Prashanth has started setting up. The agent helped get a (partial) overview of the vast amount of data and put my ideas for downloading and analyzing the data in place — both regarding sonde movement (which I set up from scratch) and climatology (built on a framework Prashanth already started setting up).</li>
+          <li>At the same time, started working on a visual/interactive sensor overlay tool for the website to show measurement availability over the MIT camera FOV for the past seven days.</li>
+          <li>Set up different <code>cronjobs</code> that run in the morning to look in the MIT camera FOV for ABI detections (MCAST pipeline currently down, so always none), VIIRS overpasses, and soon WindBorne soundings. Another <code>cronjob</code> updates the website to add the previous day's data and remove the oldest day. This job automatically pushes to the website.</li>
+        </ul>
+      </div>
+
+      <div class="update-entry" id="reflection-20260630">
+        <div class="update-entry-meta">
+          <span class="update-type update-type--reflection">Reflection</span>
+          <span class="update-date">June 30, 2026</span>
+        </div>
+        <h2>Week 5</h2>
+        <ul>
+          <li>Lots of rapid progress and learning this week. I was actively trying to educate myself (with the help of the agent) about the ML workflow and build a better understanding of what is going on. The visual walkthroughs helped a lot, especially the second one, which was more high-level.</li>
+          <li>It was also helpful to just paste figures from the notebooks into the terminal and ask the agent to confirm and expand on the conclusions to which I came.</li>
+          <li>I really like the interactive results viewer — it was one of the aspects I was most excited about setting up last the week.</li>
+          <li>I dove into the next spotlight, this time not as much from scratch but based on documentation and a framework that Prashanth has already started setting up. At the same time, I was working on a side quest, which is another aspect of my summer goals: a sensor availability overlay tool that should also be interactive.</li>
+          <li>I was therefore working with multiple agents in multiple terminals and different repos at the same time, and sometimes several agents in the same repo, with one just reading files and explaining output. This required a lot of mental bandwidth for keeping track of what agent/session did what (I named my terminals by task, which helps quite a bit).</li>
+          <li><span id="soccerGerEcu" style="cursor:pointer;font-weight:600;border-bottom:1px dashed currentColor;" title="Click me!">2:1</span> — that was painful. Instead of celebrating, I finished my VIIRS detection fine-tuning results viewer!</li>
+          <li>As recommended during the last meeting, I am trying to break up tasks before starting a session with an agent. I usually write my tasks down in a more step-by-step manner to avoid having sessions explode.</li>
+          <li>The agent was super helpful in figuring out the live updates for my website (daily scripts running and pushing to git via <code>cronjobs</code>).</li>
+          <li><span id="soccerGerPar" style="cursor:pointer;font-weight:600;border-bottom:1px dashed currentColor;" title="Click me!">1:1 (3:4)</span> — that was more intense than what I imagine it feels like to have ten parallel agentic coding sessions at once for three hours straight!</li>
+        </ul>
+      </div>
+
       <!-- ─── WEEK 4 ─────────────────────────────── -->
       <div class="update-entry" id="update-20260623">
         <div class="update-entry-meta">
@@ -73,7 +109,7 @@
         <h2>Week 4</h2>
         <ul>
           <li>Adding the research progress pages was on my Week 3 wishlist — it's done now. Giving the agent source material with loose design instructions instead of specifying every detail; the agent made good layout choices on its own.</li>
-          <li>However, the agent at first really struggeled with replicting the flowchart I shared in a way that looks tidy. Updating arrow lengths and positions took multiple repetitions but adding screenshots with red scribbling of whated I want seemed to work eventually (see session transcript under AI log). <i>Note: The agent initially deleted this "criticism" comment when I asked it to add my latest ai og and reflections to teh website...</i></li>
+          <li>However, the agent at first really struggeled with replicting the flowchart I shared in a way that looks tidy. Updating arrow lengths and positions took multiple repetitions but adding screenshots with red scribbling of whated I want seemed to work eventually (see session transcript under AI log). <i>Note: The agent initially deleted this "criticism" comment when I asked it to add my latest ai log and reflections to the website...</i></li>
           <li>Parallel work between the agent and me felt natural this week. The rhythm of the agent making a structural pass, me adjusting content, and the agent incorporating feedback is working well.</li>
           <li>Providing extra documentation upfront — READMEs, notebooks — for both model variants was the right call. It meant I didn't have to dig into re-explain asset structures at every step, and the agent could reason about the two models independently.</li>
           <li>Opening my Jupyter notebook from Ubuntu in VS code using <code>code [...].ipynb</code> for some reason always results in the notebook not actually running but only preparing to run in VS Code. I do not yet understand why.</li>
@@ -467,6 +503,8 @@ clearly.</code></pre>
 
     document.querySelectorAll('#soccerGerCur').forEach(el => makeEmojiRain(el, ['⚽', '🇩🇪', '🇨🇼']));
     makeEmojiRain(document.getElementById('soccerGerCiv'), ['🇩🇪', '🇨🇮', '🫣']);
+    makeEmojiRain(document.getElementById('soccerGerEcu'), ['🇩🇪', '🇪🇨', '🤦‍♀️']);
+    makeEmojiRain(document.getElementById('soccerGerPar'), ['🇩🇪', '🇵🇾', '😱']);
 
     (function () {
       const modal     = document.getElementById('convModal');

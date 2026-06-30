@@ -3,5 +3,8 @@
 - It was also helpful to just paste figures from the notebooks into the terminal and ask the agent to confirm my conclusions.
 - I really like the interactive results viewer, it was one of the aspects I was most excited about setting up throughout the week.
 - I dove into the next spotlight, this time not as much from scratch but based on docuemntation and a framework that Prashanth has already started setting up. At the same time, I was working on a side quest =, which is another aspect of my summer goals (a sensot availability overlay tool that shouls also be interactive).
-- I was therefore workign with multiple agents in multiple terminals and different repos at the same time, and sometimes several agents in the same repo but one just to read files and explain output. This required a lot of mental bandwidth for keeping traack of what agent/session did what (I anmed my terminals by task).
+- I was therefore workign with multiple agents in multiple terminals and different repos at the same time, and sometimes several agents in the same repo but one just to read files and explain output. This required a lot of mental bandwidth for keeping traack of what agent/session did what (I named my terminals by task which helps quite a bit).
+- As recommended during the last meeting, I am trying to break up task before starting a session with an agent. I usually write my tasks down in a more step-by-step manner to avoid having some sessions explode.
+- The agent was super helpful in figuring the live updates for my website (daily script running and pushing to git via <code>cronjobs</code>)
 - __1:2__ - that was painful. Instead of celebrating I finished my viirs detection fine-tuning results viewer!
+- ...__1:1 (3:4)__ - that was more intense than what I imagine coding with 10 agents at once for three hours straight feels like!
