@@ -203,6 +203,72 @@
       margin-top: 0.25rem;
     }
 
+    /* Scrub cursor */
+    .so-scrub-wrap {
+      position: relative;
+    }
+    .so-scrub-row {
+      display: grid;
+      grid-template-columns: 90px 1fr;
+      align-items: center;
+      gap: 0.75rem;
+      margin-top: 0.5rem;
+    }
+    .so-scrub-track {
+      position: relative;
+      height: 22px;
+      border-radius: 4px;
+      background: rgba(123, 191, 221, 0.08);
+      cursor: pointer;
+      touch-action: none;
+    }
+    .so-scrub-handle {
+      position: absolute;
+      top: 50%;
+      width: 13px;
+      height: 13px;
+      border-radius: 50%;
+      background: var(--ink);
+      border: 2px solid #fff;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.35);
+      transform: translate(-50%, -50%);
+      cursor: grab;
+      touch-action: none;
+      z-index: 3;
+    }
+    .so-scrub-handle:active { cursor: grabbing; }
+    .so-scrub-cursor-line {
+      position: absolute;
+      top: 0;
+      width: 2px;
+      background: var(--ink-muted);
+      opacity: 0.5;
+      pointer-events: none;
+      z-index: 2;
+    }
+    .so-scrub-time-label {
+      position: absolute;
+      font-size: 0.68rem;
+      color: var(--ink);
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 6px;
+      padding: 0.15rem 0.5rem;
+      white-space: nowrap;
+      transform: translate(-50%, -100%);
+      pointer-events: none;
+      z-index: 4;
+      box-shadow: var(--shadow);
+      display: none;
+      backdrop-filter: blur(8px);
+    }
+    .so-scrub-caption {
+      font-size: 0.72rem;
+      color: var(--ink-muted);
+      font-style: italic;
+      margin: -0.5rem 0 1.25rem;
+    }
+
     /* ── Tooltip ─────────────────────────────────────── */
     .so-tooltip {
       position: fixed;
@@ -302,8 +368,7 @@
         <nav class="sp-sidenav" aria-label="Page sections">
           <ul class="sp-sidenav-list">
             <li><a href="#so-overview"     class="sp-sidenav-item" data-section="so-overview">Overview</a></li>
-            <li><a href="#so-coverage"     class="sp-sidenav-item" data-section="so-coverage">Coverage Map</a></li>
-            <li><a href="#so-availability" class="sp-sidenav-item" data-section="so-availability">Availability</a></li>
+            <li><a href="#so-coverage"     class="sp-sidenav-item" data-section="so-coverage">Coverage &amp; Timeline</a></li>
             <li><a href="#so-next"         class="sp-sidenav-item" data-section="so-next">What's Next</a></li>
           </ul>
         </nav>
@@ -348,25 +413,17 @@
                 </tr>
               </tbody>
             </table>
-          </div>
-
-          <!-- ─── COVERAGE MAP ───────────────────────────── -->
-          <div class="sp-section" id="so-coverage">
-            <div class="sp-section-label">Coverage Map</div>
-            <h2 class="sp-section-title">Camera field of view</h2>
-            <p class="sp-text">
-              The shaded region shows the 50 km radius footprint used to filter sensor data. VIIRS overpasses and ABI detections are included in the availability record only when they fall within this area, centered on the MIT Sky Camera.
+            <p class="sp-caption">
+              Note: consecutive orbits of a given VIIRS satellite are roughly 100 minutes apart and overlap spatially, which is why each platform can contribute more than one swath over a region of interest per day. Overpasses cycle through the constellation in a fixed order — Suomi NPP, NOAA-20, NOAA-21, Suomi NPP, and so on — with each successive swath shifted slightly west of the one before it.
             </p>
-            <div id="so-fov-map"></div>
-            <p class="sp-caption">MIT Sky Camera 50 km FOV. Basemap: CartoDB Positron / OpenStreetMap contributors.</p>
           </div>
 
-          <!-- ─── DATA AVAILABILITY ─────────────────────── -->
-          <div class="sp-section" id="so-availability">
-            <div class="sp-section-label">Data Availability</div>
-            <h2 class="sp-section-title">Sensor timeline</h2>
+          <!-- ─── COVERAGE MAP + SENSOR TIMELINE ─────────── -->
+          <div class="sp-section" id="so-coverage">
+            <div class="sp-section-label">Coverage &amp; Availability</div>
+            <h2 class="sp-section-title">Camera field of view &amp; sensor timeline</h2>
             <p class="sp-text">
-              Select a date to see the 24-hour UTC sensor record. Continuous bars indicate always-on instruments. VIIRS overpasses and ABI detections appear as individual markers — click any to open the corresponding mcast view. Times are shown in UTC and Eastern (ET).
+              The shaded region on the map shows the 50 km radius footprint used to filter sensor data, centered on the MIT Sky Camera. Select a date below to see the 24-hour UTC sensor record — continuous bars indicate always-on instruments, VIIRS overpasses and ABI detections appear as individual markers (click any to open the corresponding mcast view), and dragging the cursor beneath the timeline reveals that overpass's VIIRS swath directly on the map above. Times are shown in UTC and Eastern (ET).
             </p>
 
             <div class="so-legend">
@@ -375,22 +432,25 @@
                 <span>MIT Sky Camera (always on)</span>
               </div>
               <div class="so-legend-item">
-                <div class="so-legend-swatch" style="background:#4a9abe;opacity:0.35"></div>
+                <div class="so-legend-swatch" style="background:#316998;opacity:0.35"></div>
                 <span>GOES ABI (always on)</span>
               </div>
               <div class="so-legend-item">
-                <div class="so-legend-tick" style="background:#4a9abe"></div>
+                <div class="so-legend-tick" style="background:#316998"></div>
                 <span>ABI detection (currently unavailable)</span>
               </div>
               <div class="so-legend-item">
-                <div class="so-legend-tick" style="background:#6b4fa8"></div>
+                <div class="so-legend-tick" style="background:#8B0000"></div>
                 <span>VIIRS overpass</span>
               </div>
             </div>
 
             <div class="so-date-pills" id="so-date-pills"></div>
+            <div id="so-fov-map"></div>
             <div class="so-timeline" id="so-timeline"></div>
+            <p class="so-scrub-caption">Drag the cursor below the timeline — or click anywhere along it — to reveal that overpass's VIIRS swath footprint on the map above.</p>
             <p class="so-summary" id="so-summary"></p>
+            <p class="sp-caption">MIT Sky Camera 50 km FOV. Basemap: CartoDB Positron / OpenStreetMap contributors.</p>
           </div>
 
           <!-- ─── WHAT'S NEXT ────────────────────────────── -->
@@ -437,7 +497,7 @@
   <script>
   /* ── Sidenav scroll spy ──────────────────────────────────────────────────── */
   (() => {
-    const SECTION_IDS = ['so-overview', 'so-coverage', 'so-availability', 'so-next'];
+    const SECTION_IDS = ['so-overview', 'so-coverage', 'so-next'];
     const navItems = {};
     for (const id of SECTION_IDS) {
       const el = document.querySelector(`.sp-sidenav-item[data-section="${id}"]`);
@@ -458,11 +518,25 @@
     updateActive();
   })();
 
-  /* ── Leaflet FOV map ─────────────────────────────────────────────────────── */
+  /* ── Coverage map + sensor timeline (share the Leaflet map instance) ───────── */
   (() => {
+    const DATA_BASE   = '../assets/data/sensor_overlay/';
+    const COLOR_CAM   = '#4a9068';
+    const COLOR_ABI   = '#316998';
+    const COLOR_VIIRS = '#8B0000';
+    const DEFAULT_CENTER = [42.3601, -71.0942];
+    const DEFAULT_ZOOM   = 8;
+    const SNAP_CAP_FRAC  = 20 / 1440; // 20 minutes, as a fraction of the day
+
+    const tooltip    = document.getElementById('so-tooltip');
+    const pillsEl    = document.getElementById('so-date-pills');
+    const timelineEl = document.getElementById('so-timeline');
+    const summaryEl  = document.getElementById('so-summary');
+
+    /* ── Leaflet FOV map ─────────────────────────────────────────────────── */
     const map = L.map('so-fov-map', {
-      center: [42.3601, -71.0942],
-      zoom: 8,
+      center: DEFAULT_CENTER,
+      zoom: DEFAULT_ZOOM,
       scrollWheelZoom: false
     });
     L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
@@ -475,23 +549,29 @@
         L.geoJSON(geojson, {
           style: { color: '#4a9068', weight: 2, fillColor: '#4a9068', fillOpacity: 0.12 }
         }).addTo(map);
-        L.circleMarker([42.3601, -71.0942], {
+        L.circleMarker(DEFAULT_CENTER, {
           radius: 5, color: '#4a9068', fillColor: '#4a9068', fillOpacity: 1, weight: 2
         }).bindTooltip('MIT Sky Camera', { permanent: false }).addTo(map);
       });
-  })();
 
-  /* ── Sensor timeline ─────────────────────────────────────────────────────── */
-  (() => {
-    const DATA_BASE   = '../assets/data/sensor_overlay/';
-    const COLOR_CAM   = '#4a9068';
-    const COLOR_ABI   = '#4a9abe';
-    const COLOR_VIIRS = '#6b4fa8';
-
-    const tooltip    = document.getElementById('so-tooltip');
-    const pillsEl    = document.getElementById('so-date-pills');
-    const timelineEl = document.getElementById('so-timeline');
-    const summaryEl  = document.getElementById('so-summary');
+    /* ── VIIRS swath layer, driven by the scrub cursor ──────────────────── */
+    let swathLayer = null;
+    function showSwath(overpass, { animate = true } = {}) {
+      if (swathLayer) { map.removeLayer(swathLayer); swathLayer = null; }
+      if (!overpass) {
+        if (animate) map.flyTo(DEFAULT_CENTER, DEFAULT_ZOOM, { duration: 0.6 });
+        else map.setView(DEFAULT_CENTER, DEFAULT_ZOOM);
+        return;
+      }
+      const latlngs = overpass.swath_polygon.map(([lon, lat]) => [lat, lon]);
+      swathLayer = L.polygon(latlngs, {
+        color: COLOR_VIIRS, weight: 2, fillColor: COLOR_VIIRS, fillOpacity: 0.12
+      }).bindTooltip(`${overpass.platform}<br>${overpass.utc} UTC`, { sticky: true });
+      swathLayer.addTo(map);
+      const bounds = swathLayer.getBounds();
+      if (animate) map.flyToBounds(bounds, { padding: [30, 30], duration: 0.6 });
+      else map.fitBounds(bounds, { padding: [30, 30] });
+    }
 
     /* ── Tooltip helpers ──────────────────────────────────────────────────── */
     let _tipTimer = null;
@@ -582,7 +662,7 @@
         tick.className = 'so-tick';
         tick.style.left       = (m.frac * 100) + '%';
         tick.style.background = color;
-        const tip = `<div class="so-tooltip-title">VIIRS Overpass</div>
+        const tip = `<div class="so-tooltip-title">${m.platform || 'VIIRS'} overpass</div>
           <div>${m.utc} UTC / ${m.local} ET</div>
           ${m.url ? `<a class="so-tooltip-hint" href="${m.url}" target="_blank" rel="noopener">Open in mcast →</a>` : ''}`;
         attachInteraction(tick, tip, m.url);
@@ -590,6 +670,91 @@
       }
       row.appendChild(track);
       return row;
+    }
+
+    /* ── Scrub cursor (row + cursor line + time label, laid over `wrap`) ───── */
+    function buildScrubber(wrap, overpasses) {
+      const row = document.createElement('div');
+      row.className = 'so-scrub-row';
+      row.appendChild(document.createElement('div')); // empty label cell, aligns with sensor rows
+
+      const track = document.createElement('div');
+      track.className = 'so-scrub-track';
+      const handle = document.createElement('div');
+      handle.className = 'so-scrub-handle';
+      handle.style.left = '0%';
+      track.appendChild(handle);
+      row.appendChild(track);
+
+      const cursorLine = document.createElement('div');
+      cursorLine.className = 'so-scrub-cursor-line';
+      const timeLabel = document.createElement('div');
+      timeLabel.className = 'so-scrub-time-label';
+
+      const sorted = [...overpasses].sort((a, b) => a.frac - b.frac);
+
+      function nearestOverpass(frac) {
+        if (!sorted.length) return null;
+        let best = null, bestDist = Infinity;
+        for (const op of sorted) {
+          const d = Math.abs(op.frac - frac);
+          if (d < bestDist) { bestDist = d; best = op; }
+        }
+        return bestDist <= SNAP_CAP_FRAC ? best : null;
+      }
+
+      let currentFrac = 0;
+
+      function positionAt(frac) {
+        currentFrac = frac;
+        handle.style.left = (frac * 100) + '%';
+        const wrapRect  = wrap.getBoundingClientRect();
+        const trackRect = track.getBoundingClientRect();
+        const x = trackRect.left - wrapRect.left + frac * trackRect.width;
+        cursorLine.style.left   = x + 'px';
+        cursorLine.style.height = (trackRect.top + trackRect.height / 2 - wrapRect.top) + 'px';
+        timeLabel.style.left = x + 'px';
+        timeLabel.style.top  = (trackRect.top - wrapRect.top - 8) + 'px';
+      }
+
+      function update(frac, { commit = true, animate = true } = {}) {
+        const snapped = nearestOverpass(frac);
+        positionAt(snapped ? snapped.frac : frac);
+        if (!commit) return;
+        if (snapped) {
+          timeLabel.textContent = `${snapped.utc} UTC · ${snapped.platform}`;
+          timeLabel.style.display = 'block';
+          showSwath(snapped, { animate });
+        } else {
+          timeLabel.style.display = 'none';
+          showSwath(null, { animate });
+        }
+      }
+
+      function fracFromClientX(clientX) {
+        const rect = track.getBoundingClientRect();
+        return Math.min(1, Math.max(0, (clientX - rect.left) / rect.width));
+      }
+
+      let dragging = false;
+      track.addEventListener('pointerdown', e => {
+        dragging = true;
+        track.setPointerCapture(e.pointerId);
+        update(fracFromClientX(e.clientX));
+      });
+      track.addEventListener('pointermove', e => {
+        if (dragging) update(fracFromClientX(e.clientX));
+      });
+      track.addEventListener('pointerup',     () => { dragging = false; });
+      track.addEventListener('pointercancel', () => { dragging = false; });
+
+      window.addEventListener('resize', () => { if (wrap.isConnected) positionAt(currentFrac); });
+
+      wrap.appendChild(row);
+      wrap.appendChild(cursorLine);
+      wrap.appendChild(timeLabel);
+
+      update(0, { commit: false });
     }
 
     function getETOffset(dateStr) {
@@ -659,6 +824,7 @@
 
     /* ── Render timeline for a loaded day ────────────────────────────────── */
     function renderDay(data) {
+      showSwath(null, { animate: false }); // clear any swath left from the previous day
       timelineEl.innerHTML = '';
 
       const abiMarks = (data.timesteps || []).map(ts => ({
@@ -672,13 +838,21 @@
         frac:  toFraction(op.time_utc),
         utc:   fmtTime(op.time_utc),
         local: fmtTime(op.time_local),
-        url:   op.mcast_url || null
+        url:   op.mcast_url || null,
+        platform: op.platform || null,
+        swath_polygon: op.swath_polygon || null
       }));
 
-      timelineEl.appendChild(buildAlwaysOnRow('MIT Camera', COLOR_CAM, 0.45, []));
-      timelineEl.appendChild(buildAlwaysOnRow('GOES ABI',   COLOR_ABI, 0.35, abiMarks));
-      timelineEl.appendChild(buildViirsRow('VIIRS', COLOR_VIIRS, viirsMarks));
-      timelineEl.appendChild(buildAxis(data.date));
+      const wrap = document.createElement('div');
+      wrap.className = 'so-scrub-wrap';
+      wrap.appendChild(buildAlwaysOnRow('MIT Camera', COLOR_CAM, 0.45, []));
+      wrap.appendChild(buildAlwaysOnRow('GOES ABI',   COLOR_ABI, 0.35, abiMarks));
+      wrap.appendChild(buildViirsRow('VIIRS', COLOR_VIIRS, viirsMarks));
+      wrap.appendChild(buildAxis(data.date));
+      timelineEl.appendChild(wrap);
+
+      const snappable = viirsMarks.filter(m => m.swath_polygon && m.platform);
+      buildScrubber(wrap, snappable);
 
       const vCount = viirsMarks.length;
       const aCount = abiMarks.length;
