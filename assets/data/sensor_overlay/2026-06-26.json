@@ -1,6 +1,6 @@
 {
   "date": "2026-06-26",
-  "generated_at_utc": "2026-07-01T20:40:43Z",
+  "generated_at_utc": "2026-07-02T17:32:07Z",
   "total_timesteps_with_detections": 0,
   "timesteps": [],
   "viirs_overpasses": [
@@ -284,5 +284,6 @@
       ],
       "mcast_url": "https://mcast-lae.mit.edu/map?current_time=202606261900&layers=cnv&lon=-71.089236&lat=42.360442&zoom=7"
     }
-  ]
+  ],
+  "windborne_soundings": []
 }
