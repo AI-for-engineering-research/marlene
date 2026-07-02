@@ -423,7 +423,7 @@
             <div class="sp-section-label">Coverage &amp; Availability</div>
             <h2 class="sp-section-title">Camera field of view &amp; sensor timeline</h2>
             <p class="sp-text">
-              The shaded region on the map shows the 50 km radius footprint used to filter sensor data, centered on the MIT Sky Camera. Select a date below to see the 24-hour UTC sensor record — continuous bars indicate always-on instruments, VIIRS overpasses and ABI detections appear as individual markers (click any to open the corresponding mcast view), and dragging the cursor beneath the timeline reveals that overpass's VIIRS swath directly on the map above. Times are shown in UTC and Eastern (ET).
+              The shaded region on the map shows the 50 km radius footprint used to filter sensor data, centered on the MIT Sky Camera. Select a date below to see the 24-hour local (ET) sensor record — continuous bars indicate always-on instruments, VIIRS overpasses and ABI detections appear as individual markers (click any to open the corresponding mcast view), and dragging the cursor beneath the timeline reveals that overpass's VIIRS swath directly on the map above. Times are shown in Eastern (ET) and UTC.
             </p>
 
             <div class="so-legend">
@@ -603,6 +603,14 @@
     }
     function fmtTime(timeStr) {
       return timeStr.trim().split(' ').pop().slice(0, 5);
+    }
+    // Timeline x-position is driven by local (ET) time, matching how each day's
+    // data is pulled (0–24h local), not by the UTC timestamps stored alongside it.
+    function toLocalFraction(utcStr, localStr, dateStr) {
+      if (localStr) return toFraction(localStr);
+      if (!utcStr) return 0;
+      const etOffset = getETOffset(dateStr);
+      return (((toFraction(utcStr) * 24 + etOffset) % 24) + 24) % 24 / 24;
     }
 
     /* ── Build a clickable element ────────────────────────────────────────── */
@@ -794,19 +802,19 @@
         return row;
       }
 
-      wrapper.appendChild(makeAxisRow('UTC', h =>
+      wrapper.appendChild(makeAxisRow(tzLabel, h =>
         String(h).padStart(2, '0') + ':00'
       ));
 
-      let hasPrevDay = false;
-      wrapper.appendChild(makeAxisRow(tzLabel, h => {
-        const etH = ((h + etOffset) % 24 + 24) % 24;
-        const prev = (h + etOffset) < 0;
-        if (prev) hasPrevDay = true;
-        return String(etH).padStart(2, '0') + ':00' + (prev ? '*' : '');
+      let hasNextDay = false;
+      wrapper.appendChild(makeAxisRow('UTC', h => {
+        const utcH = ((h - etOffset) % 24 + 24) % 24;
+        const next = (h - etOffset) >= 24;
+        if (next) hasNextDay = true;
+        return String(utcH).padStart(2, '0') + ':00' + (next ? '*' : '');
       }, 'so-axis-et'));
 
-      if (hasPrevDay) {
+      if (hasNextDay) {
         const noteRow = document.createElement('div');
         noteRow.className = 'so-axis';
         noteRow.style.marginTop = '0.1rem';
@@ -814,7 +822,7 @@
         noteRow.innerHTML = '<div></div>';
         const note = document.createElement('div');
         note.className = 'so-axis-note';
-        note.textContent = '* previous calendar day in ' + tzLabel;
+        note.textContent = '* next calendar day in UTC';
         noteRow.appendChild(note);
         wrapper.appendChild(noteRow);
       }
@@ -828,14 +836,14 @@
       timelineEl.innerHTML = '';
 
       const abiMarks = (data.timesteps || []).map(ts => ({
-        frac:  toFraction(ts.time_utc || ts.time),
+        frac:  toLocalFraction(ts.time_utc || ts.time, ts.time_local, data.date),
         utc:   fmtTime(ts.time_utc || ts.time),
         local: ts.time_local ? fmtTime(ts.time_local) : null,
         url:   ts.mcast_url || null
       }));
 
       const viirsMarks = (data.viirs_overpasses || []).map(op => ({
-        frac:  toFraction(op.time_utc),
+        frac:  toLocalFraction(op.time_utc, op.time_local, data.date),
         utc:   fmtTime(op.time_utc),
         local: fmtTime(op.time_local),
         url:   op.mcast_url || null,
