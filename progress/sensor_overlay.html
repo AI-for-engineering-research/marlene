@@ -153,6 +153,24 @@
     }
     .so-tick:hover { opacity: 0.7; }
 
+    /* WindBorne sounding duration-bar row */
+    .so-windborne-track {
+      position: relative;
+      height: 18px;
+    }
+    .so-sounding-mark {
+      position: absolute;
+      top: 0;
+      height: 18px;
+      min-width: 4px;
+      border-radius: 9px;
+      border: 1.5px solid rgba(255,255,255,0.9);
+      box-sizing: border-box;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    .so-sounding-mark:hover { opacity: 0.7; }
+
     /* Time axis */
     .so-axis {
       display: grid;
@@ -302,6 +320,63 @@
       text-decoration: underline;
     }
 
+    /* ── WindBorne metadata modal ─────────────────────── */
+    .so-meta-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 9500;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(20, 34, 44, 0.55);
+      backdrop-filter: blur(6px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+      padding: 1.5rem;
+    }
+    .so-meta-modal.open { opacity: 1; pointer-events: all; }
+    .so-meta-modal-box {
+      position: relative;
+      background: var(--white);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      width: 100%;
+      max-width: 380px;
+      padding: 1.6rem 1.8rem;
+    }
+    .so-meta-modal-close {
+      position: absolute;
+      top: 0.6rem;
+      right: 0.8rem;
+      background: none;
+      border: none;
+      font-size: 1.1rem;
+      color: var(--ink-muted);
+      cursor: pointer;
+      line-height: 1;
+      padding: 0.25rem 0.4rem;
+    }
+    .so-meta-modal-close:hover { color: var(--ink); }
+    .so-meta-modal h3 {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 400;
+      font-size: 1.3rem;
+      margin: 0 0 0.9rem;
+      color: var(--ink);
+    }
+    .so-meta-row {
+      display: grid;
+      grid-template-columns: 120px 1fr;
+      gap: 0.3rem 0.6rem;
+      font-size: 0.82rem;
+      padding: 0.4rem 0;
+      border-bottom: 1px solid var(--glass-border);
+    }
+    .so-meta-row:last-child { border-bottom: none; }
+    .so-meta-key { color: var(--ink-muted); }
+    .so-meta-val { color: var(--ink); word-break: break-all; }
+
     /* ── What's Next list ────────────────────────────── */
     .so-next-list {
       list-style: none;
@@ -381,7 +456,7 @@
             <div class="sp-section-label">Overview</div>
             <h2 class="sp-section-title">Currently included sensors</h2>
             <p class="sp-text">
-              The tool currently integrates three observation sources. Each covers a different spatial and temporal scale, and together they form the foundation of the multi-sensor observational framework.
+              The tool currently integrates four observation sources. Each covers a different spatial and temporal scale, and together they form the foundation of the multi-sensor observational framework.
             </p>
             <table class="so-sensor-table">
               <thead>
@@ -411,10 +486,19 @@
                   <td>~14 orbits / day</td>
                   <td>750 m resolution swath; overpasses over camera FOV logged</td>
                 </tr>
+                <tr>
+                  <td><span class="sensor-dot sonde"></span>WindBorne</td>
+                  <td>Drifting stratospheric balloons (WindBorne Systems, live API)</td>
+                  <td>Opportunistic — as balloons drift through</td>
+                  <td>ROI transits logged; relative humidity over ice (RHi) &amp; ISSR flagged per level</td>
+                </tr>
               </tbody>
             </table>
             <p class="sp-caption">
               Note: consecutive orbits of a given VIIRS satellite are roughly 100 minutes apart and overlap spatially, which is why each platform can contribute more than one swath over a region of interest per day. Overpasses cycle through the constellation in a fixed order — Suomi NPP, NOAA-20, NOAA-21, Suomi NPP, and so on — with each successive swath shifted slightly west of the one before it.
+            </p>
+            <p class="sp-caption">
+              Note: for WindBorne, "ROI" (region of interest) refers to a 1000 km &times; 1000 km bounding box centered on the MIT Sky Camera (500 km north, east, south, and west) &mdash; not the same 50 km radius used to filter the other sensors above. A WindBorne sounding is logged whenever its balloon's drift track passes through this box, regardless of where the balloon launched.
             </p>
           </div>
 
@@ -443,6 +527,14 @@
                 <div class="so-legend-tick" style="background:#8B0000"></div>
                 <span>VIIRS overpass</span>
               </div>
+              <div class="so-legend-item">
+                <div class="so-legend-swatch" style="background:#b07d3a"></div>
+                <span>WindBorne sounding (ROI transit)</span>
+              </div>
+              <div class="so-legend-item">
+                <div class="so-legend-swatch" style="background:#E8B93D"></div>
+                <span>WindBorne sounding (ISSR present)</span>
+              </div>
             </div>
 
             <div class="so-date-pills" id="so-date-pills"></div>
@@ -462,8 +554,8 @@
             </p>
             <ul class="so-next-list">
               <li>
-                <strong>Radiosondes — WindBorne Systems &amp; GRUAN.</strong>
-                Atmospheric profiles from WindBorne drifting balloon soundings and the GCOS Reference Upper-Air Network (GRUAN) will provide vertical temperature and humidity structure to characterize the atmospheric state at contrail formation times. Advected sounding positions will be shown in the spatial overlay.
+                <strong>Radiosondes — GRUAN.</strong>
+                Atmospheric profiles from the GCOS Reference Upper-Air Network (GRUAN) will provide additional vertical temperature and humidity structure alongside the WindBorne soundings already shown above, to further characterize the atmospheric state at contrail formation times.
               </li>
               <li>
                 <strong>EarthCARE.</strong>
@@ -487,6 +579,14 @@
   </div><!-- /.updates-page -->
 
   <div class="so-tooltip" id="so-tooltip"></div>
+
+  <div class="so-meta-modal" id="so-meta-modal">
+    <div class="so-meta-modal-box">
+      <button type="button" class="so-meta-modal-close" id="so-meta-modal-close" aria-label="Close">✕</button>
+      <h3>WindBorne mission</h3>
+      <div id="so-meta-modal-body"></div>
+    </div>
+  </div>
 
   <footer>
     <p>Marlene V. Euchenhofer · MIT Laboratory for Aviation and the Environment · 2026</p>
@@ -524,14 +624,26 @@
     const COLOR_CAM   = '#4a9068';
     const COLOR_ABI   = '#316998';
     const COLOR_VIIRS = '#8B0000';
+    const COLOR_WINDBORNE = '#b07d3a';
+    const COLOR_ISSR = '#E8B93D';
     const DEFAULT_CENTER = [42.3601, -71.0942];
     const DEFAULT_ZOOM   = 8;
     const SNAP_CAP_FRAC  = 20 / 1440; // 20 minutes, as a fraction of the day
+
+    function hexToRgba(hex, alpha) {
+      const h = hex.replace('#', '');
+      const r = parseInt(h.substring(0, 2), 16);
+      const g = parseInt(h.substring(2, 4), 16);
+      const b = parseInt(h.substring(4, 6), 16);
+      return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    }
 
     const tooltip    = document.getElementById('so-tooltip');
     const pillsEl    = document.getElementById('so-date-pills');
     const timelineEl = document.getElementById('so-timeline');
     const summaryEl  = document.getElementById('so-summary');
+    const metaModal     = document.getElementById('so-meta-modal');
+    const metaModalBody = document.getElementById('so-meta-modal-body');
 
     /* ── Leaflet FOV map ─────────────────────────────────────────────────── */
     const map = L.map('so-fov-map', {
@@ -554,23 +666,68 @@
         }).bindTooltip('MIT Sky Camera', { permanent: false }).addTo(map);
       });
 
-    /* ── VIIRS swath layer, driven by the scrub cursor ──────────────────── */
-    let swathLayer = null;
-    function showSwath(overpass, { animate = true } = {}) {
-      if (swathLayer) { map.removeLayer(swathLayer); swathLayer = null; }
-      if (!overpass) {
+    /* ── VIIRS swath / WindBorne track layer, driven by the scrub cursor ─── */
+    let snapLayer = null;
+    let windborneMarkById = new Map();
+    function showSnap(mark, { animate = true } = {}) {
+      if (snapLayer) { map.removeLayer(snapLayer); snapLayer = null; }
+      tooltip.style.display = 'none';
+      if (!mark) {
         if (animate) map.flyTo(DEFAULT_CENTER, DEFAULT_ZOOM, { duration: 0.6 });
         else map.setView(DEFAULT_CENTER, DEFAULT_ZOOM);
         return;
       }
-      const latlngs = overpass.swath_polygon.map(([lon, lat]) => [lat, lon]);
-      swathLayer = L.polygon(latlngs, {
-        color: COLOR_VIIRS, weight: 2, fillColor: COLOR_VIIRS, fillOpacity: 0.12
-      }).bindTooltip(`${overpass.platform}<br>${overpass.utc} UTC`, { sticky: true });
-      swathLayer.addTo(map);
-      const bounds = swathLayer.getBounds();
+      if (mark.kind === 'windborne') {
+        const latlngs = mark.track.map(([lon, lat]) => [lat, lon]);
+        const color = mark.hasIssr ? COLOR_ISSR : COLOR_WINDBORNE;
+        const line = L.polyline(latlngs, { color, weight: 2, opacity: 0.95 });
+        // Wide, invisible line so hovering anywhere near the track (not just
+        // exactly on the thin stroke) resolves to the nearest measurement.
+        const hit  = L.polyline(latlngs, { weight: 14, opacity: 0 });
+        const dots = latlngs.map(ll => L.circleMarker(ll, {
+          radius: 2, color, weight: 1, fillColor: color, fillOpacity: 0.9
+        }));
+        attachWindborneHover(hit, mark);
+        snapLayer = L.featureGroup([hit, line, ...dots]);
+      } else {
+        const latlngs = mark.swath_polygon.map(([lon, lat]) => [lat, lon]);
+        snapLayer = L.polygon(latlngs, {
+          color: COLOR_VIIRS, weight: 2, fillColor: COLOR_VIIRS, fillOpacity: 0.12
+        }).bindTooltip(`${mark.platform}<br>${mark.utc} UTC`, { sticky: true });
+      }
+      snapLayer.addTo(map);
+      const bounds = snapLayer.getBounds();
       if (animate) map.flyToBounds(bounds, { padding: [30, 30], duration: 0.6 });
       else map.fitBounds(bounds, { padding: [30, 30] });
+    }
+
+    /* ── WindBorne faint tracks, always visible for the loaded day ──────── */
+    let windborneTracksLayer = null;
+    function renderWindBorneTracks(marks) {
+      if (windborneTracksLayer) { map.removeLayer(windborneTracksLayer); windborneTracksLayer = null; }
+      const layers = [];
+      // Same stacking order as the timeline: ISSR soundings painted (and
+      // hover-prioritized) last, shorter ones last within each group.
+      const stacked = [...marks]
+        .filter(m => m.track && m.track.length > 1)
+        .sort((a, b) => {
+          if (a.hasIssr !== b.hasIssr) return a.hasIssr ? 1 : -1;
+          return (b.fracEnd - b.fracStart) - (a.fracEnd - a.fracStart);
+        });
+      stacked.forEach(m => {
+          const color = m.hasIssr ? COLOR_ISSR : COLOR_WINDBORNE;
+          const latlngs = m.track.map(([lon, lat]) => [lat, lon]);
+          const line = L.polyline(latlngs, { color, weight: 1, opacity: 0.35 });
+          // Wide, invisible line so hovering anywhere near the faint track
+          // (not just the thin stroke) picks up the nearest measurement.
+          const hit  = L.polyline(latlngs, { weight: 14, opacity: 0 });
+          attachWindborneHover(hit, m);
+          layers.push(hit, line);
+          latlngs.forEach(ll => layers.push(L.circleMarker(ll, {
+            radius: 2, color, weight: 1, fillColor: color, fillOpacity: 0.6, opacity: 0.6
+          })));
+        });
+      if (layers.length) windborneTracksLayer = L.layerGroup(layers).addTo(map);
     }
 
     /* ── Tooltip helpers ──────────────────────────────────────────────────── */
@@ -593,7 +750,95 @@
       _tipTimer = setTimeout(() => { tooltip.style.display = 'none'; _tipTimer = null; }, 160);
     }
     tooltip.addEventListener('mouseenter', () => { if (_tipTimer) { clearTimeout(_tipTimer); _tipTimer = null; } });
+
+    /* ── Nearest-measurement lookup for WindBorne hover ──────────────────── */
+    function nearestMeasurement(measurements, latlng) {
+      const cosLat = Math.cos(latlng.lat * Math.PI / 180);
+      let best = null, bestDist = Infinity;
+      for (const m of measurements) {
+        const dLat = m.lat - latlng.lat;
+        const dLon = (m.lon - latlng.lng) * cosLat;
+        const dist = dLat * dLat + dLon * dLon;
+        if (dist < bestDist) { bestDist = dist; best = m; }
+      }
+      return best;
+    }
+    function metaTriggerHtml(mark) {
+      if (!mark.soundingId) return '';
+      return `<span class="so-tooltip-hint" data-sounding-id="${mark.soundingId}">More info · meta data →</span>`;
+    }
+    function windborneMeasurementTip(m, mark) {
+      const pressure = m.pressure_hpa != null ? `${m.pressure_hpa.toFixed(1)} hPa` : '—';
+      const altitude = m.altitude_m != null ? `${Math.round(m.altitude_m)} m` : '—';
+      const temp = m.temperature_c != null ? `${m.temperature_c.toFixed(1)} °C` : '—';
+      // m.rhi is a fraction (1.0 == ice saturation), not a percent -- scale by
+      // 100 for display.
+      const rhi = m.rhi != null ? `${(m.rhi * 100).toFixed(0)}%` : '—';
+      return `<div class="so-tooltip-title">Windborne Measurement</div>
+        <div>${fmtTime(m.time_local)} LT / ${fmtTime(m.time_utc)} UTC</div>
+        <div>${pressure} &middot; ${altitude}</div>
+        <div>T: ${temp}</div>
+        <div>RHi: ${rhi}</div>
+        ${metaTriggerHtml(mark)}`;
+    }
+    // Measurements sit only a few px apart once zoomed out, so a hover far
+    // (in screen space) from every point falls back to the same sounding-
+    // level summary shown on the timeline, rather than an arbitrary
+    // "nearest" point that isn't actually under the cursor. Shared by the
+    // always-on faint tracks and the actively-snapped track.
+    const HOVER_POINT_PX = 7;
+    function attachWindborneHover(hitLayer, mark) {
+      const showMeasurementTip = e => {
+        const nearest = nearestMeasurement(mark.measurements, e.latlng);
+        if (!nearest) return;
+        const cursorPt  = map.latLngToContainerPoint(e.latlng);
+        const nearestPt = map.latLngToContainerPoint([nearest.lat, nearest.lon]);
+        const html = cursorPt.distanceTo(nearestPt) <= HOVER_POINT_PX
+          ? windborneMeasurementTip(nearest, mark)
+          : windborneSoundingTip(mark);
+        showTip(e.originalEvent, html);
+      };
+      hitLayer.on('mouseover', showMeasurementTip);
+      hitLayer.on('mousemove', showMeasurementTip);
+      hitLayer.on('mouseout', hideTip);
+    }
+    function windborneSoundingTip(m) {
+      return `<div class="so-tooltip-title">WindBorne sounding</div>
+        <div>${m.measurementCount} measurement(s) in ROI</div>
+        <div>${m.utc}–${m.utcEnd} UTC / ${m.local}–${m.localEnd} ET</div>
+        <div>Altitude ${Math.round(m.altMin)}–${Math.round(m.altMax)} m</div>
+        <div>${m.issrCount} ISSR level${m.issrCount === 1 ? '' : 's'}</div>
+        ${metaTriggerHtml(m)}`;
+    }
     tooltip.addEventListener('mouseleave', () => { tooltip.style.display = 'none'; });
+    tooltip.addEventListener('click', e => {
+      const trigger = e.target.closest('[data-sounding-id]');
+      if (!trigger) return;
+      const mark = windborneMarkById.get(trigger.dataset.soundingId);
+      if (mark) openMetaModal(mark);
+    });
+
+    /* ── WindBorne metadata modal ─────────────────────────────────────────── */
+    function closeMetaModal() { metaModal.classList.remove('open'); }
+    function openMetaModal(mark) {
+      // Launch location/time aren't in the sensor_overlay data feed yet --
+      // the pipeline that generates assets/data/sensor_overlay/*.json needs
+      // to add them at the mission level before these can show real values.
+      const launchLoc = (mark.launchLat != null && mark.launchLon != null)
+        ? `${mark.launchLat.toFixed(3)}, ${mark.launchLon.toFixed(3)}`
+        : 'Not yet available';
+      const launchTime = mark.launchTimeUtc ? `${fmtTime(mark.launchTimeUtc)} UTC` : 'Not yet available';
+      metaModalBody.innerHTML = `
+        <div class="so-meta-row"><span class="so-meta-key">Launch location</span><span class="so-meta-val">${launchLoc}</span></div>
+        <div class="so-meta-row"><span class="so-meta-key">Launch time</span><span class="so-meta-val">${launchTime}</span></div>
+        <div class="so-meta-row"><span class="so-meta-key">Mission ID</span><span class="so-meta-val">${mark.missionId || '—'}</span></div>
+        <div class="so-meta-row"><span class="so-meta-key">Sounding ID</span><span class="so-meta-val">${mark.soundingId || '—'}</span></div>`;
+      metaModal.classList.add('open');
+      tooltip.style.display = 'none';
+    }
+    document.getElementById('so-meta-modal-close').addEventListener('click', closeMetaModal);
+    metaModal.addEventListener('click', e => { if (e.target === metaModal) closeMetaModal(); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeMetaModal(); });
 
     /* ── Time helpers ─────────────────────────────────────────────────────── */
     function toFraction(timeStr) {
@@ -680,6 +925,32 @@
       return row;
     }
 
+    function buildWindBorneRow(label, marks) {
+      const row   = makeRow(label);
+      const track = document.createElement('div');
+      track.className = 'so-windborne-track';
+
+      // Stacking order: painted later = on top. Put ISSR soundings last so
+      // they're never hidden under a non-ISSR one, and within each group put
+      // longer soundings first so a shorter overlapping one stays visible.
+      const stacked = [...marks].sort((a, b) => {
+        if (a.hasIssr !== b.hasIssr) return a.hasIssr ? 1 : -1;
+        return (b.fracEnd - b.fracStart) - (a.fracEnd - a.fracStart);
+      });
+
+      for (const m of stacked) {
+        const bar = document.createElement('div');
+        bar.className = 'so-sounding-mark';
+        bar.style.left       = (m.fracStart * 100) + '%';
+        bar.style.width      = (Math.max(m.fracEnd - m.fracStart, 0) * 100) + '%';
+        bar.style.background = hexToRgba(m.hasIssr ? COLOR_ISSR : COLOR_WINDBORNE, 0.8);
+        attachInteraction(bar, windborneSoundingTip(m), null);
+        track.appendChild(bar);
+      }
+      row.appendChild(track);
+      return row;
+    }
+
     /* ── Scrub cursor (row + cursor line + time label, laid over `wrap`) ───── */
     function buildScrubber(wrap, overpasses) {
       const row = document.createElement('div');
@@ -730,12 +1001,14 @@
         positionAt(snapped ? snapped.frac : frac);
         if (!commit) return;
         if (snapped) {
-          timeLabel.textContent = `${snapped.utc} UTC · ${snapped.platform}`;
+          timeLabel.textContent = snapped.kind === 'windborne'
+            ? `${snapped.utc}–${snapped.utcEnd} UTC · WindBorne`
+            : `${snapped.utc} UTC · ${snapped.platform}`;
           timeLabel.style.display = 'block';
-          showSwath(snapped, { animate });
+          showSnap(snapped, { animate });
         } else {
           timeLabel.style.display = 'none';
-          showSwath(null, { animate });
+          showSnap(null, { animate });
         }
       }
 
@@ -832,7 +1105,7 @@
 
     /* ── Render timeline for a loaded day ────────────────────────────────── */
     function renderDay(data) {
-      showSwath(null, { animate: false }); // clear any swath left from the previous day
+      showSnap(null, { animate: false }); // clear any swath/track left from the previous day
       timelineEl.innerHTML = '';
 
       const abiMarks = (data.timesteps || []).map(ts => ({
@@ -843,6 +1116,7 @@
       }));
 
       const viirsMarks = (data.viirs_overpasses || []).map(op => ({
+        kind:  'viirs',
         frac:  toLocalFraction(op.time_utc, op.time_local, data.date),
         utc:   fmtTime(op.time_utc),
         local: fmtTime(op.time_local),
@@ -851,25 +1125,68 @@
         swath_polygon: op.swath_polygon || null
       }));
 
+      const windborneMarks = (data.windborne_soundings || []).flatMap(sounding => {
+        // Measurements come altitude-sorted, not time-sorted (windborne_issr's
+        // Sounding is ordered by altitude to mirror GRUAN's vertical-profile
+        // convention) -- sort by time so first/last and the track are correct.
+        const ms = [...(sounding.measurements || [])].sort((a, b) => a.time_utc < b.time_utc ? -1 : a.time_utc > b.time_utc ? 1 : 0);
+        if (!ms.length) return [];
+        const first = ms[0], last = ms[ms.length - 1];
+        const issrCount = ms.filter(m => m.issr_flag).length;
+        const alts = ms.map(m => m.altitude_m);
+        const fracStart = toLocalFraction(first.time_utc, first.time_local, data.date);
+        const fracEnd   = toLocalFraction(last.time_utc,  last.time_local,  data.date);
+        return [{
+          kind: 'windborne',
+          frac: (fracStart + fracEnd) / 2,
+          fracStart, fracEnd,
+          utc: fmtTime(first.time_utc), utcEnd: fmtTime(last.time_utc),
+          local: fmtTime(first.time_local), localEnd: fmtTime(last.time_local),
+          measurementCount: ms.length,
+          issrCount,
+          hasIssr: issrCount > 0,
+          altMin: Math.min(...alts), altMax: Math.max(...alts),
+          track: ms.map(m => [m.lon, m.lat]),
+          measurements: ms,
+          soundingId: sounding.sounding_id || null,
+          missionId: sounding.mission_id || null
+        }];
+      });
+      renderWindBorneTracks(windborneMarks);
+      windborneMarkById = new Map(windborneMarks.map(m => [m.soundingId, m]));
+
       const wrap = document.createElement('div');
       wrap.className = 'so-scrub-wrap';
       wrap.appendChild(buildAlwaysOnRow('MIT Camera', COLOR_CAM, 0.45, []));
       wrap.appendChild(buildAlwaysOnRow('GOES ABI',   COLOR_ABI, 0.35, abiMarks));
       wrap.appendChild(buildViirsRow('VIIRS', COLOR_VIIRS, viirsMarks));
+      wrap.appendChild(buildWindBorneRow('WindBorne', windborneMarks));
       wrap.appendChild(buildAxis(data.date));
       timelineEl.appendChild(wrap);
 
-      const snappable = viirsMarks.filter(m => m.swath_polygon && m.platform);
+      const snappable = [
+        ...viirsMarks.filter(m => m.swath_polygon && m.platform),
+        ...windborneMarks
+      ];
       buildScrubber(wrap, snappable);
 
       const vCount = viirsMarks.length;
       const aCount = abiMarks.length;
-      const parts  = [];
-      if (vCount > 0) parts.push(`${vCount} VIIRS overpass${vCount === 1 ? '' : 'es'}`);
-      else            parts.push('no VIIRS overpasses');
-      if (aCount > 0) parts.push(`${aCount} ABI detection${aCount === 1 ? '' : 's'}`);
-      else            parts.push('no ABI detections');
-      summaryEl.textContent = `${data.date}: ${parts.join(', ')} over camera FOV.`;
+      const wCount = windborneMarks.length;
+      const wIssr  = windborneMarks.reduce((sum, m) => sum + m.issrCount, 0);
+      const issrSoundingCount  = windborneMarks.filter(m => m.issrCount > 0).length;
+      const totalMeasurements = windborneMarks.reduce((sum, m) => sum + m.measurementCount, 0);
+
+      const viirsPart = vCount > 0 ? `${vCount} VIIRS overpass${vCount === 1 ? '' : 'es'}` : 'no VIIRS overpasses';
+      const abiPart   = aCount > 0 ? `${aCount} ABI detection${aCount === 1 ? '' : 's'}` : 'no ABI detections';
+      const windbornePart = wCount > 0
+        ? `${wCount} WindBorne sounding${wCount === 1 ? '' : 's'} `
+          + `(${issrSoundingCount} sounding${issrSoundingCount === 1 ? '' : 's'} at least partially in ISSRs) `
+          + `with ${totalMeasurements} measurement${totalMeasurements === 1 ? '' : 's'} total `
+          + `(${wIssr} measurement${wIssr === 1 ? '' : 's'} in ISSRs) in ROI.`
+        : 'No WindBorne soundings in ROI.';
+
+      summaryEl.textContent = `${data.date}: ${viirsPart} and ${abiPart} over camera FOV. ${windbornePart}`;
     }
 
     /* ── Load date ───────────────────────────────────────────────────────── */
