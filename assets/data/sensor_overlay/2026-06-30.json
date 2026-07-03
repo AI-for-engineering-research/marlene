@@ -1,6 +1,6 @@
 {
   "date": "2026-06-30",
-  "generated_at_utc": "2026-07-03T15:58:30Z",
+  "generated_at_utc": "2026-07-03T19:14:15Z",
   "total_timesteps_with_detections": 0,
   "timesteps": [],
   "viirs_overpasses": [
@@ -261,6 +261,12 @@
     {
       "sounding_id": "c46c53bf-0c5e-4190-b343-cf5d8b24c4cc",
       "mission_id": "c3324b72-be55-499e-af6f-f7fb741c9f0e",
+      "launch_time_utc": null,
+      "launch_time_local": null,
+      "launch_lat": null,
+      "launch_lon": null,
+      "launch_country": null,
+      "launch_region": null,
       "measurements": [
         {
           "time_utc": "2026-06-30 12:13:30",
