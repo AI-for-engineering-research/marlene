@@ -1,6 +1,6 @@
 {
   "date": "2026-06-29",
-  "generated_at_utc": "2026-07-03T15:58:27Z",
+  "generated_at_utc": "2026-07-03T19:14:12Z",
   "total_timesteps_with_detections": 0,
   "timesteps": [],
   "viirs_overpasses": [
@@ -261,6 +261,12 @@
     {
       "sounding_id": "cc55a206-4b47-4e4f-b880-2543ce5226cd",
       "mission_id": "fd21fbfc-c8e0-4397-ba20-d0753536793b",
+      "launch_time_utc": null,
+      "launch_time_local": null,
+      "launch_lat": null,
+      "launch_lon": null,
+      "launch_country": null,
+      "launch_region": null,
       "measurements": [
         {
           "time_utc": "2026-06-29 08:17:50",
@@ -5987,6 +5993,12 @@
     {
       "sounding_id": "076ea4c3-bd7b-46d1-98f9-591d8598a5f1",
       "mission_id": "fd21fbfc-c8e0-4397-ba20-d0753536793b",
+      "launch_time_utc": null,
+      "launch_time_local": null,
+      "launch_lat": null,
+      "launch_lon": null,
+      "launch_country": null,
+      "launch_region": null,
       "measurements": [
         {
           "time_utc": "2026-06-29 08:17:20",
@@ -18236,6 +18248,12 @@
     {
       "sounding_id": "401a6459-980e-49d0-9764-ed5f8e7c3ace",
       "mission_id": "22b636a0-edd4-4ec4-a5aa-a76d11bb8a69",
+      "launch_time_utc": null,
+      "launch_time_local": null,
+      "launch_lat": null,
+      "launch_lon": null,
+      "launch_country": null,
+      "launch_region": null,
       "measurements": [
         {
           "time_utc": "2026-06-29 04:14:10",
