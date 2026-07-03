@@ -1,6 +1,6 @@
 {
   "date": "2026-06-28",
-  "generated_at_utc": "2026-07-03T15:58:24Z",
+  "generated_at_utc": "2026-07-03T19:14:09Z",
   "total_timesteps_with_detections": 0,
   "timesteps": [],
   "viirs_overpasses": [
@@ -261,6 +261,12 @@
     {
       "sounding_id": "414dfafc-a89c-464a-a2bc-602a228c31b2",
       "mission_id": "22b636a0-edd4-4ec4-a5aa-a76d11bb8a69",
+      "launch_time_utc": null,
+      "launch_time_local": null,
+      "launch_lat": null,
+      "launch_lon": null,
+      "launch_country": null,
+      "launch_region": null,
       "measurements": [
         {
           "time_utc": "2026-06-29 02:20:00",
@@ -3171,6 +3177,12 @@
     {
       "sounding_id": "08a4d2c2-f73d-41d5-a3c9-47b83d569624",
       "mission_id": "22b636a0-edd4-4ec4-a5aa-a76d11bb8a69",
+      "launch_time_utc": null,
+      "launch_time_local": null,
+      "launch_lat": null,
+      "launch_lon": null,
+      "launch_country": null,
+      "launch_region": null,
       "measurements": [
         {
           "time_utc": "2026-06-29 02:19:30",
@@ -6081,6 +6093,12 @@
     {
       "sounding_id": "e8fed91d-1d3e-4ea6-ac3a-be571e9b2742",
       "mission_id": "fd21fbfc-c8e0-4397-ba20-d0753536793b",
+      "launch_time_utc": null,
+      "launch_time_local": null,
+      "launch_lat": null,
+      "launch_lon": null,
+      "launch_country": null,
+      "launch_region": null,
       "measurements": [
         {
           "time_utc": "2026-06-29 01:24:00",
@@ -17021,6 +17039,12 @@
     {
       "sounding_id": "7718d403-183b-42c7-a95f-808a5cc6aded",
       "mission_id": "f2783d1d-a00b-4ea5-bdf3-c75c3ac27797",
+      "launch_time_utc": null,
+      "launch_time_local": null,
+      "launch_lat": null,
+      "launch_lon": null,
+      "launch_country": null,
+      "launch_region": null,
       "measurements": [
         {
           "time_utc": "2026-06-28 06:46:00",
@@ -20756,6 +20780,12 @@
     {
       "sounding_id": "fef30aeb-68db-4842-a428-406e9a7245b7",
       "mission_id": "6ef4fdf6-12a0-4816-846b-e36a94245d9e",
+      "launch_time_utc": null,
+      "launch_time_local": null,
+      "launch_lat": null,
+      "launch_lon": null,
+      "launch_country": null,
+      "launch_region": null,
       "measurements": [
         {
           "time_utc": "2026-06-28 04:28:30",
