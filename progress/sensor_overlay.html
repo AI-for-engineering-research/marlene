@@ -533,7 +533,7 @@
               </div>
               <div class="so-legend-item">
                 <div class="so-legend-swatch" style="background:#E8B93D"></div>
-                <span>WindBorne sounding (ISSR present)</span>
+                <span>ISSR level (map: per-point; timeline: sounding has ≥1)</span>
               </div>
             </div>
 
@@ -679,14 +679,22 @@
       }
       if (mark.kind === 'windborne') {
         const latlngs = mark.track.map(([lon, lat]) => [lat, lon]);
-        const color = mark.hasIssr ? COLOR_ISSR : COLOR_WINDBORNE;
+        const color = COLOR_WINDBORNE;
         const line = L.polyline(latlngs, { color, weight: 2, opacity: 0.95 });
         // Wide, invisible line so hovering anywhere near the track (not just
         // exactly on the thin stroke) resolves to the nearest measurement.
         const hit  = L.polyline(latlngs, { weight: 14, opacity: 0 });
-        const dots = latlngs.map(ll => L.circleMarker(ll, {
-          radius: 2, color, weight: 1, fillColor: color, fillOpacity: 0.9
-        }));
+        // Each dot is colored by its own measurement's RHi, not the
+        // sounding-wide flag or the pipeline's issr_flag (which applies extra
+        // persistence/layer criteria beyond a simple RHi>100% threshold) --
+        // a single supersaturated level shouldn't turn every point yellow,
+        // and every point with RHi>100% should show as such.
+        const dots = latlngs.map((ll, i) => {
+          const dotColor = mark.measurements[i]?.rhi > 1 ? COLOR_ISSR : COLOR_WINDBORNE;
+          return L.circleMarker(ll, {
+            radius: 2, color: dotColor, weight: 1, fillColor: dotColor, fillOpacity: 0.9
+          });
+        });
         attachWindborneHover(hit, mark);
         snapLayer = L.featureGroup([hit, line, ...dots]);
       } else {
@@ -715,7 +723,7 @@
           return (b.fracEnd - b.fracStart) - (a.fracEnd - a.fracStart);
         });
       stacked.forEach(m => {
-          const color = m.hasIssr ? COLOR_ISSR : COLOR_WINDBORNE;
+          const color = COLOR_WINDBORNE;
           const latlngs = m.track.map(([lon, lat]) => [lat, lon]);
           const line = L.polyline(latlngs, { color, weight: 1, opacity: 0.35 });
           // Wide, invisible line so hovering anywhere near the faint track
@@ -723,9 +731,14 @@
           const hit  = L.polyline(latlngs, { weight: 14, opacity: 0 });
           attachWindborneHover(hit, m);
           layers.push(hit, line);
-          latlngs.forEach(ll => layers.push(L.circleMarker(ll, {
-            radius: 2, color, weight: 1, fillColor: color, fillOpacity: 0.6, opacity: 0.6
-          })));
+          // Each dot is colored by its own measurement's RHi -- see
+          // showSnap() for the same rationale.
+          latlngs.forEach((ll, i) => {
+            const dotColor = m.measurements[i]?.rhi > 1 ? COLOR_ISSR : COLOR_WINDBORNE;
+            layers.push(L.circleMarker(ll, {
+              radius: 2, color: dotColor, weight: 1, fillColor: dotColor, fillOpacity: 0.6, opacity: 0.6
+            }));
+          });
         });
       if (layers.length) windborneTracksLayer = L.layerGroup(layers).addTo(map);
     }
