@@ -166,10 +166,19 @@
       border-radius: 9px;
       border: 1.5px solid rgba(255,255,255,0.9);
       box-sizing: border-box;
+      overflow: hidden;
       cursor: pointer;
       transition: opacity 0.15s;
     }
     .so-sounding-mark:hover { opacity: 0.7; }
+    .so-sounding-issr-line {
+      position: absolute;
+      top: 0;
+      height: 100%;
+      width: 1.5px;
+      transform: translateX(-50%);
+      pointer-events: none;
+    }
 
     /* Time axis */
     .so-axis {
@@ -533,7 +542,7 @@
               </div>
               <div class="so-legend-item">
                 <div class="so-legend-swatch" style="background:#E8B93D"></div>
-                <span>ISSR level (map: per-point; timeline: sounding has ≥1)</span>
+                <span>ISSR level (map dot &amp; timeline line: per-point rhi&gt;1; timeline bar fill: sounding has ≥1 by pipeline issr_flag)</span>
               </div>
             </div>
 
@@ -958,6 +967,20 @@
         bar.style.width      = (Math.max(m.fracEnd - m.fracStart, 0) * 100) + '%';
         bar.style.background = hexToRgba(m.hasIssr ? COLOR_ISSR : COLOR_WINDBORNE, 0.8);
         attachInteraction(bar, windborneSoundingTip(m), null);
+
+        // Per-point ISSR detection lines (raw rhi > 1) on top of the bar.
+        const span = m.fracEnd - m.fracStart;
+        if (span > 0) {
+          for (const f of (m.rhiFracs || [])) {
+            const rel = Math.min(Math.max((f - m.fracStart) / span, 0), 1);
+            const line = document.createElement('div');
+            line.className = 'so-sounding-issr-line';
+            line.style.left       = (rel * 100) + '%';
+            line.style.background = COLOR_ISSR;
+            bar.appendChild(line);
+          }
+        }
+
         track.appendChild(bar);
       }
       row.appendChild(track);
@@ -1149,10 +1172,18 @@
         const alts = ms.map(m => m.altitude_m);
         const fracStart = toLocalFraction(first.time_utc, first.time_local, data.date);
         const fracEnd   = toLocalFraction(last.time_utc,  last.time_local,  data.date);
+        // Per-point ISSR detections (raw rhi > 1, same threshold as the map
+        // dots) -- rendered as yellow lines inside the bar so a sounding that
+        // is mostly-but-not-entirely ISSR shows that instead of an all-or-
+        // nothing color driven by the pipeline's persistence-filtered issr_flag.
+        const rhiFracs = ms
+          .filter(m => m.rhi > 1)
+          .map(m => toLocalFraction(m.time_utc, m.time_local, data.date));
         return [{
           kind: 'windborne',
           frac: (fracStart + fracEnd) / 2,
           fracStart, fracEnd,
+          rhiFracs,
           utc: fmtTime(first.time_utc), utcEnd: fmtTime(last.time_utc),
           local: fmtTime(first.time_local), localEnd: fmtTime(last.time_local),
           measurementCount: ms.length,
