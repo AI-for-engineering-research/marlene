@@ -1,0 +1,1617 @@
+{
+  "date": "2026-07-05",
+  "generated_at_utc": "2026-07-06T10:45:05Z",
+  "total_timesteps_with_detections": 0,
+  "timesteps": [],
+  "viirs_overpasses": [
+    {
+      "time_utc": "2026-07-05 05:54:00",
+      "time_local": "2026-07-05 01:54:00",
+      "platform": "NOAA-21",
+      "swath_polygon": [
+        [
+          -41.461197,
+          39.510883
+        ],
+        [
+          -77.512794,
+          45.001507
+        ],
+        [
+          -79.481644,
+          24.042912
+        ],
+        [
+          -50.826748,
+          19.660143
+        ],
+        [
+          -41.461197,
+          39.510883
+        ]
+      ],
+      "mcast_url": "https://mcast-lae.mit.edu/map?current_time=202607050554&layers=cnv&lon=-71.089236&lat=42.360442&zoom=7"
+    },
+    {
+      "time_utc": "2026-07-05 06:24:00",
+      "time_local": "2026-07-05 02:24:00",
+      "platform": "SUOMI NPP",
+      "swath_polygon": [
+        [
+          -31.117771,
+          55.760662
+        ],
+        [
+          -86.184212,
+          64.18499
+        ],
+        [
+          -84.549126,
+          43.531528
+        ],
+        [
+          -48.506153,
+          37.961147
+        ],
+        [
+          -31.117771,
+          55.760662
+        ]
+      ],
+      "mcast_url": "https://mcast-lae.mit.edu/map?current_time=202607050624&layers=cnv&lon=-71.089236&lat=42.360442&zoom=7"
+    },
+    {
+      "time_utc": "2026-07-05 06:30:00",
+      "time_local": "2026-07-05 02:30:00",
+      "platform": "SUOMI NPP",
+      "swath_polygon": [
+        [
+          -48.453808,
+          38.070381
+        ],
+        [
+          -84.557037,
+          43.650524
+        ],
+        [
+          -86.600365,
+          22.741762
+        ],
+        [
+          -57.563599,
+          18.230251
+        ],
+        [
+          -48.453808,
+          38.070381
+        ]
+      ],
+      "mcast_url": "https://mcast-lae.mit.edu/map?current_time=202607050630&layers=cnv&lon=-71.089236&lat=42.360442&zoom=7"
+    },
+    {
+      "time_utc": "2026-07-05 06:48:00",
+      "time_local": "2026-07-05 02:48:00",
+      "platform": "NOAA-20",
+      "swath_polygon": [
+        [
+          -52.642811,
+          41.746014
+        ],
+        [
+          -90.465782,
+          47.552254
+        ],
+        [
+          -92.119987,
+          26.756876
+        ],
+        [
+          -62.675129,
+          22.204054
+        ],
+        [
+          -52.642811,
+          41.746014
+        ]
+      ],
+      "mcast_url": "https://mcast-lae.mit.edu/map?current_time=202607050648&layers=cnv&lon=-71.089236&lat=42.360442&zoom=7"
+    },
+    {
+      "time_utc": "2026-07-05 07:30:00",
+      "time_local": "2026-07-05 03:30:00",
+      "platform": "NOAA-21",
+      "swath_polygon": [
+        [
+          -50.841152,
+          55.75246
+        ],
+        [
+          -104.279472,
+          63.8335
+        ],
+        [
+          -102.940712,
+          43.111439
+        ],
+        [
+          -67.910744,
+          37.772305
+        ],
+        [
+          -50.841152,
+          55.75246
+        ]
+      ],
+      "mcast_url": "https://mcast-lae.mit.edu/map?current_time=202607050730&layers=cnv&lon=-71.089236&lat=42.360442&zoom=7"
+    },
+    {
+      "time_utc": "2026-07-05 08:06:00",
+      "time_local": "2026-07-05 04:06:00",
+      "platform": "SUOMI NPP",
+      "swath_polygon": [
+        [
+          -58.556873,
+          54.402576
+        ],
+        [
+          -111.110779,
+          62.452675
+        ],
+        [
+          -109.95282,
+          41.774513
+        ],
+        [
+          -74.857178,
+          36.338215
+        ],
+        [
+          -58.556873,
+          54.402576
+        ]
+      ],
+      "mcast_url": "https://mcast-lae.mit.edu/map?current_time=202607050806&layers=cnv&lon=-71.089236&lat=42.360442&zoom=7"
+    },
+    {
+      "time_utc": "2026-07-05 16:30:00",
+      "time_local": "2026-07-05 12:30:00",
+      "platform": "NOAA-20",
+      "swath_polygon": [
+        [
+          -67.770927,
+          33.224491
+        ],
+        [
+          -34.628868,
+          38.234428
+        ],
+        [
+          -34.497383,
+          59.055939
+        ],
+        [
+          -82.235107,
+          51.860893
+        ],
+        [
+          -67.770927,
+          33.224491
+        ]
+      ],
+      "mcast_url": "https://mcast-lae.mit.edu/map?current_time=202607051630&layers=cnv&lon=-71.089236&lat=42.360442&zoom=7"
+    },
+    {
+      "time_utc": "2026-07-05 17:18:00",
+      "time_local": "2026-07-05 13:18:00",
+      "platform": "NOAA-21",
+      "swath_polygon": [
+        [
+          -82.423965,
+          37.319942
+        ],
+        [
+          -47.532646,
+          42.588966
+        ],
+        [
+          -46.518349,
+          63.317917
+        ],
+        [
+          -99.172897,
+          55.369438
+        ],
+        [
+          -82.423965,
+          37.319942
+        ]
+      ],
+      "mcast_url": "https://mcast-lae.mit.edu/map?current_time=202607051718&layers=cnv&lon=-71.089236&lat=42.360442&zoom=7"
+    },
+    {
+      "time_utc": "2026-07-05 17:48:00",
+      "time_local": "2026-07-05 13:48:00",
+      "platform": "SUOMI NPP",
+      "swath_polygon": [
+        [
+          -81.110336,
+          18.874378
+        ],
+        [
+          -51.944931,
+          23.313347
+        ],
+        [
+          -53.912762,
+          44.11985
+        ],
+        [
+          -90.314423,
+          38.589336
+        ],
+        [
+          -81.110336,
+          18.874378
+        ]
+      ],
+      "mcast_url": "https://mcast-lae.mit.edu/map?current_time=202607051748&layers=cnv&lon=-71.089236&lat=42.360442&zoom=7"
+    },
+    {
+      "time_utc": "2026-07-05 17:54:00",
+      "time_local": "2026-07-05 13:54:00",
+      "platform": "SUOMI NPP",
+      "swath_polygon": [
+        [
+          -90.265808,
+          38.47908
+        ],
+        [
+          -53.925735,
+          44.000526
+        ],
+        [
+          -52.146702,
+          64.647507
+        ],
+        [
+          -108.011177,
+          56.194603
+        ],
+        [
+          -90.265808,
+          38.47908
+        ]
+      ],
+      "mcast_url": "https://mcast-lae.mit.edu/map?current_time=202607051754&layers=cnv&lon=-71.089236&lat=42.360442&zoom=7"
+    },
+    {
+      "time_utc": "2026-07-05 18:12:00",
+      "time_local": "2026-07-05 14:12:00",
+      "platform": "NOAA-20",
+      "swath_polygon": [
+        [
+          -94.02813,
+          34.89106
+        ],
+        [
+          -60.127987,
+          40.011822
+        ],
+        [
+          -59.607155,
+          60.712635
+        ],
+        [
+          -109.295746,
+          53.233616
+        ],
+        [
+          -94.02813,
+          34.89106
+        ]
+      ],
+      "mcast_url": "https://mcast-lae.mit.edu/map?current_time=202607051812&layers=cnv&lon=-71.089236&lat=42.360442&zoom=7"
+    }
+  ],
+  "windborne_soundings": [
+    {
+      "sounding_id": "ac143c4a-53df-4651-8dec-59d70b0cabcb",
+      "mission_id": "d53734a3-f243-40a9-a1f2-c8d9f19505ea",
+      "launch_time_utc": null,
+      "launch_time_local": null,
+      "launch_lat": null,
+      "launch_lon": null,
+      "launch_country": null,
+      "launch_region": null,
+      "measurements": [
+        {
+          "time_utc": "2026-07-05 11:07:50",
+          "time_local": "2026-07-05 07:07:50",
+          "altitude_m": 17426.6,
+          "pressure_hpa": 87.84,
+          "lat": 44.46326,
+          "lon": -67.04604,
+          "temperature_c": -55.55000000000001,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 11:07:40",
+          "time_local": "2026-07-05 07:07:40",
+          "altitude_m": 17426.6,
+          "pressure_hpa": 87.84,
+          "lat": 44.4631,
+          "lon": -67.04682,
+          "temperature_c": -55.829999999999984,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 11:07:30",
+          "time_local": "2026-07-05 07:07:30",
+          "altitude_m": 17426.6,
+          "pressure_hpa": 87.84,
+          "lat": 44.46294,
+          "lon": -67.0476,
+          "temperature_c": -55.829999999999984,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 11:07:20",
+          "time_local": "2026-07-05 07:07:20",
+          "altitude_m": 17426.6,
+          "pressure_hpa": 87.84,
+          "lat": 44.46278,
+          "lon": -67.04837,
+          "temperature_c": -55.28,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 11:07:10",
+          "time_local": "2026-07-05 07:07:10",
+          "altitude_m": 17426.6,
+          "pressure_hpa": 87.84,
+          "lat": 44.46261,
+          "lon": -67.04926,
+          "temperature_c": -55.28,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 11:06:40",
+          "time_local": "2026-07-05 07:06:40",
+          "altitude_m": 17434.4,
+          "pressure_hpa": 87.74,
+          "lat": 44.46208,
+          "lon": -67.05191,
+          "temperature_c": -55.56,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 11:06:20",
+          "time_local": "2026-07-05 07:06:20",
+          "altitude_m": 17434.4,
+          "pressure_hpa": 87.74,
+          "lat": 44.46173,
+          "lon": -67.05368,
+          "temperature_c": -55.55000000000001,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 11:06:10",
+          "time_local": "2026-07-05 07:06:10",
+          "altitude_m": 17434.4,
+          "pressure_hpa": 87.74,
+          "lat": 44.46155,
+          "lon": -67.05457,
+          "temperature_c": -55.55000000000001,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 11:06:00",
+          "time_local": "2026-07-05 07:06:00",
+          "altitude_m": 17434.4,
+          "pressure_hpa": 87.74,
+          "lat": 44.46138,
+          "lon": -67.05545,
+          "temperature_c": -55.55000000000001,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 11:06:30",
+          "time_local": "2026-07-05 07:06:30",
+          "altitude_m": 17434.4,
+          "pressure_hpa": 87.74,
+          "lat": 44.4619,
+          "lon": -67.0528,
+          "temperature_c": -55.829999999999984,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 11:06:50",
+          "time_local": "2026-07-05 07:06:50",
+          "altitude_m": 17434.4,
+          "pressure_hpa": 87.74,
+          "lat": 44.46225,
+          "lon": -67.05103,
+          "temperature_c": -55.56,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 11:08:00",
+          "time_local": "2026-07-05 07:08:00",
+          "altitude_m": 17434.4,
+          "pressure_hpa": 87.73,
+          "lat": 44.46342,
+          "lon": -67.04526,
+          "temperature_c": -55.81999999999999,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 11:08:10",
+          "time_local": "2026-07-05 07:08:10",
+          "altitude_m": 17434.4,
+          "pressure_hpa": 87.73,
+          "lat": 44.46358,
+          "lon": -67.04448,
+          "temperature_c": -55.81999999999999,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 11:05:50",
+          "time_local": "2026-07-05 07:05:50",
+          "altitude_m": 17434.4,
+          "pressure_hpa": 87.74,
+          "lat": 44.4612,
+          "lon": -67.05634,
+          "temperature_c": -55.55000000000001,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 11:07:00",
+          "time_local": "2026-07-05 07:07:00",
+          "altitude_m": 17434.4,
+          "pressure_hpa": 87.73,
+          "lat": 44.46243,
+          "lon": -67.05014,
+          "temperature_c": -55.28,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 11:08:40",
+          "time_local": "2026-07-05 07:08:40",
+          "altitude_m": 17442.3,
+          "pressure_hpa": 87.63,
+          "lat": 44.46405,
+          "lon": -67.04215,
+          "temperature_c": -54.99000000000001,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 11:08:30",
+          "time_local": "2026-07-05 07:08:30",
+          "altitude_m": 17442.3,
+          "pressure_hpa": 87.63,
+          "lat": 44.46389,
+          "lon": -67.04293,
+          "temperature_c": -55.25999999999999,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 11:08:20",
+          "time_local": "2026-07-05 07:08:20",
+          "altitude_m": 17442.3,
+          "pressure_hpa": 87.63,
+          "lat": 44.46373,
+          "lon": -67.04371,
+          "temperature_c": -55.53999999999999,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 11:05:40",
+          "time_local": "2026-07-05 07:05:40",
+          "altitude_m": 17442.3,
+          "pressure_hpa": 87.64,
+          "lat": 44.46102,
+          "lon": -67.05723,
+          "temperature_c": -55.55000000000001,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 11:05:30",
+          "time_local": "2026-07-05 07:05:30",
+          "altitude_m": 17442.3,
+          "pressure_hpa": 87.64,
+          "lat": 44.46085,
+          "lon": -67.05811,
+          "temperature_c": -55.0,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 11:04:50",
+          "time_local": "2026-07-05 07:04:50",
+          "altitude_m": 17442.3,
+          "pressure_hpa": 87.64,
+          "lat": 44.46015,
+          "lon": -67.06165,
+          "temperature_c": -55.55000000000001,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 11:04:40",
+          "time_local": "2026-07-05 07:04:40",
+          "altitude_m": 17442.3,
+          "pressure_hpa": 87.64,
+          "lat": 44.45997,
+          "lon": -67.06254,
+          "temperature_c": -55.55000000000001,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 11:04:30",
+          "time_local": "2026-07-05 07:04:30",
+          "altitude_m": 17442.3,
+          "pressure_hpa": 87.64,
+          "lat": 44.45979,
+          "lon": -67.06342,
+          "temperature_c": -55.55000000000001,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 11:04:20",
+          "time_local": "2026-07-05 07:04:20",
+          "altitude_m": 17442.3,
+          "pressure_hpa": 87.64,
+          "lat": 44.45962,
+          "lon": -67.06431,
+          "temperature_c": -55.27000000000001,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 11:04:10",
+          "time_local": "2026-07-05 07:04:10",
+          "altitude_m": 17442.3,
+          "pressure_hpa": 87.64,
+          "lat": 44.45958,
+          "lon": -67.06516,
+          "temperature_c": -55.56,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 11:03:50",
+          "time_local": "2026-07-05 07:03:50",
+          "altitude_m": 17442.3,
+          "pressure_hpa": 87.64,
+          "lat": 44.4595,
+          "lon": -67.06687,
+          "temperature_c": -55.829999999999984,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 11:04:00",
+          "time_local": "2026-07-05 07:04:00",
+          "altitude_m": 17442.3,
+          "pressure_hpa": 87.64,
+          "lat": 44.45954,
+          "lon": -67.06601,
+          "temperature_c": -55.829999999999984,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 11:10:20",
+          "time_local": "2026-07-05 07:10:20",
+          "altitude_m": 17450.1,
+          "pressure_hpa": 87.55,
+          "lat": 44.46564,
+          "lon": -67.03438,
+          "temperature_c": -55.28999999999999,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 11:10:10",
+          "time_local": "2026-07-05 07:10:10",
+          "altitude_m": 17450.1,
+          "pressure_hpa": 87.54,
+          "lat": 44.46548,
+          "lon": -67.03515,
+          "temperature_c": -55.00999999999999,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 11:10:00",
+          "time_local": "2026-07-05 07:10:00",
+          "altitude_m": 17450.1,
+          "pressure_hpa": 87.54,
+          "lat": 44.46532,
+          "lon": -67.03593,
+          "temperature_c": -55.00999999999999,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 11:09:50",
+          "time_local": "2026-07-05 07:09:50",
+          "altitude_m": 17450.1,
+          "pressure_hpa": 87.54,
+          "lat": 44.46516,
+          "lon": -67.03671,
+          "temperature_c": -55.00999999999999,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 11:10:30",
+          "time_local": "2026-07-05 07:10:30",
+          "altitude_m": 17450.1,
+          "pressure_hpa": 87.55,
+          "lat": 44.4658,
+          "lon": -67.0336,
+          "temperature_c": -55.28999999999999,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 11:09:30",
+          "time_local": "2026-07-05 07:09:30",
+          "altitude_m": 17450.1,
+          "pressure_hpa": 87.54,
+          "lat": 44.46485,
+          "lon": -67.03826,
+          "temperature_c": -55.56,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 11:09:10",
+          "time_local": "2026-07-05 07:09:10",
+          "altitude_m": 17450.1,
+          "pressure_hpa": 87.54,
+          "lat": 44.46453,
+          "lon": -67.03982,
+          "temperature_c": -55.55000000000001,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 11:09:00",
+          "time_local": "2026-07-05 07:09:00",
+          "altitude_m": 17450.1,
+          "pressure_hpa": 87.53,
+          "lat": 44.46437,
+          "lon": -67.0406,
+          "temperature_c": -55.27000000000001,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 11:08:50",
+          "time_local": "2026-07-05 07:08:50",
+          "altitude_m": 17450.1,
+          "pressure_hpa": 87.53,
+          "lat": 44.46421,
+          "lon": -67.04137,
+          "temperature_c": -55.25999999999999,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 11:05:20",
+          "time_local": "2026-07-05 07:05:20",
+          "altitude_m": 17450.1,
+          "pressure_hpa": 87.54,
+          "lat": 44.46067,
+          "lon": -67.059,
+          "temperature_c": -55.55000000000001,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 11:05:10",
+          "time_local": "2026-07-05 07:05:10",
+          "altitude_m": 17450.1,
+          "pressure_hpa": 87.54,
+          "lat": 44.4605,
+          "lon": -67.05988,
+          "temperature_c": -55.81999999999999,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 11:05:00",
+          "time_local": "2026-07-05 07:05:00",
+          "altitude_m": 17450.1,
+          "pressure_hpa": 87.54,
+          "lat": 44.46032,
+          "lon": -67.06077,
+          "temperature_c": -55.829999999999984,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 11:09:20",
+          "time_local": "2026-07-05 07:09:20",
+          "altitude_m": 17450.1,
+          "pressure_hpa": 87.54,
+          "lat": 44.46469,
+          "lon": -67.03904,
+          "temperature_c": -55.829999999999984,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 11:09:40",
+          "time_local": "2026-07-05 07:09:40",
+          "altitude_m": 17450.1,
+          "pressure_hpa": 87.54,
+          "lat": 44.465,
+          "lon": -67.03749,
+          "temperature_c": -55.28,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 09:20:00",
+          "time_local": "2026-07-05 05:20:00",
+          "altitude_m": 17551.7,
+          "pressure_hpa": 86.09,
+          "lat": 44.55158,
+          "lon": -67.67315,
+          "temperature_c": -58.75,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 09:19:50",
+          "time_local": "2026-07-05 05:19:50",
+          "altitude_m": 17551.7,
+          "pressure_hpa": 86.09,
+          "lat": 44.5518,
+          "lon": -67.67414,
+          "temperature_c": -59.02000000000001,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 09:19:40",
+          "time_local": "2026-07-05 05:19:40",
+          "altitude_m": 17551.7,
+          "pressure_hpa": 86.08,
+          "lat": 44.55202,
+          "lon": -67.67514,
+          "temperature_c": -59.02000000000001,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 09:19:30",
+          "time_local": "2026-07-05 05:19:30",
+          "altitude_m": 17551.7,
+          "pressure_hpa": 86.08,
+          "lat": 44.55224,
+          "lon": -67.67614,
+          "temperature_c": -59.00999999999999,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 09:19:20",
+          "time_local": "2026-07-05 05:19:20",
+          "altitude_m": 17551.7,
+          "pressure_hpa": 86.08,
+          "lat": 44.55247,
+          "lon": -67.67713,
+          "temperature_c": -59.00999999999999,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 09:19:10",
+          "time_local": "2026-07-05 05:19:10",
+          "altitude_m": 17551.7,
+          "pressure_hpa": 86.08,
+          "lat": 44.55269,
+          "lon": -67.67813,
+          "temperature_c": -59.0,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 09:19:00",
+          "time_local": "2026-07-05 05:19:00",
+          "altitude_m": 17551.7,
+          "pressure_hpa": 86.08,
+          "lat": 44.55291,
+          "lon": -67.67913,
+          "temperature_c": -59.28,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 09:18:50",
+          "time_local": "2026-07-05 05:18:50",
+          "altitude_m": 17551.7,
+          "pressure_hpa": 86.08,
+          "lat": 44.55313,
+          "lon": -67.68012,
+          "temperature_c": -59.27000000000001,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 09:18:40",
+          "time_local": "2026-07-05 05:18:40",
+          "altitude_m": 17551.7,
+          "pressure_hpa": 86.08,
+          "lat": 44.55335,
+          "lon": -67.68112,
+          "temperature_c": -59.27000000000001,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 09:18:30",
+          "time_local": "2026-07-05 05:18:30",
+          "altitude_m": 17551.7,
+          "pressure_hpa": 86.08,
+          "lat": 44.55357,
+          "lon": -67.68211,
+          "temperature_c": -59.25999999999999,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 09:21:10",
+          "time_local": "2026-07-05 05:21:10",
+          "altitude_m": 17551.7,
+          "pressure_hpa": 86.09,
+          "lat": 44.55004,
+          "lon": -67.66618,
+          "temperature_c": -59.05000000000001,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 09:21:00",
+          "time_local": "2026-07-05 05:21:00",
+          "altitude_m": 17551.7,
+          "pressure_hpa": 86.09,
+          "lat": 44.55026,
+          "lon": -67.66717,
+          "temperature_c": -59.05000000000001,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 09:20:50",
+          "time_local": "2026-07-05 05:20:50",
+          "altitude_m": 17551.7,
+          "pressure_hpa": 86.09,
+          "lat": 44.55048,
+          "lon": -67.66817,
+          "temperature_c": -59.03999999999999,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 09:20:40",
+          "time_local": "2026-07-05 05:20:40",
+          "altitude_m": 17551.7,
+          "pressure_hpa": 86.09,
+          "lat": 44.5507,
+          "lon": -67.66916,
+          "temperature_c": -59.03999999999999,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 09:20:30",
+          "time_local": "2026-07-05 05:20:30",
+          "altitude_m": 17551.7,
+          "pressure_hpa": 86.09,
+          "lat": 44.55092,
+          "lon": -67.67016,
+          "temperature_c": -59.03999999999999,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 09:20:20",
+          "time_local": "2026-07-05 05:20:20",
+          "altitude_m": 17551.7,
+          "pressure_hpa": 86.09,
+          "lat": 44.55114,
+          "lon": -67.67116,
+          "temperature_c": -58.75999999999999,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 09:20:10",
+          "time_local": "2026-07-05 05:20:10",
+          "altitude_m": 17551.7,
+          "pressure_hpa": 86.09,
+          "lat": 44.55136,
+          "lon": -67.67215,
+          "temperature_c": -58.75999999999999,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 09:21:20",
+          "time_local": "2026-07-05 05:21:20",
+          "altitude_m": 17551.7,
+          "pressure_hpa": 86.09,
+          "lat": 44.54981,
+          "lon": -67.66518,
+          "temperature_c": -59.05000000000001,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 09:18:10",
+          "time_local": "2026-07-05 05:18:10",
+          "altitude_m": 17559.5,
+          "pressure_hpa": 85.98,
+          "lat": 44.55401,
+          "lon": -67.68411,
+          "temperature_c": -59.25,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 09:18:00",
+          "time_local": "2026-07-05 05:18:00",
+          "altitude_m": 17559.5,
+          "pressure_hpa": 85.98,
+          "lat": 44.55423,
+          "lon": -67.6851,
+          "temperature_c": -59.24000000000001,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 09:18:20",
+          "time_local": "2026-07-05 05:18:20",
+          "altitude_m": 17559.5,
+          "pressure_hpa": 85.98,
+          "lat": 44.55379,
+          "lon": -67.68311,
+          "temperature_c": -59.25999999999999,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 09:17:40",
+          "time_local": "2026-07-05 05:17:40",
+          "altitude_m": 17559.5,
+          "pressure_hpa": 85.98,
+          "lat": 44.55468,
+          "lon": -67.68709,
+          "temperature_c": -59.24000000000001,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 09:21:40",
+          "time_local": "2026-07-05 05:21:40",
+          "altitude_m": 17559.5,
+          "pressure_hpa": 85.99,
+          "lat": 44.54937,
+          "lon": -67.66319,
+          "temperature_c": -59.06,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 09:21:50",
+          "time_local": "2026-07-05 05:21:50",
+          "altitude_m": 17559.5,
+          "pressure_hpa": 85.99,
+          "lat": 44.54915,
+          "lon": -67.66219,
+          "temperature_c": -59.06999999999999,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 09:17:50",
+          "time_local": "2026-07-05 05:17:50",
+          "altitude_m": 17559.5,
+          "pressure_hpa": 85.98,
+          "lat": 44.55445,
+          "lon": -67.6861,
+          "temperature_c": -59.24000000000001,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 09:21:30",
+          "time_local": "2026-07-05 05:21:30",
+          "altitude_m": 17559.5,
+          "pressure_hpa": 85.99,
+          "lat": 44.54959,
+          "lon": -67.66418,
+          "temperature_c": -59.06,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 09:17:30",
+          "time_local": "2026-07-05 05:17:30",
+          "altitude_m": 17567.3,
+          "pressure_hpa": 85.88,
+          "lat": 44.5549,
+          "lon": -67.68809,
+          "temperature_c": -59.22999999999999,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 09:14:40",
+          "time_local": "2026-07-05 05:14:40",
+          "altitude_m": 17567.3,
+          "pressure_hpa": 85.88,
+          "lat": 44.5587,
+          "lon": -67.7049,
+          "temperature_c": -59.420000000000016,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 09:14:50",
+          "time_local": "2026-07-05 05:14:50",
+          "altitude_m": 17567.3,
+          "pressure_hpa": 85.88,
+          "lat": 44.55843,
+          "lon": -67.70403,
+          "temperature_c": -59.43000000000001,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 09:14:00",
+          "time_local": "2026-07-05 05:14:00",
+          "altitude_m": 17567.3,
+          "pressure_hpa": 85.88,
+          "lat": 44.55977,
+          "lon": -67.7084,
+          "temperature_c": -59.670000000000016,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 09:14:10",
+          "time_local": "2026-07-05 05:14:10",
+          "altitude_m": 17567.3,
+          "pressure_hpa": 85.88,
+          "lat": 44.5595,
+          "lon": -67.70752,
+          "temperature_c": -59.68000000000001,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 09:22:20",
+          "time_local": "2026-07-05 05:22:20",
+          "altitude_m": 17567.3,
+          "pressure_hpa": 85.89,
+          "lat": 44.54849,
+          "lon": -67.6592,
+          "temperature_c": -59.09,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 09:22:10",
+          "time_local": "2026-07-05 05:22:10",
+          "altitude_m": 17567.3,
+          "pressure_hpa": 85.89,
+          "lat": 44.54871,
+          "lon": -67.6602,
+          "temperature_c": -59.079999999999984,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 09:22:00",
+          "time_local": "2026-07-05 05:22:00",
+          "altitude_m": 17567.3,
+          "pressure_hpa": 85.89,
+          "lat": 44.54893,
+          "lon": -67.6612,
+          "temperature_c": -59.06999999999999,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 09:15:00",
+          "time_local": "2026-07-05 05:15:00",
+          "altitude_m": 17567.3,
+          "pressure_hpa": 85.88,
+          "lat": 44.55821,
+          "lon": -67.70303,
+          "temperature_c": -59.44,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 09:15:10",
+          "time_local": "2026-07-05 05:15:10",
+          "altitude_m": 17567.3,
+          "pressure_hpa": 85.88,
+          "lat": 44.55799,
+          "lon": -67.70204,
+          "temperature_c": -59.44,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 09:15:20",
+          "time_local": "2026-07-05 05:15:20",
+          "altitude_m": 17567.3,
+          "pressure_hpa": 85.88,
+          "lat": 44.55777,
+          "lon": -67.70104,
+          "temperature_c": -59.44999999999999,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 09:15:30",
+          "time_local": "2026-07-05 05:15:30",
+          "altitude_m": 17567.3,
+          "pressure_hpa": 85.88,
+          "lat": 44.55755,
+          "lon": -67.70004,
+          "temperature_c": -59.44999999999999,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 09:14:30",
+          "time_local": "2026-07-05 05:14:30",
+          "altitude_m": 17567.3,
+          "pressure_hpa": 85.88,
+          "lat": 44.55897,
+          "lon": -67.70578,
+          "temperature_c": -59.420000000000016,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 09:15:50",
+          "time_local": "2026-07-05 05:15:50",
+          "altitude_m": 17567.3,
+          "pressure_hpa": 85.88,
+          "lat": 44.55711,
+          "lon": -67.69805,
+          "temperature_c": -59.19,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 09:16:00",
+          "time_local": "2026-07-05 05:16:00",
+          "altitude_m": 17567.3,
+          "pressure_hpa": 85.88,
+          "lat": 44.55688,
+          "lon": -67.69706,
+          "temperature_c": -59.19999999999999,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 09:16:10",
+          "time_local": "2026-07-05 05:16:10",
+          "altitude_m": 17567.3,
+          "pressure_hpa": 85.88,
+          "lat": 44.55666,
+          "lon": -67.69606,
+          "temperature_c": -59.19999999999999,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 09:14:20",
+          "time_local": "2026-07-05 05:14:20",
+          "altitude_m": 17567.3,
+          "pressure_hpa": 85.88,
+          "lat": 44.55923,
+          "lon": -67.70665,
+          "temperature_c": -59.41,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 09:16:20",
+          "time_local": "2026-07-05 05:16:20",
+          "altitude_m": 17567.3,
+          "pressure_hpa": 85.88,
+          "lat": 44.55644,
+          "lon": -67.69506,
+          "temperature_c": -59.19999999999999,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 09:16:30",
+          "time_local": "2026-07-05 05:16:30",
+          "altitude_m": 17567.3,
+          "pressure_hpa": 85.88,
+          "lat": 44.55622,
+          "lon": -67.69407,
+          "temperature_c": -59.47999999999999,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 09:16:40",
+          "time_local": "2026-07-05 05:16:40",
+          "altitude_m": 17567.3,
+          "pressure_hpa": 85.88,
+          "lat": 44.556,
+          "lon": -67.69307,
+          "temperature_c": -59.49000000000001,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 09:17:00",
+          "time_local": "2026-07-05 05:17:00",
+          "altitude_m": 17567.3,
+          "pressure_hpa": 85.88,
+          "lat": 44.55556,
+          "lon": -67.69108,
+          "temperature_c": -59.22,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 09:17:10",
+          "time_local": "2026-07-05 05:17:10",
+          "altitude_m": 17567.3,
+          "pressure_hpa": 85.88,
+          "lat": 44.55534,
+          "lon": -67.69008,
+          "temperature_c": -59.22999999999999,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 09:17:20",
+          "time_local": "2026-07-05 05:17:20",
+          "altitude_m": 17567.3,
+          "pressure_hpa": 85.88,
+          "lat": 44.55512,
+          "lon": -67.68909,
+          "temperature_c": -59.22999999999999,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 09:16:50",
+          "time_local": "2026-07-05 05:16:50",
+          "altitude_m": 17567.3,
+          "pressure_hpa": 85.88,
+          "lat": 44.55578,
+          "lon": -67.69207,
+          "temperature_c": -59.22,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 09:15:40",
+          "time_local": "2026-07-05 05:15:40",
+          "altitude_m": 17567.3,
+          "pressure_hpa": 85.88,
+          "lat": 44.55733,
+          "lon": -67.69905,
+          "temperature_c": -59.19,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 09:13:20",
+          "time_local": "2026-07-05 05:13:20",
+          "altitude_m": 17575.1,
+          "pressure_hpa": 85.78,
+          "lat": 44.56084,
+          "lon": -67.7119,
+          "temperature_c": -59.650000000000006,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 09:13:40",
+          "time_local": "2026-07-05 05:13:40",
+          "altitude_m": 17575.1,
+          "pressure_hpa": 85.78,
+          "lat": 44.5603,
+          "lon": -67.71015,
+          "temperature_c": -59.66,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 09:13:50",
+          "time_local": "2026-07-05 05:13:50",
+          "altitude_m": 17575.1,
+          "pressure_hpa": 85.78,
+          "lat": 44.56004,
+          "lon": -67.70927,
+          "temperature_c": -59.670000000000016,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 09:13:10",
+          "time_local": "2026-07-05 05:13:10",
+          "altitude_m": 17575.1,
+          "pressure_hpa": 85.78,
+          "lat": 44.5611,
+          "lon": -67.71277,
+          "temperature_c": -59.639999999999986,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 09:13:00",
+          "time_local": "2026-07-05 05:13:00",
+          "altitude_m": 17575.1,
+          "pressure_hpa": 85.78,
+          "lat": 44.56137,
+          "lon": -67.71364,
+          "temperature_c": -59.920000000000016,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 09:13:30",
+          "time_local": "2026-07-05 05:13:30",
+          "altitude_m": 17575.1,
+          "pressure_hpa": 85.78,
+          "lat": 44.56057,
+          "lon": -67.71102,
+          "temperature_c": -59.650000000000006,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 09:12:50",
+          "time_local": "2026-07-05 05:12:50",
+          "altitude_m": 17575.1,
+          "pressure_hpa": 85.78,
+          "lat": 44.56164,
+          "lon": -67.71452,
+          "temperature_c": -59.91,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 09:11:30",
+          "time_local": "2026-07-05 05:11:30",
+          "altitude_m": 17582.9,
+          "pressure_hpa": 85.68,
+          "lat": 44.56378,
+          "lon": -67.72151,
+          "temperature_c": -60.139999999999986,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 09:11:40",
+          "time_local": "2026-07-05 05:11:40",
+          "altitude_m": 17582.9,
+          "pressure_hpa": 85.68,
+          "lat": 44.56351,
+          "lon": -67.72064,
+          "temperature_c": -60.150000000000006,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 09:11:50",
+          "time_local": "2026-07-05 05:11:50",
+          "altitude_m": 17582.9,
+          "pressure_hpa": 85.68,
+          "lat": 44.56324,
+          "lon": -67.71976,
+          "temperature_c": -59.879999999999995,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 09:12:00",
+          "time_local": "2026-07-05 05:12:00",
+          "altitude_m": 17582.9,
+          "pressure_hpa": 85.68,
+          "lat": 44.56298,
+          "lon": -67.71889,
+          "temperature_c": -60.16,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 09:12:10",
+          "time_local": "2026-07-05 05:12:10",
+          "altitude_m": 17582.9,
+          "pressure_hpa": 85.68,
+          "lat": 44.56271,
+          "lon": -67.71801,
+          "temperature_c": -59.889999999999986,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 09:12:20",
+          "time_local": "2026-07-05 05:12:20",
+          "altitude_m": 17582.9,
+          "pressure_hpa": 85.68,
+          "lat": 44.56244,
+          "lon": -67.71714,
+          "temperature_c": -59.900000000000006,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 09:10:50",
+          "time_local": "2026-07-05 05:10:50",
+          "altitude_m": 17582.9,
+          "pressure_hpa": 85.67,
+          "lat": 44.56485,
+          "lon": -67.72501,
+          "temperature_c": -60.120000000000005,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 09:12:30",
+          "time_local": "2026-07-05 05:12:30",
+          "altitude_m": 17582.9,
+          "pressure_hpa": 85.68,
+          "lat": 44.56217,
+          "lon": -67.71627,
+          "temperature_c": -59.900000000000006,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 09:12:40",
+          "time_local": "2026-07-05 05:12:40",
+          "altitude_m": 17582.9,
+          "pressure_hpa": 85.68,
+          "lat": 44.56191,
+          "lon": -67.71539,
+          "temperature_c": -59.91,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 09:11:20",
+          "time_local": "2026-07-05 05:11:20",
+          "altitude_m": 17582.9,
+          "pressure_hpa": 85.68,
+          "lat": 44.56405,
+          "lon": -67.72239,
+          "temperature_c": -60.139999999999986,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 09:11:00",
+          "time_local": "2026-07-05 05:11:00",
+          "altitude_m": 17582.9,
+          "pressure_hpa": 85.68,
+          "lat": 44.56458,
+          "lon": -67.72413,
+          "temperature_c": -60.120000000000005,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 09:10:20",
+          "time_local": "2026-07-05 05:10:20",
+          "altitude_m": 17582.9,
+          "pressure_hpa": 85.67,
+          "lat": 44.56565,
+          "lon": -67.72763,
+          "temperature_c": -60.099999999999994,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 09:10:30",
+          "time_local": "2026-07-05 05:10:30",
+          "altitude_m": 17582.9,
+          "pressure_hpa": 85.67,
+          "lat": 44.56538,
+          "lon": -67.72676,
+          "temperature_c": -60.099999999999994,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 09:10:40",
+          "time_local": "2026-07-05 05:10:40",
+          "altitude_m": 17582.9,
+          "pressure_hpa": 85.67,
+          "lat": 44.56512,
+          "lon": -67.72588,
+          "temperature_c": -60.110000000000014,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 09:11:10",
+          "time_local": "2026-07-05 05:11:10",
+          "altitude_m": 17582.9,
+          "pressure_hpa": 85.68,
+          "lat": 44.56431,
+          "lon": -67.72326,
+          "temperature_c": -60.129999999999995,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 09:09:50",
+          "time_local": "2026-07-05 05:09:50",
+          "altitude_m": 17590.7,
+          "pressure_hpa": 85.57,
+          "lat": 44.56645,
+          "lon": -67.73025,
+          "temperature_c": -60.079999999999984,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 09:10:10",
+          "time_local": "2026-07-05 05:10:10",
+          "altitude_m": 17590.7,
+          "pressure_hpa": 85.57,
+          "lat": 44.56592,
+          "lon": -67.7285,
+          "temperature_c": -60.09,
+          "rhi": 0.0,
+          "issr_flag": false
+        },
+        {
+          "time_utc": "2026-07-05 09:10:00",
+          "time_local": "2026-07-05 05:10:00",
+          "altitude_m": 17590.7,
+          "pressure_hpa": 85.57,
+          "lat": 44.56618,
+          "lon": -67.72938,
+          "temperature_c": -60.09,
+          "rhi": 0.0,
+          "issr_flag": false
+        }
+      ]
+    }
+  ]
+}
