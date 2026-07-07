@@ -549,7 +549,7 @@
             <div class="so-date-pills" id="so-date-pills"></div>
             <div id="so-fov-map"></div>
             <div class="so-timeline" id="so-timeline"></div>
-            <p class="so-scrub-caption">Drag the cursor below the timeline — or click anywhere along it — to reveal that overpass's VIIRS swath footprint on the map above.</p>
+            <p class="so-scrub-caption">Drag the cursor below the timeline, click anywhere along it, or click a VIIRS overpass tick or WindBorne sounding bar directly, to reveal that overpass's footprint on the map above.</p>
             <p class="so-summary" id="so-summary"></p>
             <p class="sp-caption">MIT Sky Camera 50 km FOV. Basemap: CartoDB Positron / OpenStreetMap contributors.</p>
           </div>
@@ -678,6 +678,9 @@
     /* ── VIIRS swath / WindBorne track layer, driven by the scrub cursor ─── */
     let snapLayer = null;
     let windborneMarkById = new Map();
+    // Set by buildScrubber() each render; lets a click on a VIIRS tick or
+    // WindBorne bar jump the map the same way dragging the scrub cursor does.
+    let scrubUpdate = null;
     function showSnap(mark, { animate = true } = {}) {
       if (snapLayer) { map.removeLayer(snapLayer); snapLayer = null; }
       tooltip.style.display = 'none';
@@ -940,7 +943,9 @@
         const tip = `<div class="so-tooltip-title">${m.platform || 'VIIRS'} overpass</div>
           <div>${m.utc} UTC / ${m.local} ET</div>
           ${m.url ? `<a class="so-tooltip-hint" href="${m.url}" target="_blank" rel="noopener">Open in mcast →</a>` : ''}`;
-        attachInteraction(tick, tip, m.url);
+        attachInteraction(tick, tip, null);
+        tick.style.cursor = 'pointer';
+        tick.addEventListener('click', () => { if (scrubUpdate) scrubUpdate(m.frac); });
         track.appendChild(tick);
       }
       row.appendChild(track);
@@ -967,6 +972,7 @@
         bar.style.width      = (Math.max(m.fracEnd - m.fracStart, 0) * 100) + '%';
         bar.style.background = hexToRgba(m.hasIssr ? COLOR_ISSR : COLOR_WINDBORNE, 0.8);
         attachInteraction(bar, windborneSoundingTip(m), null);
+        bar.addEventListener('click', () => { if (scrubUpdate) scrubUpdate(m.frac); });
 
         // Per-point ISSR detection lines (raw rhi > 1) on top of the bar.
         const span = m.fracEnd - m.fracStart;
@@ -1072,6 +1078,7 @@
       wrap.appendChild(timeLabel);
 
       update(0, { commit: false });
+      return { update };
     }
 
     function getETOffset(dateStr) {
@@ -1212,7 +1219,7 @@
         ...viirsMarks.filter(m => m.swath_polygon && m.platform),
         ...windborneMarks
       ];
-      buildScrubber(wrap, snappable);
+      scrubUpdate = buildScrubber(wrap, snappable).update;
 
       const vCount = viirsMarks.length;
       const aCount = abiMarks.length;
