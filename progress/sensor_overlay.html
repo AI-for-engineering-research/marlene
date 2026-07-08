@@ -507,7 +507,7 @@
               Note: consecutive orbits of a given VIIRS satellite are roughly 100 minutes apart and overlap spatially, which is why each platform can contribute more than one swath over a region of interest per day. Overpasses cycle through the constellation in a fixed order — Suomi NPP, NOAA-20, NOAA-21, Suomi NPP, and so on — with each successive swath shifted slightly west of the one before it.
             </p>
             <p class="sp-caption">
-              Note: for WindBorne, "ROI" (region of interest) refers to a 1000 km &times; 1000 km bounding box centered on the MIT Sky Camera (500 km north, east, south, and west) &mdash; not the same 50 km radius used to filter the other sensors above. A WindBorne sounding is logged whenever its balloon's drift track passes through this box, regardless of where the balloon launched.
+              Note: for WindBorne, "ROI" (region of interest) refers to a 1000 km &times; 1000 km bounding box centered on the MIT Sky Camera (500 km north, east, south, and west) &mdash; not the same 50 km radius used to filter the other sensors above. A WindBorne sounding is logged whenever its balloon's drift track passes through this box, regardless of where the balloon launched. An ISSR detection flag does not automatically apply to all measurements with RH<sub>i</sub> &gt; 1, but also requires clear-sky (RH &lt; 1), and is restricted to the cruise altitude range (FL250-FL450). Both ISSRs and interlayers with less than 100 ft vertical extent are ignored and merged into the adjacent clear air mass or ISSR, respectively. 
             </p>
           </div>
 
@@ -542,7 +542,7 @@
               </div>
               <div class="so-legend-item">
                 <div class="so-legend-swatch" style="background:#E8B93D"></div>
-                <span>WindBorne ISSR detection</span>
+                <span>WindBorne ISSR detection (cruise range only)</span>
               </div>
             </div>
 
@@ -696,13 +696,13 @@
         // Wide, invisible line so hovering anywhere near the track (not just
         // exactly on the thin stroke) resolves to the nearest measurement.
         const hit  = L.polyline(latlngs, { weight: 14, opacity: 0 });
-        // Each dot is colored by its own measurement's RHi, not the
-        // sounding-wide flag or the pipeline's issr_flag (which applies extra
-        // persistence/layer criteria beyond a simple RHi>100% threshold) --
-        // a single supersaturated level shouldn't turn every point yellow,
-        // and every point with RHi>100% should show as such.
+        // Each dot is colored by its own measurement's pipeline issr_flag,
+        // which requires RHi>=1 AND (when available) RH-over-liquid<1 --
+        // the latter drops the capacitive sensor's cloud/rail artifact that
+        // otherwise reads as RHi~1.6 -- plus gap-merge/min-thickness layer
+        // criteria, so isolated sensor noise doesn't get marked ISSR.
         const dots = latlngs.map((ll, i) => {
-          const dotColor = mark.measurements[i]?.rhi > 1 ? COLOR_ISSR : COLOR_WINDBORNE;
+          const dotColor = mark.measurements[i]?.issr_flag ? COLOR_ISSR : COLOR_WINDBORNE;
           return L.circleMarker(ll, {
             radius: 2, color: dotColor, weight: 1, fillColor: dotColor, fillOpacity: 0.9
           });
@@ -743,10 +743,10 @@
           const hit  = L.polyline(latlngs, { weight: 14, opacity: 0 });
           attachWindborneHover(hit, m);
           layers.push(hit, line);
-          // Each dot is colored by its own measurement's RHi -- see
+          // Each dot is colored by its own measurement's issr_flag -- see
           // showSnap() for the same rationale.
           latlngs.forEach((ll, i) => {
-            const dotColor = m.measurements[i]?.rhi > 1 ? COLOR_ISSR : COLOR_WINDBORNE;
+            const dotColor = m.measurements[i]?.issr_flag ? COLOR_ISSR : COLOR_WINDBORNE;
             layers.push(L.circleMarker(ll, {
               radius: 2, color: dotColor, weight: 1, fillColor: dotColor, fillOpacity: 0.6, opacity: 0.6
             }));
@@ -974,7 +974,7 @@
         attachInteraction(bar, windborneSoundingTip(m), null);
         bar.addEventListener('click', () => { if (scrubUpdate) scrubUpdate(m.frac); });
 
-        // Per-point ISSR detection lines (raw rhi > 1) on top of the bar.
+        // Per-point ISSR detection lines (pipeline issr_flag) on top of the bar.
         const span = m.fracEnd - m.fracStart;
         if (span > 0) {
           for (const f of (m.rhiFracs || [])) {
@@ -1179,12 +1179,12 @@
         const alts = ms.map(m => m.altitude_m);
         const fracStart = toLocalFraction(first.time_utc, first.time_local, data.date);
         const fracEnd   = toLocalFraction(last.time_utc,  last.time_local,  data.date);
-        // Per-point ISSR detections (raw rhi > 1, same threshold as the map
+        // Per-point ISSR detections (pipeline issr_flag, same as the map
         // dots) -- rendered as yellow lines inside the bar so a sounding that
         // is mostly-but-not-entirely ISSR shows that instead of an all-or-
-        // nothing color driven by the pipeline's persistence-filtered issr_flag.
+        // nothing color for the whole track.
         const rhiFracs = ms
-          .filter(m => m.rhi > 1)
+          .filter(m => m.issr_flag)
           .map(m => toLocalFraction(m.time_utc, m.time_local, data.date));
         return [{
           kind: 'windborne',
