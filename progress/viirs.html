@@ -60,7 +60,7 @@
             <li><a href="#viirs-dataset"             class="sp-sidenav-item" data-section="viirs-dataset">Data</a></li>
             <li><a href="#viirs-finetuning"           class="sp-sidenav-item" data-section="viirs-finetuning">Model Fine-Tuning</a></li>
             <li><a href="#viirs-threshold-explorer"  class="sp-sidenav-item" data-section="viirs-threshold-explorer">Interactive Results</a></li>
-            <!--<li><a href="#viirs-next-steps"          class="sp-sidenav-item" data-section="viirs-next-steps">In Progress</a></li>-->
+            <li><a href="#viirs-next-steps"          class="sp-sidenav-item" data-section="viirs-next-steps">Findings &amp; Next Steps</a></li>
           </ul>
         </nav>
 
@@ -389,6 +389,25 @@
             </div>
           </div>
         </div>
+      </div>
+
+      <!-- ─── INTERMEDIATE FINDINGS & NEXT STEPS ───── -->
+      <div class="sp-section" id="viirs-next-steps">
+        <div class="sp-section-label">Assessment</div>
+        <h2 class="sp-section-title">Intermediate findings and next steps</h2>
+
+        <p class="sp-text">
+          Fine-tuning the segmentation head on 7 VIIRS training scenes demonstrates that ABI&rarr;VIIRS transfer is feasible with light adaptation. Zero-shot output calibration is unusable &mdash; both model variants collapse nearly every pixel to logit&nbsp;&asymp;&nbsp;&minus;13, leaving no operating range to threshold. Retraining only the final 1&times;1 convolution shifts background and contrail pixels into the sigmoid's linear region, producing a genuinely tunable precision/recall tradeoff across thresholds 0.2&ndash;0.7, with the precision=recall crossover at threshold&nbsp;&asymp;&nbsp;0.42 and precision&nbsp;&asymp;&nbsp;recall&nbsp;&asymp;&nbsp;0.48 on val scenes 1 and 7 &mdash; a modest, yet not overly impressive, improvement over the zero-shot <code>detection-1.1</code> baseline (~0.45 precision), not yet a clean separation. Substituting the spectrally closer I5 channel for M15 as the C14 proxy made no measurable difference to either the logit distributions or the precision/recall curves. This might be partially due to the resampling of the the channel to match the lower-resolution M-band channels.
+        </p>
+
+        <p class="sp-text"><strong>Paths forward:</strong></p>
+        <ul class="sp-text" style="padding-left: 1.5rem;">
+          <li><strong>Head-only fine-tuning suffices for a usable baseline.</strong> The frozen encoder and decoder transfer from ABI to VIIRS without retraining, and adapting a single 1&times;1 convolution on 7 scenes produces a calibrated model &mdash; the main positive result so far.</li>
+          <li><strong>For tighter separation, unfreeze the decoder.</strong> The current feature distributions overlap substantially; retraining the decoder on VIIRS data is the natural next step if sharper separation is required. The difference in pixel size is more relevant for the earlier layers of the model and cannot be tackled by fine-tuning only the segmentation head.</li>
+          <li><strong>Training data is the binding constraint.</strong> Only 7 scenes were available for fine-tuning. If this project continues in the fall, engaging UROPs to label additional, more diverse VIIRS scenes is the highest-leverage investment before attempting a decoder fine-tune. However, light-tuning of all layers might be a promising path forward, especially since there is also room for improvement of the ABI detection model.</li>
+        </ul>
+
+        <p class="sp-caption">The test set (scenes 4, 9, 12) remains untouched and locked, and will only be evaluated once fine-tuning decisions are finalized.</p>
       </div>
 
         </div><!-- /.sp-page-content -->
