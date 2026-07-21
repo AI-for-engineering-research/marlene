@@ -25,10 +25,17 @@
         <ul class="nav-dropdown-menu">
           <li><a href="progress/viirs.html">VIIRS Detection</a></li>
           <li><a href="progress/windborne.html">WindBorne Radiosonde</a></li>
+          <li><a href="progress/sensor_overlay.html">Sensor Overlay</a></li>
         </ul>
       </li>
       <li><a href="ai_log.html">AI Log</a></li>
-      <li><a href="walkthroughs.html">Walkthroughs</a></li>
+      <li>
+        <a href="walkthroughs.html">Walkthroughs</a>
+        <ul class="nav-dropdown-menu">
+          <li><a href="walkthroughs/viirs_detection_finetuning.html">Segmentation head</a></li>
+          <li><a href="walkthroughs/ml_architecture.html">CNN detection</a></li>
+        </ul>
+      </li>
       <li><a href="index.html#about">About</a></li>
     </ul>
   </nav>
@@ -43,6 +50,57 @@
         <p class="section-sub">A running log of weekly progress notes and reflections on working with AI tools for research.</p>
       </div>
 
+      <!-- ─── WEEK 8 ─────────────────────────────── -->
+      <div class="update-entry" id="update-20260721">
+        <div class="update-entry-meta">
+          <span class="update-type update-type--update">AI Log</span>
+          <span class="update-date">July 21, 2026</span>
+        </div>
+        <h2>Week 8</h2>
+        <ul>
+          <li>Used <code>grill-with-docs</code> skill alongside backlog - as demonstrated in one of the last AI pilot sessions - which was very helpful to manage several workstreams and ideas at a time.</li>
+          <li>Used backlog and <code>grill-with-docs</code> to recreate some figures from a paper, but using different data. Grilling session took pretty long and execution session as well, but the result was pretty good right away. Only small tuning was needed and a could do several of these sessions at once.</li>
+          <li>Used Claude to set up and customize automatic Windows notifications that inform me whenever one of my Claude sessions finished thinking or is waiting for a repsonse or for my approval. The notification shows the name of the Ubuntu window in which the respective session is running. This alows me to better use my time; instead of constantly checking each Ubuntu window to see whether each session is waiting for a repsonse I can just get informed which window I should switch to.</li>
+        </ul>
+      </div>
+
+      <div class="update-entry" id="reflection-20260721">
+        <div class="update-entry-meta">
+          <span class="update-type update-type--reflection">Reflection</span>
+          <span class="update-date">July 21, 2026</span>
+        </div>
+        <h2>Week 8</h2>
+        <ul>
+          <li>Backlog was very helpful to put down a few of my thoughts and ideas before going on vacation and then picking those back up again without needing as much of a ramp up as usually after a break.</li>
+          <li>Not sure if I will move on to another sensor spotlight this summer or if I keep mainly focusing on the WindBorne data and climatology study since that seems very promising.</li>
+        </ul>
+      </div>
+
+      <!-- ─── WEEK 7 ─────────────────────────────── -->
+      <div class="update-entry" id="update-20260714">
+        <div class="update-entry-meta">
+          <span class="update-type update-type--update">AI Log</span>
+          <span class="update-date">July 14, 2026</span>
+        </div>
+        <h2>Week 7</h2>
+        <ul>
+          <li>Fine-tuning of visualization of WindBorne data on Sensor Overlay page.</li>
+          <li>Increased use of backlog for task handling - separating planning sessions from execution.</li>
+        </ul>
+      </div>
+
+      <div class="update-entry" id="reflection-20260714">
+        <div class="update-entry-meta">
+          <span class="update-type update-type--reflection">Reflection</span>
+          <span class="update-date">July 14, 2026</span>
+        </div>
+        <h2>Week 7</h2>
+        <ul>
+        <li>Spent lots of time on Sensor Overlay tool to visualize data availability the way I envisioned it too look.</li>
+        <li>Need to to add figures and more updates on my WindBorne research spotlight to website soon. I need to organize my thoughts on all the different workstreams I amde progress on and how I would want to visualize them.</li>
+        </ul>
+      </div>
+
       <!-- ─── WEEK 6 ─────────────────────────────── -->
       <div class="update-entry" id="update-20260707">
         <div class="update-entry-meta">
@@ -54,8 +112,11 @@
           <li>Added the WindBorne soundings to the sensor overly not just with data availability but also with <code>T</code> and <code>RHi</code> data since those are lightweight to put on the website and very informative (need to be vetted, however). Adding the WindBorne data took much more iterations than the other data sources since nothing was set up yet and the data is more complex.</li>
           <li>What is yet to be added and currently missing is the launch location and launch date data when clicking on the popup for a WindBorne sounding/measurement. The API currently does not let me access the mission-level data live.</li>
           <li>Current workflow is three-fold with investigating the WindBorne sonde movement, investigating climatological trends using the WindBorne measurements, and developing the sensor overlay tool on this website in parallel.</li>
-          <li>Reproduced figures from WindBorne prepint (Spisak et al.) to help with parsing through data and understanding their approach. Also reproduced firgures Prashanth had generated from a differen radiosonde dataset to compare.</li>
+          <li>Reproduced figures from WindBorne prepint (Spisak et al.) to help with parsing through data and understanding their approach. Also reproduced figures Prashanth had generated from a differen radiosonde dataset to compare.</li>
           <li>Started climatological analysis using thousands of WindBorne soundings.</li>
+          <li>Started using backlog to have agents log tasks both for other agent sessions and for myself.</li>
+          <li>Started using <code>/teach</code> skill to educate myself on science aspects related to my current project. So far I have not used it to educate myself on a completely new topic but rather to use it as a refresher and to clarify some aspects that confused me. I specifically used it to solidify and deepen my understanding of humidity in the atmosphere and of cloud formation.</li>
+          <li>Built an <code>html</code> viewer to visualize some processed data for the UROPs to use to complete a labeling task.</li>
         </ul>
       </div>
 
@@ -67,6 +128,9 @@
         <h2>Week 6</h2>
         <ul>
         <li>The WindBorne spotlight is tricky but I enjoy it. It seems more complex than the previous sub-projects, partially since it is fully new to me, partially because I am building on existing structure and need to learn the already established terminology, and partially since the data is coming from an external source with some hiccus (e.g. the data variable <code>leg</code> is not correctly assigned for the descent leg).</li>
+        <li>I just started using <code>backlog</code> but it already seems very helpful. In the past, I already started breaking up planning and implemntation of individual tasks (or task snippets) by sessions but the documentation was in form of a README or DOCUMENTATION markdown file. While I usually told the agent to update the "what's next?" sections in these files, it would have likely eventually resulted in a lot of AI slop and it was less streamlined. Backlog is very useful here to replace that approach. I could probably use the Kanban board more, but I probably will over time.</li>
+        <li>The <code>/teach</code> skill is very helpful. I started having the agent write me a new lecture whenever a scientific question came up which I then read while I was waiting for other tasks to compelte. So far I only used it to teach me about things I already have some sort of baseline understanding for. That might change it I have an idea of something else I would like to learn more about.</li>
+        <li>Found an arbitrary AI mistake in the repo (a made-up term that led to a lot of confusion when I asked the agent to explain it and integrate it into the lecture) and it took quite a while to figure out where it came from and what it actually was.</li>
         </ul>
       </div>
 

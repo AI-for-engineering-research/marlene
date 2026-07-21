@@ -25,10 +25,17 @@
         <ul class="nav-dropdown-menu">
           <li><a href="progress/viirs.html">VIIRS Detection</a></li>
           <li><a href="progress/windborne.html">WindBorne Radiosonde</a></li>
+          <li><a href="progress/sensor_overlay.html">Sensor Overlay</a></li>
         </ul>
       </li>
       <li><a href="ai_log.html">AI Log</a></li>
-      <li><a href="walkthroughs.html">Walkthroughs</a></li>
+      <li>
+        <a href="walkthroughs.html">Walkthroughs</a>
+        <ul class="nav-dropdown-menu">
+          <li><a href="walkthroughs/viirs_detection_finetuning.html">Segmentation head</a></li>
+          <li><a href="walkthroughs/ml_architecture.html">CNN detection</a></li>
+        </ul>
+      </li>
       <li><a href="index.html#about">About</a></li>
     </ul>
   </nav>
@@ -44,15 +51,6 @@
       </div>
 
       <!-- ─── PANEL 1 ─────────────────────────────── -->
-      <a class="progress-panel" href="walkthroughs/viirs-pipeline.html">
-        <img class="progress-panel-img" src="assets/images/progress/viirs/viirs_detection_flowchart.png" alt="VIIRS contrail detection pipeline flowchart" />
-        <div class="progress-panel-body">
-          <h2 class="progress-panel-title">VIIRS contrail detection pipeline</h2>
-          <p class="progress-panel-desc">A node-by-node walkthrough of the full inference pipeline: VIIRS band mapping from M15/I5 channels to the ABI input format, normalization, model forward pass, and prediction output. M15 and I5 paths are shown in parallel throughout.</p>
-        </div>
-      </a>
-
-      <!-- ─── PANEL 2 ─────────────────────────────── -->
       <a class="progress-panel" href="walkthroughs/viirs_detection_finetuning.html">
         <img class="progress-panel-img" src="assets/images/progress/viirs/viirs_labels_input_for_flowchart.png" alt="VIIRS fine-tuning segmentation head" />
         <div class="progress-panel-body">

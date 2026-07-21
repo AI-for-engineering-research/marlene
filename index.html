@@ -45,7 +45,13 @@
         </ul>
       </li>
       <li><a href="ai_log.html">AI Log</a></li>
-      <li><a href="walkthroughs.html">Walkthroughs</a></li>
+      <li>
+        <a href="walkthroughs.html">Walkthroughs</a>
+        <ul class="nav-dropdown-menu">
+          <li><a href="walkthroughs/viirs_detection_finetuning.html">Segmentation head</a></li>
+          <li><a href="walkthroughs/ml_architecture.html">CNN detection</a></li>
+        </ul>
+      </li>
       <li><a href="#about">About</a></li>
     </ul>
   </nav>
@@ -186,7 +192,73 @@
         <div class="updates-carousel-wrap">
           <div class="updates-carousel-track" id="updatesTrack">
 
-            <!-- Week 5 (newest — shown first on the left) -->
+            <!-- Week 8 (newest — shown first on the left) -->
+            <div class="updates-carousel-page">
+              <div class="update-card">
+                <div class="update-meta">
+                  <span class="update-type update-type--update">AI log</span>
+                  <span class="update-date">July 21, 2026</span>
+                </div>
+                <h3>Week 8</h3>
+                <p>Leaned further into backlog for planning, paired it with the <code>grill-with-docs</code> skill to recreate paper figures on new data, and set up a notification system that flags which Claude session is waiting on a response.</p>
+                <a href="ai_log.html#update-20260721" class="update-link">Read more →</a>
+              </div>
+              <div class="update-card">
+                <div class="update-meta">
+                  <span class="update-type update-type--reflection">Reflection</span>
+                  <span class="update-date">July 21, 2026</span>
+                </div>
+                <h3>Week 8</h3>
+                <p>Backlog made it easy to jot down ideas before vacation and pick them back up with little ramp-up afterward. Still weighing whether to start a new sensor spotlight or keep focusing on the promising WindBorne climatology work.</p>
+                <a href="ai_log.html#reflection-20260721" class="update-link">Read more →</a>
+              </div>
+            </div>
+
+            <!-- Week 7 -->
+            <div class="updates-carousel-page">
+              <div class="update-card">
+                <div class="update-meta">
+                  <span class="update-type update-type--update">AI log</span>
+                  <span class="update-date">July 14, 2026</span>
+                </div>
+                <h3>Week 7</h3>
+                <p>Fine-tuned the WindBorne visualization on the sensor overlay page and leaned further into backlog to separate planning sessions from execution.</p>
+                <a href="ai_log.html#update-20260714" class="update-link">Read more →</a>
+              </div>
+              <div class="update-card">
+                <div class="update-meta">
+                  <span class="update-type update-type--reflection">Reflection</span>
+                  <span class="update-date">July 14, 2026</span>
+                </div>
+                <h3>Week 7</h3>
+                <p>Spent most of the week getting the sensor overlay's data availability view to look the way I envisioned. Still need to organize my thoughts across workstreams and bring the WindBorne spotlight write-up up to date.</p>
+                <a href="ai_log.html#reflection-20260714" class="update-link">Read more →</a>
+              </div>
+            </div>
+
+            <!-- Week 6 -->
+            <div class="updates-carousel-page">
+              <div class="update-card">
+                <div class="update-meta">
+                  <span class="update-type update-type--update">AI log</span>
+                  <span class="update-date">July 7, 2026</span>
+                </div>
+                <h3>Week 6</h3>
+                <p>Added WindBorne soundings (temperature and RHi) to the sensor overlay, reproduced published figures to validate the approach, and started climatological analysis across thousands of soundings.</p>
+                <a href="ai_log.html#update-20260707" class="update-link">Read more →</a>
+              </div>
+              <div class="update-card">
+                <div class="update-meta">
+                  <span class="update-type update-type--reflection">Reflection</span>
+                  <span class="update-date">July 7, 2026</span>
+                </div>
+                <h3>Week 6</h3>
+                <p>The WindBorne spotlight is trickier than earlier ones — new terminology and messier external data. Backlog and the <code>/teach</code> skill are proving genuinely useful for task tracking and self-education.</p>
+                <a href="ai_log.html#reflection-20260707" class="update-link">Read more →</a>
+              </div>
+            </div>
+
+            <!-- Week 5 -->
             <div class="updates-carousel-page">
               <div class="update-card">
                 <div class="update-meta">
@@ -202,7 +274,7 @@
                   <span class="update-type update-type--reflection">Reflection</span>
                   <span class="update-date">June 30, 2026</span>
                 </div>
-                <h3>Week 5 — Workflow</h3>
+                <h3>Week 5</h3>
                 <p>Juggled multiple agents across terminals and repos at once — naming terminals by task helped manage the mental load. Started breaking tasks into smaller steps before each session.</p>
                 <a href="ai_log.html#reflection-20260630" class="update-link">Read more →</a>
               </div>
@@ -224,7 +296,7 @@
                   <span class="update-type update-type--reflection">Reflection</span>
                   <span class="update-date">June 23, 2026</span>
                 </div>
-                <h3>Week 4 — Workflow</h3>
+                <h3>Week 4</h3>
                 <p>Loose design instructions worked better than specifying every detail. Providing documentation upfront keeps sessions focused.</p>
                 <a href="ai_log.html#reflection-20260623" class="update-link">Read more →</a>
               </div>
@@ -246,7 +318,7 @@
                   <span class="update-type update-type--reflection">Reflection</span>
                   <span class="update-date">June 16, 2026</span>
                 </div>
-                <h3>Week 3 — Workflow</h3>
+                <h3>Week 3</h3>
                 <p>First time working in parallel on two machines. Leaning on the agent to keep READMEs updated in real time.</p>
                 <a href="ai_log.html#reflection-20260616" class="update-link">Read more →</a>
               </div>
@@ -268,7 +340,7 @@
                   <span class="update-type update-type--reflection">Reflection</span>
                   <span class="update-date">June 11, 2026</span>
                 </div>
-                <h3>Week 2 — Workflow</h3>
+                <h3>Week 2</h3>
                 <p>Switched to Claude directly. Working with multiple terminals and reading Simon Willison's blog on agentic engineering.</p>
                 <a href="ai_log.html#reflection-20260611" class="update-link">Read more →</a>
               </div>
@@ -290,7 +362,7 @@
                   <span class="update-type update-type--reflection">Reflection</span>
                   <span class="update-date">June 5, 2026</span>
                 </div>
-                <h3>Week 1 — Workflow</h3>
+                <h3>Week 1</h3>
                 <p>First impressions working with pi and Claude Sonnet to build this site from scratch.</p>
                 <a href="ai_log.html#reflection-20260605" class="update-link">Read more →</a>
               </div>
@@ -304,6 +376,9 @@
 
       <div class="carousel-dots" id="carouselDots">
         <span class="carousel-dot active"></span>
+        <span class="carousel-dot"></span>
+        <span class="carousel-dot"></span>
+        <span class="carousel-dot"></span>
         <span class="carousel-dot"></span>
         <span class="carousel-dot"></span>
         <span class="carousel-dot"></span>
