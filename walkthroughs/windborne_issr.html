@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Identifying ISSRs in WindBorne observations</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]});"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --sky-light:#eaf4fb;--sky-mid:#c8e6f5;--sky-blue:#7bbfdd;--sky-deep:#4a9abe;
+  --ink:#1a2a35;--ink-soft:#3d5566;--ink-muted:#6b8899;--white:#ffffff;
+  --glass-bg:rgba(255,255,255,0.72);--glass-border:rgba(123,191,221,0.35);
+  --radius:14px;--shadow:0 4px 32px rgba(74,154,190,0.10);
+  --font-serif:'Cormorant Garamond',serif;
+  --font-sans:'Inter',sans-serif;
+  --ice:#8aa8d8;--ice-deep:#5c76b0;--warn:#d9b072;--good:#90c9a8;
+}
+html{scroll-behavior:smooth}
+body{
+  font-family:var(--font-sans);
+  font-weight:300;
+  background:var(--sky-light);
+  color:var(--ink);
+  font-size:16px;
+  line-height:1.6;
+  min-height:100vh;
+}
+
+/* ─── NAV ─── */
+.wt-nav{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0.9rem 2rem;
+  background:rgba(255,255,255,0.82);
+  backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--glass-border);
+  position:sticky;top:0;z-index:100;
+}
+.wt-nav-logo{
+  font-family:var(--font-serif);font-size:1.3rem;font-weight:600;
+  color:var(--ink);text-decoration:none;letter-spacing:0.04em;
+}
+.wt-nav-back{
+  font-size:0.82rem;font-weight:400;color:var(--sky-deep);
+  text-decoration:none;letter-spacing:0.02em;
+  padding:0.35rem 0.8rem;
+  border:1px solid rgba(74,154,190,0.3);
+  border-radius:20px;
+  transition:all 0.2s;
+}
+.wt-nav-back:hover{background:rgba(74,154,190,0.08);border-color:var(--sky-deep);}
+
+/* ─── HEADER ─── */
+.header{
+  max-width:860px;margin:0 auto;
+  padding:3.5rem 2rem 2rem;
+}
+.header-eyebrow{
+  display:block;
+  font-size:0.72rem;font-weight:500;letter-spacing:0.18em;text-transform:uppercase;
+  color:var(--sky-deep);margin-bottom:0.8rem;
+}
+.header h1{
+  font-family:var(--font-serif);font-size:2.8rem;font-weight:300;
+  color:var(--ink);line-height:1.18;margin-bottom:1rem;
+}
+.header h1 em{font-style:italic;color:var(--sky-deep);}
+.header-sub{
+  font-size:1rem;font-weight:300;color:var(--ink-muted);
+  line-height:1.7;max-width:640px;
+}
+
+/* ─── CONTAINER ─── */
+.container{
+  max-width:860px;margin:0 auto;
+  padding:0.5rem 2rem 5rem;
+}
+
+/* ─── SECTION CARDS ─── */
+.exp-section{
+  background:var(--glass-bg);
+  border:1px solid var(--glass-border);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  padding:2.8rem;
+  margin-bottom:2.2rem;
+  scroll-margin-top:80px;
+}
+.exp-label{
+  font-size:0.69rem;font-weight:500;letter-spacing:0.16em;text-transform:uppercase;
+  color:var(--sky-deep);margin-bottom:0.55rem;
+}
+.exp-title{
+  font-family:var(--font-serif);font-size:2rem;font-weight:300;
+  color:var(--ink);margin-bottom:1.2rem;line-height:1.22;
+}
+.exp-title em{font-style:italic;color:var(--sky-deep);}
+.exp-text{
+  font-size:0.97rem;line-height:1.78;color:var(--ink-soft);
+  margin-bottom:1.1rem;
+}
+.exp-text:last-of-type{margin-bottom:0}
+.exp-text strong{font-weight:500;color:var(--ink);}
+.exp-text em{font-style:italic;}
+.exp-text code{
+  font-family:'SFMono-Regular',Consolas,monospace;font-size:0.86em;
+  background:rgba(74,154,190,0.09);padding:0.1em 0.4em;border-radius:4px;
+  color:var(--ink-soft);
+}
+.section-ref{
+  color:var(--sky-deep);text-decoration:underline;
+  text-decoration-color:rgba(74,154,190,0.35);text-underline-offset:2px;
+  font-weight:400;
+}
+.section-ref:hover{text-decoration-color:var(--sky-deep);}
+
+/* ─── FORMULA BLOCK ─── */
+.exp-formula{
+  background:var(--sky-light);
+  border-left:3px solid var(--sky-blue);
+  border-radius:0 8px 8px 0;
+  padding:1rem 1.6rem;
+  margin:1.5rem 0;
+  overflow-x:auto;
+}
+.exp-formula-label{
+  font-size:0.72rem;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;
+  color:var(--ink-muted);margin-bottom:0.5rem;
+}
+
+/* ─── CALLOUT ─── */
+.exp-callout{
+  background:rgba(74,154,190,0.07);
+  border:1px solid rgba(74,154,190,0.22);
+  border-radius:10px;
+  padding:1.1rem 1.5rem;
+  margin:1.4rem 0;
+  font-size:0.92rem;line-height:1.65;color:var(--ink-soft);
+}
+.exp-callout strong{font-weight:500;color:var(--sky-deep);}
+.exp-callout.warn{background:rgba(217,176,114,0.10);border-color:rgba(217,176,114,0.32);}
+.exp-callout.warn strong{color:#a67a2e;}
+
+/* ─── FIGURE ─── */
+.exp-figure{
+  margin:2rem 0 1rem;
+  text-align:center;
+}
+.exp-figure svg{
+  max-width:100%;height:auto;
+  display:block;margin:0 auto;
+}
+.exp-caption{
+  font-size:0.8rem;color:var(--ink-muted);
+  font-style:italic;margin-top:0.8rem;
+  text-align:center;line-height:1.5;
+}
+
+/* ─── TWO-COL ─── */
+.exp-2col{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:2.4rem;align-items:start;
+  margin-top:1.2rem;
+}
+@media(max-width:680px){.exp-2col{grid-template-columns:1fr;}}
+
+/* ─── INLINE TOC BAR ─── */
+.toc-bar{
+  display:flex;align-items:baseline;gap:0.6rem;flex-wrap:wrap;
+  background:rgba(255,255,255,0.55);
+  border:1px solid var(--glass-border);
+  border-radius:10px;
+  padding:0.75rem 1.2rem;
+  margin-bottom:1.8rem;
+}
+.toc-bar-label{
+  font-size:0.68rem;font-weight:500;letter-spacing:0.14em;text-transform:uppercase;
+  color:var(--ink-muted);flex-shrink:0;margin-right:0.3rem;
+}
+.toc-link{
+  font-size:0.78rem;font-weight:300;
+  color:var(--sky-deep);text-decoration:none;
+  padding:0.18rem 0.55rem;
+  border:1px solid rgba(74,154,190,0.22);
+  border-radius:20px;
+  transition:all 0.18s;white-space:nowrap;
+}
+.toc-link:hover{background:rgba(74,154,190,0.10);border-color:var(--sky-blue);}
+
+/* ─── FIELD TABLE ─── */
+.field-table{
+  width:100%;border-collapse:collapse;
+  margin:1.3rem 0;font-size:0.86rem;
+}
+.field-table th{
+  text-align:left;font-weight:500;font-size:0.68rem;letter-spacing:0.09em;
+  text-transform:uppercase;color:var(--ink-muted);
+  padding:0.4rem 0.7rem;border-bottom:1.5px solid var(--glass-border);
+}
+.field-table td{
+  padding:0.5rem 0.7rem;border-bottom:1px solid rgba(123,191,221,0.18);
+  color:var(--ink-soft);vertical-align:top;
+}
+.field-table td:first-child{
+  font-family:'SFMono-Regular',Consolas,monospace;font-size:0.83em;color:var(--sky-deep);
+  white-space:nowrap;
+}
+.field-table tr:last-child td{border-bottom:none;}
+</style>
+</head>
+<body>
+
+<nav class="wt-nav">
+  <a href="../index.html" class="wt-nav-logo">MVE</a>
+  <a href="../walkthroughs.html" class="wt-nav-back">← Walkthroughs</a>
+</nav>
+
+<div class="header">
+  <span class="header-eyebrow">Data Pipeline Explainer</span>
+  <h1>Identifying <em>ISSRs</em> in WindBorne observations</h1>
+  <p class="header-sub">A visual walkthrough of the WindBorne radiosonde pipeline — which fields we pull from the API, how raw levels are filtered into a clean cruise-band table, how relative humidity over liquid and over ice are derived, and the exact criteria that flag an ice-supersaturated region (ISSR).</p>
+</div>
+
+<div class="container">
+
+<nav class="toc-bar" aria-label="Contents">
+  <span class="toc-bar-label">Contents</span>
+  <a class="toc-link" href="#api">01 · API &amp; Variables</a>
+  <a class="toc-link" href="#filtering">02 · Filtering &amp; QC</a>
+  <a class="toc-link" href="#rh-liquid">03 · RH over Liquid</a>
+  <a class="toc-link" href="#rhi">04 · RH over Ice</a>
+  <a class="toc-link" href="#convention">05 · Reference Phase</a>
+  <a class="toc-link" href="#issr">06 · ISSR Layers</a>
+</nav>
+
+<!-- ════════════════════════════════════════ -->
+<!-- SECTION 1: API & VARIABLES              -->
+<!-- ════════════════════════════════════════ -->
+<section class="exp-section" id="api">
+  <div class="exp-label">01 — The Data Source</div>
+  <h2 class="exp-title">Pulling <em>Soundings</em> from the WindBorne API</h2>
+
+  <p class="exp-text">
+    Every balloon ascent and subsequent descent (referred to as legs) are a <strong>sounding</strong>: a time-ordered sequence of observations collected and transmitted as the balloon rises and falls. The WindBorne observations API (<code>api.windbornesystems.com/observations/v1</code>) exposes soundings through two calls, paired together: a paginated <strong>index</strong> that lists which soundings exist, and a <strong>per-sounding fetch</strong> that returns the full vertical column for one of them.
+  </p>
+  <p class="exp-text">
+    The index (<code>GET soundings.json</code>) is walked page by page, trusting the server's <code>has_next_page</code> flag as the authoritative loop terminator rather than stopping on a short page — a short page can still be followed by another page. Each index row is lightweight metadata: <code>id</code>, <code>mission_id</code>, <code>start_time</code>/<code>end_time</code>, and the min/max altitude the ascent reached. The heavy payload comes from following up with <code>GET soundings/&#123;sounding_id&#125;.json</code>, which returns <code>&#123;sounding_id, mission_id, data: [levels…]&#125;</code> — one dict per level.
+  </p>
+
+  <figure class="exp-figure">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 200" width="700" height="200" aria-label="WindBorne API fetch pipeline diagram">
+      <defs>
+        <marker id="a1" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto">
+          <polygon points="0,0 9,3.5 0,7" fill="#4a9abe"/>
+        </marker>
+      </defs>
+
+      <!-- Box 1: index -->
+      <rect x="15" y="55" width="175" height="72" rx="8" fill="#eaf4fb" stroke="#7bbfdd" stroke-width="1.2"/>
+      <text x="102" y="80" text-anchor="middle" font-family="Inter,sans-serif" font-size="10.5" font-weight="500" fill="#1a2a35">soundings.json</text>
+      <text x="102" y="96" text-anchor="middle" font-family="Inter,sans-serif" font-size="8.5" fill="#6b8899">paginated index</text>
+      <text x="102" y="110" text-anchor="middle" font-family="Inter,sans-serif" font-size="8.5" fill="#6b8899">id · mission_id · start_time</text>
+
+      <line x1="190" y1="91" x2="228" y2="91" stroke="#4a9abe" stroke-width="1.6" marker-end="url(#a1)"/>
+
+      <!-- Box 2: per-sounding fetch -->
+      <rect x="232" y="55" width="185" height="72" rx="8" fill="#eaf4fb" stroke="#7bbfdd" stroke-width="1.2"/>
+      <text x="324" y="76" text-anchor="middle" font-family="Inter,sans-serif" font-size="10.5" font-weight="500" fill="#1a2a35">soundings/&#123;id&#125;.json</text>
+      <text x="324" y="92" text-anchor="middle" font-family="Inter,sans-serif" font-size="8.5" fill="#6b8899">one ascent, full column</text>
+      <text x="324" y="106" text-anchor="middle" font-family="Inter,sans-serif" font-size="8.5" fill="#6b8899">retried on 400/403/429/5xx</text>
+      <text x="324" y="118" text-anchor="middle" font-family="Inter,sans-serif" font-size="8.5" fill="#6b8899">(spurious overload signals)</text>
+
+      <line x1="417" y1="91" x2="455" y2="91" stroke="#4a9abe" stroke-width="1.6" marker-end="url(#a1)"/>
+
+      <!-- Box 3: per-level record -->
+      <rect x="459" y="14" width="228" height="172" rx="8" fill="#c8e6f5" stroke="#7bbfdd" stroke-width="1.2"/>
+      <text x="573" y="34" text-anchor="middle" font-family="Inter,sans-serif" font-size="10.5" font-weight="500" fill="#1a2a35">per-level record</text>
+      <g font-family="SFMono-Regular,Consolas,monospace" font-size="9.3" fill="#1a2a35">
+        <text x="473" y="52">altitude_m</text>
+        <text x="473" y="68">pressure_hpa</text>
+        <text x="473" y="84">temperature_c</text>
+        <text x="473" y="100">dewpoint_c</text>
+        <text x="473" y="116">relative_humidity_pct</text>
+        <text x="473" y="132">specific_humidity_mg_kg</text>
+        <text x="473" y="148">latitude, longitude</text>
+        <text x="473" y="164">time</text>
+      </g>
+      <text x="573" y="178" text-anchor="middle" font-family="Inter,sans-serif" font-size="8" font-style="italic" fill="#3d5566">repeated for every observation of the sounding</text>
+    </svg>
+    <figcaption class="exp-caption">
+      Two calls, chained: the index tells the pipeline which sounding ids exist; the per-sounding fetch returns every observation of the requested sounding. Position (<code>latitude</code>/<code>longitude</code>) is per observation, not per sounding — balloons drift horizontally while climbing, so each level carries its own fix.
+    </figcaption>
+  </figure>
+
+  <p class="exp-text">
+    Eight fields are read from each observation record. The client and the two downstream consumers (<code>sounding.py</code>'s live analysis path and <code>ingest.py</code>'s cache builder) both resolve field names through a small <strong>alias table</strong> rather than a hardcoded key, tolerant of schema variants (e.g. <code>altitude_m</code> vs. <code>altitude</code>) until the exact production schema is locked down:
+  </p>
+
+  <table class="field-table">
+    <tr><th>Field pulled</th><th>What it is</th></tr>
+    <tr><td>altitude_m</td><td>Geopotential height above mean sea level (m)</td></tr>
+    <tr><td>pressure_hpa</td><td>Ambient pressure (hPa)</td></tr>
+    <tr><td>temperature_c</td><td>Air temperature (°C)</td></tr>
+    <tr><td>dewpoint_c</td><td>Dewpoint temperature (°C) — the preferred route to compute RHi</td></tr>
+    <tr><td>relative_humidity_pct</td><td>Reported RH (%) — over <em>liquid</em> water, see <a href="#rh-liquid" class="section-ref">§03</a></td></tr>
+    <tr><td>specific_humidity_mg_kg</td><td>Kept for documentation / cross-check; not used to derive RHi</td></tr>
+    <tr><td>latitude, longitude</td><td>Lateral position (deg) — the balloon's drift track</td></tr>
+    <tr><td>time</td><td>Timestamp</td></tr>
+  </table>
+
+  <div class="exp-callout">
+    <strong>What's deliberately not used.</strong> <code>flying_missions</code> and <code>missions/&#123;id&#125;/flight_path</code> exist in the same API family and would give a mission's live position/launch site directly — but under the key this pipeline uses they return a hard <code>401</code>, unconditionally, whether the mission is still flying or already landed. The ISSR pipeline never depends on them: it only calls <code>soundings</code>/<code>sounding</code>, which work fine under the same key. WindBorne has been contacted about potentially granting access to mission-level data as well.
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════ -->
+<!-- SECTION 2: FILTERING & QC               -->
+<!-- ════════════════════════════════════════ -->
+<section class="exp-section" id="filtering">
+  <div class="exp-label">02 — Cleaning the Column</div>
+  <h2 class="exp-title">From Raw Telemetry to a <em>Clean Table</em></h2>
+
+  <p class="exp-text">
+    A sounding's <code>data</code> array is ordered by <strong>time</strong>, not altitude. It captures the balloon ascending and then descending (when negative lift is applied),  such that both legs can potentially pass through nearly the same air if there was little drift involved. The same can of course be the case for the descent of a sounding followed by the ascent of the subsequent sounding. Filtering happens in three passes, in the following order.
+  </p>
+
+  <p class="exp-text">
+    <strong>1. Splitting into legs.</strong> The sounding's <code>data</code> array is split at its altitude argmax into an <strong>ascent</strong> leg (start through the peak) and a <strong>descent</strong> leg (peak to end). Both legs keep the parent <code>sounding_id</code> as a pairing key, since the two passes sample correlated, rather than independent air.
+  </p>
+
+  <p class="exp-text">
+    <strong>2. Restricting to the cruise band.</strong> Only levels between <strong>FL250 and FL450</strong> (approximately 7620 to 13716 m above mean sea level or 375 to 150 hPa pressure altitude), representing the altitude band commercial aircraft actually fly, are kept. This is the band our contrail avoidance-relevant ISSR statistics are meant to be representative of.
+  </p>
+
+  <p class="exp-text">
+    <strong>3. Applying the QC mask.</strong> A n observation survives only if every one of the following conditions hold:
+  </p>
+
+  <div class="exp-formula">
+    <div class="exp-formula-label">The QC mask (ingest.py <code>levels_to_frame</code>)</div>
+    $$
+    \begin{aligned}
+    \text{good} = \ & \text{finite}(alt,\, p,\, lat,\, lon,\, time) \\
+    \wedge\ & (1\ \text{hPa} < p < 1100\ \text{hPa}) \\
+    \wedge\ & (7620\,\text{m} \le alt \le 13716\,\text{m}) \\[4pt]
+    \wedge\ & \text{finite}(T,\, RH) \\
+    \wedge\ & (150\,\text{K} < T < 330\,\text{K}) \\
+    \wedge\ & (0 \le RH < 1.6)
+    \end{aligned}
+    $$
+    <p style="font-size:0.85rem;color:var(--ink-muted);margin-top:0.7rem;line-height:1.6">
+      The first block (altitude/pressure/position/time) is always required. The second block (temperature/RH range) is required for climatology work but can be relaxed — an ingest run for a position-only analysis (e.g. balloon movement) passes <code>skip_temp_rh_requirement=True</code>, since humidity is gated on temperature QC and has the lowest pass rate of any field WindBorne reports (see Spisak et al. preprint).
+    </p>
+  </div>
+
+  <p class="exp-text">
+    Observations that pass are then <strong>sorted by altitude</strong> within their leg, so every downstream array is monotone in altitude — the ISSR layer detection in <a href="#issr" class="section-ref">§06</a> depends on that ordering. The <code>sounding.py</code> live-analysis path applies the same shape of filter (finite checks, <code>150&nbsp;K &lt; T &lt; 330&nbsp;K</code>, <code>0 ≤ RH &lt; 1.6</code>, plausible pressure), and additionally requires at least 5 surviving samples before building a usable profile.
+  </p>
+
+  <div class="exp-callout">
+    <strong>Why RH's upper bound is 1.6, not 1.0.</strong> The QC range check on the reported RH allows values up to 160%, not the naive 100% ceiling — the capacitive sensor genuinely reads above saturation over liquid in and around cloud, and clipping at 1.0 here would discard real data before it even reaches the humidity/ISSR logic. The clear-sky screen that actually excludes the sensor's saturation-rail artifact is a separate, ISSR-specific step — see <a href="#issr" class="section-ref">§06</a>.
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════ -->
+<!-- SECTION 3: RH OVER LIQUID                -->
+<!-- ════════════════════════════════════════ -->
+<section class="exp-section" id="rh-liquid">
+  <div class="exp-label">03 — The Reported Humidity</div>
+  <h2 class="exp-title">RH over <em>Liquid</em> Water</h2>
+
+  <p class="exp-text">
+    Relative humidity is always a ratio: the ambient water-vapour partial pressure divided by a <strong>saturation</strong> vapour pressure. That saturation pressure depends on which phase — liquid or ice — the air would be in equilibrium with, and below 0°C those two reference curves diverge. "RH = 80%" is a different amount of water vapour depending on which curve was used to compute it.
+  </p>
+  <p class="exp-text">
+    Saturation vapour pressure over (supercooled) liquid water is computed with the <strong>Murphy &amp; Koop (2005)</strong> formulation, valid from 123 K to 332 K — comfortably covering the cirrus/UTLS temperature range:
+  </p>
+
+  <div class="exp-formula">
+    <div class="exp-formula-label">Saturation vapour pressure over liquid — Murphy &amp; Koop (2005) Eq. 10</div>
+    $$
+    e_{\text{sat,liq}}(T) = \exp\!\Big(54.842763 - \tfrac{6763.22}{T} - 4.210\ln T + 0.000367\,T \\
+    {} + \tanh\!\big(0.0415\,(T-218.8)\big)\big(53.878 - \tfrac{1331.22}{T} - 9.44523\ln T + 0.014025\,T\big)\Big)
+    $$
+    <p style="font-size:0.85rem;color:var(--ink-muted);margin-top:0.7rem;line-height:1.6">
+      $T$ in Kelvin; result in Pa. The same paper's ice formulation (<a href="#rhi" class="section-ref">§04</a>) is used for the ice reference so both curves are internally consistent — the prior ERA5/GRUAN pipeline mixed Murphy &amp; Koop liquid with a different ice formula (Sonntag 1994); the two ice curves differ by well under 1% across the cirrus range, so this pipeline uses Murphy &amp; Koop for both.
+    </p>
+  </div>
+
+  <p class="exp-text">
+    <strong>Which reference phase does WindBorne's own <code>relative_humidity_pct</code> field use?</strong> This had to be checked empirically rather than assumed: comparing the reported RH against the over-liquid and over-ice readings implied by each observation's <em>dewpoint</em> shows the reported field matches the <strong>liquid</strong> reading to within 0.4%, at every observation, independent of Temperature. So the API's processed RH field is plain RH over liquid water at all temperatures — not WindBorne's onboard sensor-paper blend convention (that distinction matters a lot; see <a href="#convention" class="section-ref">§05</a>). Nonetheless, RH is always computed from the dewpoint temperature for our purposes:
+  </p>
+
+  <div class="exp-formula">
+    <div class="exp-formula-label">RH over liquid, from dewpoint</div>
+    $$RH_{\text{liquid}} = \frac{e_{\text{sat,liq}}(T_{\text{dew}})}{e_{\text{sat,liq}}(T)}$$
+    <p style="font-size:0.85rem;color:var(--ink-muted);margin-top:0.7rem;line-height:1.6">
+      Dewpoint is defined as the temperature at which ambient vapour pressure equals saturation <em>over liquid</em>, so $e = e_{\text{sat,liq}}(T_{\text{dew}})$ by construction — this ratio recomputes exactly what the reported field should read, and is the basis of the schema-drift check below.
+    </p>
+  </div>
+
+  <div class="exp-callout">
+    <strong>A running sanity check, not just a one-time verification.</strong> Every sounding is passed through a drift guard: at levels colder than 250 K (where the liquid and ice curves are furthest apart), it compares the reported RH against both the liquid- and ice-referenced dewpoint readings and logs a warning if the reported value ever starts matching ice better than liquid. If the API's convention silently changed, this is what would catch it — the humidity logic itself always trusts the dewpoint route (<a href="#rhi" class="section-ref">§04</a>), so a drift wouldn't corrupt results, but it would otherwise go unnoticed.
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════ -->
+<!-- SECTION 4: RH OVER ICE (RHi)             -->
+<!-- ════════════════════════════════════════ -->
+<section class="exp-section" id="rhi">
+  <div class="exp-label">04 — The ISSR Quantity</div>
+  <h2 class="exp-title">RH over <em>Ice</em> (RHi)</h2>
+
+  <p class="exp-text">
+    Everything ISSR-related hinges on getting one number right: relative humidity <strong>with respect to ice</strong>, RHi. A region is ice-supersaturated when $RHi \ge 1$. The ice-side saturation curve uses the companion Murphy &amp; Koop formula, valid above 110 K:
+  </p>
+
+  <div class="exp-formula">
+    <div class="exp-formula-label">Saturation vapour pressure over ice — Murphy &amp; Koop (2005) Eq. 7</div>
+    $$e_{\text{sat,ice}}(T) = \exp\!\left(9.550426 - \frac{5723.265}{T} + 3.53068\ln T - 0.00728332\,T\right)$$
+  </div>
+
+  <p class="exp-text">
+    Because ice holds less water vapour at saturation than liquid does, $e_{\text{sat,liq}}(T) \ge e_{\text{sat,ice}}(T)$ at every temperature below 0°C — and the gap widens the colder it gets. That single fact is the entire reason ISSRs exist in clear air: a parcel can be sub-saturated with respect to liquid (so no cloud is visible) while simultaneously being super-saturated with respect to ice.
+  </p>
+
+  <figure class="exp-figure">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 460 260" width="460" height="260" aria-label="Saturation vapor pressure over liquid vs ice, Murphy and Koop 2005">
+      <rect x="0" y="0" width="460" height="260" rx="8" fill="rgba(255,255,255,0.5)"/>
+
+      <g stroke="rgba(26,42,53,0.08)" stroke-width="0.8" stroke-dasharray="4,3">
+        <line x1="125" y1="20" x2="125" y2="210"/>
+        <line x1="180" y1="20" x2="180" y2="210"/>
+        <line x1="235" y1="20" x2="235" y2="210"/>
+        <line x1="290" y1="20" x2="290" y2="210"/>
+        <line x1="345" y1="20" x2="345" y2="210"/>
+        <line x1="70" y1="146.7" x2="400" y2="146.7"/>
+        <line x1="70" y1="83.3" x2="400" y2="83.3"/>
+      </g>
+
+      <line x1="70" y1="20" x2="70" y2="215" stroke="#1a2a35" stroke-width="1.2"/>
+      <line x1="70" y1="210" x2="405" y2="210" stroke="#1a2a35" stroke-width="1.2"/>
+
+      <text x="62" y="213" text-anchor="end" font-family="Inter,sans-serif" font-size="10" fill="#6b8899">1</text>
+      <text x="62" y="150" text-anchor="end" font-family="Inter,sans-serif" font-size="10" fill="#6b8899">10</text>
+      <text x="62" y="87" text-anchor="end" font-family="Inter,sans-serif" font-size="10" fill="#6b8899">100</text>
+      <text x="62" y="38" text-anchor="end" font-family="Inter,sans-serif" font-size="10" fill="#6b8899">600</text>
+
+      <text x="400" y="224" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" fill="#6b8899">0</text>
+      <text x="345" y="224" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" fill="#6b8899">-10</text>
+      <text x="290" y="224" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" fill="#6b8899">-20</text>
+      <text x="235" y="224" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" fill="#6b8899">-30</text>
+      <text x="180" y="224" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" fill="#6b8899">-40</text>
+      <text x="125" y="224" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" fill="#6b8899">-50</text>
+      <text x="70" y="224" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" fill="#6b8899">-60</text>
+
+      <text x="235" y="244" text-anchor="middle" font-family="Inter,sans-serif" font-size="11" fill="#3d5566">temperature (°C)</text>
+      <text x="18" y="115" text-anchor="middle" font-family="Inter,sans-serif" font-size="11" fill="#3d5566" transform="rotate(-90,18,115)">e_sat (Pa, log scale)</text>
+
+      <!-- liquid curve -->
+      <polyline points="70,192.9 125,159.3 180,129.1 235,101.9 290,77.1 345,54.4 400,33.6"
+        fill="none" stroke="#d96b72" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      <!-- ice curve -->
+      <polyline points="70,207.8 125,172.3 180,139.8 235,109.9 290,82.4 345,57.1 400,33.6"
+        fill="none" stroke="#4a9abe" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+
+      <!-- gap fill between curves, illustrating divergence -->
+      <path d="M70,192.9 L125,159.3 L180,129.1 L235,101.9 L290,77.1 L345,54.4 L400,33.6
+               L400,33.6 L345,57.1 L290,82.4 L235,109.9 L180,139.8 L125,172.3 L70,207.8 Z"
+            fill="rgba(74,154,190,0.08)" stroke="none"/>
+
+      <text x="255" y="90" font-family="Inter,sans-serif" font-size="11" fill="#d96b72" font-weight="400">e_sat, liquid</text>
+      <text x="255" y="122" font-family="Inter,sans-serif" font-size="11" fill="#4a9abe" font-weight="400">e_sat, ice</text>
+      <text x="118" y="182" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" fill="#4a9abe" font-style="italic">gap widens</text>
+      <text x="118" y="192" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" fill="#4a9abe" font-style="italic">with cold</text>
+    </svg>
+    <figcaption class="exp-caption">
+      Murphy &amp; Koop (2005) saturation vapour pressure over liquid (red) and ice (blue), computed exactly as in <code>thermo.py</code>. The two curves meet at 0°C and diverge below it — at −50°C the liquid curve sits 60% above the ice curve, which is exactly why a parcel reading sub-saturated over liquid can still be ice-supersaturated.
+    </figcaption>
+  </figure>
+
+  <p class="exp-text">
+    RHi is computed one of two ways, in strict preference order:
+  </p>
+
+  <div class="exp-formula">
+    <div class="exp-formula-label">Preferred — directly from dewpoint (convention-free)</div>
+    $$RHi = \frac{e_{\text{sat,liq}}(T_{\text{dew}})}{e_{\text{sat,ice}}(T)}$$
+    <p style="font-size:0.85rem;color:var(--ink-muted);margin-top:0.7rem;line-height:1.6">
+      This is the route actually used for WindBorne soundings, since every observation should carry a <code>dewpoint_c</code>. It depends on <strong>no reporting convention</strong> and is immune to any clamp on the reported RH field, because it's built straight from the vapour pressure implied by the dewpoint, referenced onto the ice curve.
+    </p>
+  </div>
+
+  <div class="exp-formula">
+    <div class="exp-formula-label">Fallback — only when a level has no finite dewpoint</div>
+    $$RHi = RH_{\text{liquid}} \times \frac{e_{\text{sat,liq}}(T)}{e_{\text{sat,ice}}(T)}$$
+    <p style="font-size:0.85rem;color:var(--ink-muted);margin-top:0.7rem;line-height:1.6">
+      Converts the reported (over-liquid) RH onto the ice reference by multiplying by the liquid/ice saturation-pressure ratio — always $\ge 1$ below 0°C — as presented in Spisak et al. preprint. Used per-observation, only where the dewpoint route yields a non-finite result.
+    </p>
+  </div>
+
+  <p class="exp-text">
+    Both the live-analysis path (<code>sounding.py</code>) and the cache builder (<code>ingest.py</code>) apply exactly this preference: try the dewpoint formula first, and substitute the RH-conversion fallback only at the specific levels where it comes back non-finite — <code>np.where(np.isfinite(rhi_dew), rhi_dew, rhi_from_rh)</code>. RHi is never read from the API; it is always derived.
+  </p>
+</section>
+
+<!-- ════════════════════════════════════════ -->
+<!-- SECTION 5: REFERENCE-PHASE CONVENTION    -->
+<!-- ════════════════════════════════════════ -->
+<section class="exp-section" id="convention">
+  <div class="exp-label">05 — The Subtlety</div>
+  <h2 class="exp-title">Why Not Use WindBorne's <em>Own</em> Convention?</h2>
+
+  <p class="exp-text">
+    Not every instrument reports RH the same way. WindBorne's sensors paper (arXiv:2602.02714 §3.1) describes the onboard sensor's <em>raw telemetry</em> as a liquid/ice/blend quantity — over liquid above 0°C, over ice below −23°C, and a squared blend in between (the same convention ECMWF's IFS model uses internally). The pipeline encodes this as a general-purpose <code>RHConvention</code>: a reported value is treated as a mixture of a liquid-referenced part and an ice-referenced part, with the liquid weight ramping from 1 (warm) to 0 (cold):
+  </p>
+
+  <div class="exp-formula">
+    <div class="exp-formula-label">Liquid weight of a reported RH — general convention</div>
+    $$w_{\text{liq}}(T) = \left[\text{clip}\!\left(\frac{T - T_{\text{ice}}}{T_0 - T_{\text{ice}}},\,0,\,1\right)\right]^{p}$$
+    <p style="font-size:0.85rem;color:var(--ink-muted);margin-top:0.7rem;line-height:1.6">
+      WindBorne's own onboard convention sets $T_0 = 273.16\,\text{K}$ (0°C), $T_{\text{ice}} = 250.16\,\text{K}$ (−23°C), $p = 2$ — matching ECMWF IFS formula 3.12.
+    </p>
+  </div>
+
+  <div class="exp-callout warn">
+    <strong>The bug this avoids.</strong> <a href="#rh-liquid" class="section-ref">§03</a> showed empirically that the API's processed <code>relative_humidity_pct</code> field is already <em>plain RH over liquid at every temperature</em> — not the onboard blend. Applying WindBorne's own liquid/ice blend on top of that field would be a double correction: below −23°C the blend treats the value as already-over-ice and passes it through unchanged, when it is in fact still over-liquid and needs the full liquid→ice conversion. The practical effect is severe — it cancels the real supersaturation and caps the computed RHi at roughly 100%, silently erasing every ice-supersaturated region the data actually contains. This is why <a href="#rhi" class="section-ref">§04</a> uses the convention-free dewpoint route, or (as a fallback) the plain <code>WMO_LIQUID</code> convention — never the <code>WINDBORNE</code> blend — against the API's RH field.
+  </div>
+
+  <p class="exp-text">
+    The convention machinery is kept general rather than hardcoded, because it also expresses the two simpler conventions the pipeline treats as reference points: <strong><code>WMO_LIQUID</code></strong> (report-over-liquid at every temperature — the classic radiosonde/GRUAN convention, and the correct one to apply to WindBorne's API field) and <strong><code>ALL_ICE</code></strong> (report-over-ice everywhere, the identity transform for an already-ice-referenced field). Making the reference phase an explicit, named object — rather than an implicit assumption baked into a formula — is what let the mismatch between "what the sensor telemetry uses" and "what the API field actually reports" be caught and named instead of silently miscomputing RHi.
+  </p>
+</section>
+
+<!-- ════════════════════════════════════════ -->
+<!-- SECTION 6: ISSR LAYERS                   -->
+<!-- ════════════════════════════════════════ -->
+<section class="exp-section" id="issr">
+  <div class="exp-label">06 — The Detection</div>
+  <h2 class="exp-title">Flagging an <em>ISSR</em></h2>
+
+  <p class="exp-text">
+    An ISSR (ice-supersaturated region) is a purely thermodynamic definition — $RHi \ge 1$ — with <strong>no</strong> Schmidt-Appleman contrail-formation criterion applied. Per-sample, three conditions must all hold for an ice-supersaturated layer to be counted:
+  </p>
+
+  <div class="exp-formula">
+    <div class="exp-formula-label">Per-sample ISSR flag (<code>find_issr_layers</code>)</div>
+    $$
+    \text{issr}_i = \underbrace{\big(FL250 \le alt_i \le FL450\big)}_{\text{cruise band}} \;\wedge\; \underbrace{\big(RHi_i \ge 1.0\big)}_{\text{thermodynamic threshold}} \;\wedge\; \underbrace{\big(RH_{\text{liquid},i} < 1.0\big)}_{\text{clear-sky screen}}
+    $$
+  </div>
+
+  <p class="exp-text">
+    The third condition — the <strong>clear-sky screen</strong> — exists for a concrete sensor-behavior reason. WindBorne's capacitive humidity sensor has a 0–100% RH range and pins at the RH = 1.0 rail in and just after cloud. At that rail, dewpoint equals temperature by construction, which forces $RHi \approx 1.6$ — a sensor-ceiling artifact, not a measured clear-sky supersaturation. Dropping samples with $RH_{\text{liquid}} \ge 1.0$ removes exactly this artifact without discarding real ISSR: genuine clear-sky ice supersaturation stays below the homogeneous-freezing limit ($RHi \approx 1.5$ at −50°C, corresponding to $RH_{\text{liquid}} \approx 0.9$), so it always reads $RH_{\text{liquid}} < 1.0$ and survives the screen.
+  </p>
+
+  <p class="exp-text">
+    Per-sample flags aren't the final answer, though — a single noisy sample shouldn't count as a "layer," and a real layer shouldn't be split by one dropout reading. Two clean-up passes turn the flag mask into <strong>ISSR layers</strong>:
+  </p>
+
+  <div class="exp-formula">
+    <div class="exp-formula-label">Layer clean-up — <code>IssrConfig</code> defaults</div>
+    <table class="field-table">
+      <tr><th>Knob</th><th>Default</th><th>What it does</th></tr>
+      <tr><td>rhi_threshold</td><td>1.0</td><td>RHi at/above this counts as supersaturated</td></tr>
+      <tr><td>rh_liquid_max</td><td>1.0</td><td>clear-sky screen — RH-liquid must be strictly below this</td></tr>
+      <tr><td>gap_merge_m</td><td>30.0 m</td><td>dry layer gaps between two ISSR layers that narrower than this are merged into one layer</td></tr>
+      <tr><td>min_layer_thickness_m</td><td>30.48 m (100 ft)</td><td>merged layers thinner than this are discarded</td></tr>
+      <tr><td>fl_min / fl_max</td><td>FL250 / FL450</td><td>cruise-band restriction (7620–13716 m)</td></tr>
+    </table>
+  </div>
+
+  <figure class="exp-figure">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 620 320" width="620" height="320" aria-label="ISSR layer detection along an altitude profile">
+      <rect x="0" y="0" width="620" height="320" rx="8" fill="rgba(255,255,255,0.5)"/>
+
+      <!-- axes -->
+      <line x1="90" y1="20" x2="90" y2="270" stroke="#1a2a35" stroke-width="1.2"/>
+      <line x1="90" y1="270" x2="480" y2="270" stroke="#1a2a35" stroke-width="1.2"/>
+
+      <!-- y ticks: altitude FL250..FL450 -->
+      <text x="82" y="273" text-anchor="end" font-family="Inter,sans-serif" font-size="9.5" fill="#6b8899">FL250</text>
+      <text x="82" y="150" text-anchor="end" font-family="Inter,sans-serif" font-size="9.5" fill="#6b8899">FL350</text>
+      <text x="82" y="24" text-anchor="end" font-family="Inter,sans-serif" font-size="9.5" fill="#6b8899">FL450</text>
+      <text x="30" y="150" text-anchor="middle" font-family="Inter,sans-serif" font-size="10.5" fill="#3d5566" transform="rotate(-90,30,150)">altitude</text>
+
+      <!-- x ticks: RHi 0.5..1.5, threshold at 1.0 -->
+      <line x1="230" y1="20" x2="230" y2="270" stroke="#d96b72" stroke-width="1.3" stroke-dasharray="5,3"/>
+      <text x="230" y="284" text-anchor="middle" font-family="Inter,sans-serif" font-size="9.5" fill="#d96b72">RHi = 1.0</text>
+      <text x="90" y="284" text-anchor="middle" font-family="Inter,sans-serif" font-size="9.5" fill="#6b8899">0.5</text>
+      <text x="370" y="284" text-anchor="middle" font-family="Inter,sans-serif" font-size="9.5" fill="#6b8899">1.5</text>
+      <text x="285" y="300" text-anchor="middle" font-family="Inter,sans-serif" font-size="10.5" fill="#3d5566">RHi (fraction)</text>
+
+      <!-- synthetic RHi profile trace: x = 90 + RHi*280, y = 270 - altfrac*250 -->
+      <polyline points="
+        146,270 132,255 160,240 240,225 300,213 250,200 320,188
+        300,178 260,168 340,158 355,148 300,138 250,128 320,118
+        360,108 330,98 240,88 200,78 260,68 300,58 250,48 180,38 150,28 130,20
+      " fill="none" stroke="#8aa8d8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+
+      <!-- Layer A: bottom broad layer above threshold (approx y 225..158), with a small merged gap around y~200 -->
+      <rect x="230" y="153" width="250" height="77" fill="rgba(90,150,190,0.14)" stroke="none"/>
+      <!-- Layer B: upper layer y ~ 38..108 -->
+      <rect x="230" y="33" width="250" height="80" fill="rgba(90,150,190,0.14)" stroke="none"/>
+      <!-- thin dropped spike near y~68 marked with x -->
+      <circle cx="260" cy="68" r="5" fill="none" stroke="#d96b72" stroke-width="1.4"/>
+
+      <!-- gap-merge annotation on layer A -->
+      <line x1="480" y1="188" x2="500" y2="188" stroke="#3d5566" stroke-width="0.8"/>
+      <line x1="480" y1="200" x2="500" y2="200" stroke="#3d5566" stroke-width="0.8"/>
+      <line x1="500" y1="188" x2="500" y2="200" stroke="#3d5566" stroke-width="0.8"/>
+      <text x="505" y="197" font-family="Inter,sans-serif" font-size="8.7" fill="#3d5566">gap &lt; 30 m</text>
+      <text x="505" y="207" font-family="Inter,sans-serif" font-size="8.7" fill="#3d5566">→ merged</text>
+
+      <!-- thin spike annotation -->
+      <line x1="270" y1="68" x2="500" y2="68" stroke="#3d5566" stroke-width="0.8" stroke-dasharray="2,2"/>
+      <text x="505" y="65" font-family="Inter,sans-serif" font-size="8.7" fill="#3d5566">isolated spike,</text>
+      <text x="505" y="75" font-family="Inter,sans-serif" font-size="8.7" fill="#3d5566">&lt; 100 ft thick</text>
+      <text x="505" y="85" font-family="Inter,sans-serif" font-size="8.7" fill="#3d5566">→ dropped</text>
+
+      <!-- layer labels -->
+      <text x="235" y="150" font-family="Inter,sans-serif" font-size="9" fill="#4a6b8a" font-weight="500">Layer A (merged)</text>
+      <text x="235" y="30" font-family="Inter,sans-serif" font-size="9" fill="#4a6b8a" font-weight="500">Layer B</text>
+
+      <!-- legend -->
+      <rect x="90" y="298" width="10" height="10" fill="rgba(90,150,190,0.3)"/>
+      <text x="105" y="307" font-family="Inter,sans-serif" font-size="9" fill="#3d5566">kept ISSR layer</text>
+      <circle cx="220" cy="303" r="4.5" fill="none" stroke="#d96b72" stroke-width="1.3"/>
+      <text x="232" y="307" font-family="Inter,sans-serif" font-size="9" fill="#3d5566">discarded (too thin)</text>
+    </svg>
+    <figcaption class="exp-caption">
+      A schematic ascent: RHi (x-axis) crosses the RHi = 1.0 threshold (dashed red) several times as altitude (y-axis) increases through the cruise band. Two ISSR layers separated by a sub-30 m gap merge into one <strong>Layer A</strong>; a lone RHi spike that is thinner than 100 ft is discarded rather than counted as a layer; the broader excursion higher up survives intact as <strong>Layer B</strong>.
+    </figcaption>
+  </figure>
+
+  <p class="exp-text">
+    Concretely, the merge-and-filter pass works on the boolean run structure of the mask: rising/falling edges mark layer boundaries, adjacent layers separated by a gap under <code>gap_merge_m</code> get their (lo, hi) altitude bounds combined into one, and any surviving layer — merged or not — thinner than <code>min_layer_thickness_m</code> is dropped. A layer whose bottom or top coincides with the edge of the sampled cruise-band range is also flagged <strong>edge-censored</strong>: the cruise-band cutoff ended the layer there, not a real return below threshold, so its reported thickness on that side is a lower bound rather than the layer's true physical extent.
+  </p>
+
+  <div class="exp-callout warn">
+    <strong>Two similar-looking constants, two different jobs — not symmetric.</strong> It's easy to assume <code>gap_merge_m</code> (30.0 m) and <code>min_layer_thickness_m</code> (30.48 m ≈ 100 ft) are "the same rule applied to both classes." They aren't:
+    <ul style="margin:0.7rem 0 0 1.2rem;padding:0;line-height:1.7">
+      <li><strong>Short <em>dry</em> gap between two ISSR runs</strong> (&lt; 30 m): bridged by <code>gap_merge_m</code> at the mask-merge step, before layers exist. The two runs become <em>one</em> ISSR layer; the gap is never separately evaluated against <code>min_layer_thickness_m</code>.</li>
+      <li><strong>Isolated <em>ISSR</em> run</strong> (&lt; 30.48 m, too far from a neighbor to merge): dropped by <code>min_layer_thickness_m</code> after merging. It never becomes an <code>ISSRLayer</code> at all.</li>
+      <li><strong>Short <em>dry</em> layer on its own terms</strong>: there is no equivalent minimum-thickness drop for dry intervals. <code>find_dry_layers()</code> — the separate function that reports the dry interval between two consecutive kept <code>ISSRLayer</code>s — only rejects a candidate for poor sample density inside it (<code>max_gap_m</code>, default 500 m). It happens to never see a dry layer shorter than ~<code>gap_merge_m</code>, but only because anything shorter was already absorbed in the first bullet — that floor is a side effect, not a rule applied to dry layers directly.</li>
+    </ul>
+    <span style="display:block;margin-top:0.7rem">One more wrinkle: an isolated thin ISSR spike dropped by the second bullet doesn't get relabeled "dry" — it just disappears from the layer list. If a dry layer is later computed across that gap, its density check never re-confirms that every sample inside is actually sub-threshold; it just checks that the sensor kept sampling.</span>
+  </div>
+
+  <div class="exp-callout">
+    <strong>Detection runs on the native grid, deliberately unresampled.</strong> The sonde's native vertical spacing is a median of about 8 m (23 m at the 90th percentile) — far finer than a standard 1000 ft (≈305 m) flight-level grid. Interpolating onto a coarse fixed grid first would merge or completely drop most real ISSR layers, which are often only a few hundred metres thick. The 30 m gap-merge tolerance is chosen to match GRUAN's own sensor-noise tolerance, not to smooth over real structure.
+  </div>
+</section>
+
+</div><!-- /container -->
+</body>
+</html>

@@ -34,6 +34,7 @@
         <ul class="nav-dropdown-menu">
           <li><a href="walkthroughs/viirs_detection_finetuning.html">Segmentation head</a></li>
           <li><a href="walkthroughs/ml_architecture.html">CNN detection</a></li>
+          <li><a href="walkthroughs/windborne_issr.html">ISSR detection</a></li>
         </ul>
       </li>
       <li><a href="index.html#about">About</a></li>
@@ -131,6 +132,48 @@
         <div class="progress-panel-body">
           <h2 class="progress-panel-title">How neural networks detect contrails</h2>
           <p class="progress-panel-desc">A conceptual guide to semantic segmentation, encoder–decoder architectures, attention gates, focal loss, and inference thresholding — with visual diagrams, minimal code, and maximal intuition. Covers ResNet-18, MAnet, and the training pipeline from first principles.</p>
+        </div>
+      </a>
+
+      <!-- ─── PANEL 4 ─────────────────────────────── -->
+      <a class="progress-panel" href="walkthroughs/windborne_issr.html">
+        <!-- SVG thumbnail: altitude profile with RHi trace crossing threshold, shaded ISSR layers -->
+        <div style="width:320px;min-width:320px;height:200px;flex-shrink:0;overflow:hidden;">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 200" width="320" height="200" aria-hidden="true">
+            <defs>
+              <linearGradient id="tb-bg2" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#dceefa"/>
+                <stop offset="100%" stop-color="#c4def5"/>
+              </linearGradient>
+            </defs>
+            <rect width="320" height="200" fill="url(#tb-bg2)"/>
+
+            <!-- axes -->
+            <line x1="46" y1="14" x2="46" y2="168" stroke="#3d5566" stroke-width="1"/>
+            <line x1="46" y1="168" x2="266" y2="168" stroke="#3d5566" stroke-width="1"/>
+            <text x="46" y="10" text-anchor="middle" font-family="Inter,sans-serif" font-size="7.5" font-weight="500" letter-spacing="1" fill="#6b8899">FL450</text>
+            <text x="46" y="181" text-anchor="middle" font-family="Inter,sans-serif" font-size="7.5" font-weight="500" letter-spacing="1" fill="#6b8899">FL250</text>
+
+            <!-- threshold line -->
+            <line x1="150" y1="14" x2="150" y2="168" stroke="#d96b72" stroke-width="1.1" stroke-dasharray="4,2"/>
+            <text x="150" y="184" text-anchor="middle" font-family="Inter,sans-serif" font-size="7.5" fill="#d96b72">RHi=1</text>
+
+            <!-- shaded ISSR layers -->
+            <rect x="150" y="98" width="116" height="46" fill="rgba(90,150,190,0.22)"/>
+            <rect x="150" y="24" width="116" height="40" fill="rgba(90,150,190,0.22)"/>
+
+            <!-- RHi profile trace -->
+            <polyline points="90,168 78,150 105,132 160,120 190,108 170,98 210,90 195,80 170,72 200,60 220,50 195,40 150,30 120,20"
+              fill="none" stroke="#5c76b0" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+
+            <!-- legend -->
+            <rect x="56" y="180" width="8" height="8" fill="rgba(90,150,190,0.35)"/>
+            <text x="68" y="187" font-family="Inter,sans-serif" font-size="7.5" fill="#6b8899">ISSR layer</text>
+          </svg>
+        </div>
+        <div class="progress-panel-body">
+          <h2 class="progress-panel-title">Identifying ISSRs in WindBorne observations</h2>
+          <p class="progress-panel-desc">Which fields are pulled from the WindBorne API, how raw levels are filtered into a clean cruise-band table, how RH over liquid and RH over ice (RHi) are derived from dewpoint, and the exact per-sample flag plus gap-merge and thickness criteria that define an ISSR layer.</p>
         </div>
       </a>
 
